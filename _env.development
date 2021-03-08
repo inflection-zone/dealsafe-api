@@ -1,0 +1,40 @@
+NODE_ENV=development
+
+##########################################################
+
+PORT=7373
+THIS_BASE_URL=http://localhost:7373
+ACCESS_TOKEN_SECRET=a4d6aafce7955e34aa84a15cb15d0bc56792426c7b6a9fb6cf372916c11bd58be336073043e27cfbba2265c7cb78667acd256d53b8130fcf39efcb701223089859b04f41e134655ea89f46c9c3eabc540581e1f967d9cc7562e7e34d324b02286443acdd0e1a3af9189a411563d382ea359efc87010a7472b3563fd932249f8e
+SYSTEM_PHONE_NUMBER=9999999999
+##########################################################
+
+#Database connection details
+DB_USER_NAME=postgres
+DB_USER_PASSWORD=root
+DB_NAME=deal_safe_dev
+DB_HOST=localhost
+
+##########################################################
+
+# AWS related details
+
+#S3 Bucket related
+S3_BUCKET_NAME=my_s3_bucket_name
+
+AWS_ACCESS_KEY_ID=my_aws_access_key_id
+AWS_ACCESS_KEY_SECRET=my_aws_access_key_secret
+
+##########################################################
+
+#GCP related details
+
+GCP_PROJECT_ID=my_gcp_project_id
+GCP_REGION=my_gcp_region
+
+##########################################################
+
+#Twilio related details
+
+TWILIO_ACCOUNT_SID=my_twilio_account_sid
+TWILIO_AUTH_TOKEN=my_twilio_auth_token
+SENDGRID_API_KEY=my_sendgrid_api_key
