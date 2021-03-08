@@ -1,0 +1,42 @@
+ npm install --save adm-zip
+ npm install --save aws-sdk
+ npm install --save bcrypt
+ npm install --save body-parser
+ npm install --save dotenv
+ npm install --save dotenv-flow
+ npm install --save express
+ npm install --save express-fileupload
+ npm install --save express-session
+ npm install --save firebase-admin
+ npm install --save follow-redirects
+ npm install --save fs
+ npm install --save generate-password
+ npm install --save jsonwebtoken
+ npm install --save lodash
+ npm install --save moment
+ npm install --save needle
+ npm install --save node-cron
+ npm install --save passport
+ npm install --save passport-google-oauth20
+ npm install --save pdfkit
+ npm install --save querystring
+ npm install --save sequelize
+ npm install --save uuid
+ npm install --save zlib
+ npm install --save sequelize-cli
+ npm install --save pg
+ npm install --save pg-hstore
+ 
+ npm install jest --save-dev
+ npm install supertest --save-dev
+ npm install nodemon --save-dev
+ npm install cross-env --save-dev
+ 
+ npm install sequelize-cli -g
+ 
+ npm install
+ 
+ npx sequelize-cli db:create
+ npx sequelize-cli db:migrate
+ 
+ 
