@@ -6,9 +6,9 @@ const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await Company.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -59,10 +59,10 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        let updates = get_updates(request_body);
         var res = await Company.update(updates, {
             where: {
                 id: id
@@ -140,68 +140,68 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+function get_entity_to_save(request_body) {
     return {
-        display_id: requestBody.display_id ? requestBody.display_id : null,
-        name: requestBody.name ? requestBody.name : null,
-        description: requestBody.description ? requestBody.description : null,
-        default_address: requestBody.default_address ? requestBody.default_address : null,
-        contact_email: requestBody.contact_email ? requestBody.contact_email : null,
-        contact_number: requestBody.contact_number ? requestBody.contact_number : null,
-        GSTN: requestBody.gstn ? requestBody.gstn : null,
-        PAN: requestBody.pan ? requestBody.pan : null,
-        TAN: requestBody.tan ? requestBody.tan : null,
-        contact_person_prefix: requestBody.contact_person_prefix ? requestBody.contact_person_prefix : null,
-        contact_person_first_name: requestBody.contact_person_first_name ? requestBody.contact_person_first_name : null,
-        contact_person_last_name: requestBody.contact_person_last_name ? requestBody.contact_person_last_name : null,
-        primary_address_id: requestBody.primary_address_id ? requestBody.primary_address_id : null,
-        subscription_type: requestBody.subscription_type ? requestBody.subscription_type : 'On-premises'
+        display_id: request_body.display_id ? request_body.display_id : null,
+        name: request_body.name ? request_body.name : null,
+        description: request_body.description ? request_body.description : null,
+        default_address: request_body.default_address ? request_body.default_address : null,
+        contact_email: request_body.contact_email ? request_body.contact_email : null,
+        contact_number: request_body.contact_number ? request_body.contact_number : null,
+        GSTN: request_body.gstn ? request_body.gstn : null,
+        PAN: request_body.pan ? request_body.pan : null,
+        TAN: request_body.tan ? request_body.tan : null,
+        contact_person_prefix: request_body.contact_person_prefix ? request_body.contact_person_prefix : null,
+        contact_person_first_name: request_body.contact_person_first_name ? request_body.contact_person_first_name : null,
+        contact_person_last_name: request_body.contact_person_last_name ? request_body.contact_person_last_name : null,
+        primary_address_id: request_body.primary_address_id ? request_body.primary_address_id : null,
+        subscription_type: request_body.subscription_type ? request_body.subscription_type : 'On-premises'
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('display_id')) {
-        updates.display_id = requestBody.display_id;
+    if (request_body.hasOwnProperty('display_id')) {
+        updates.display_id = request_body.display_id;
     }
-    if (requestBody.hasOwnProperty('name')) {
-        updates.name = requestBody.name;
+    if (request_body.hasOwnProperty('name')) {
+        updates.name = request_body.name;
     }
-    if (requestBody.hasOwnProperty('description')) {
-        updates.description = requestBody.description;
+    if (request_body.hasOwnProperty('description')) {
+        updates.description = request_body.description;
     }
-    if (requestBody.hasOwnProperty('default_address')) {
-        updates.default_address = requestBody.default_address;
+    if (request_body.hasOwnProperty('default_address')) {
+        updates.default_address = request_body.default_address;
     }
-    if (requestBody.hasOwnProperty('contact_email')) {
-        updates.contact_email = requestBody.contact_email;
+    if (request_body.hasOwnProperty('contact_email')) {
+        updates.contact_email = request_body.contact_email;
     }
-    if (requestBody.hasOwnProperty('contact_number')) {
-        updates.contact_number = requestBody.contact_number;
+    if (request_body.hasOwnProperty('contact_number')) {
+        updates.contact_number = request_body.contact_number;
     }
-    if (requestBody.hasOwnProperty('GSTN')) {
-        updates.GSTN = requestBody.GSTN;
+    if (request_body.hasOwnProperty('GSTN')) {
+        updates.GSTN = request_body.GSTN;
     }
-    if (requestBody.hasOwnProperty('PAN')) {
-        updates.PAN = requestBody.PAN;
+    if (request_body.hasOwnProperty('PAN')) {
+        updates.PAN = request_body.PAN;
     }
-    if (requestBody.hasOwnProperty('TAN')) {
-        updates.TAN = requestBody.TAN;
+    if (request_body.hasOwnProperty('TAN')) {
+        updates.TAN = request_body.TAN;
     }
-    if (requestBody.hasOwnProperty('contact_person_prefix')) {
-        updates.contact_person_prefix = requestBody.contact_person_prefix;
+    if (request_body.hasOwnProperty('contact_person_prefix')) {
+        updates.contact_person_prefix = request_body.contact_person_prefix;
     }
-    if (requestBody.hasOwnProperty('contact_person_first_name')) {
-        updates.contact_person_first_name = requestBody.contact_person_first_name;
+    if (request_body.hasOwnProperty('contact_person_first_name')) {
+        updates.contact_person_first_name = request_body.contact_person_first_name;
     }
-    if (requestBody.hasOwnProperty('contact_person_last_name')) {
-        updates.contact_person_last_name = requestBody.contact_person_last_name;
+    if (request_body.hasOwnProperty('contact_person_last_name')) {
+        updates.contact_person_last_name = request_body.contact_person_last_name;
     }
-    if (requestBody.hasOwnProperty('primary_address_id')) {
-        updates.primary_address_id = requestBody.primary_address_id;
+    if (request_body.hasOwnProperty('primary_address_id')) {
+        updates.primary_address_id = request_body.primary_address_id;
     }
-    if (requestBody.hasOwnProperty('subscription_type')) {
-        updates.subscription_type = requestBody.subscription_type;
+    if (request_body.hasOwnProperty('subscription_type')) {
+        updates.subscription_type = request_body.subscription_type;
     }
     return updates;
 }

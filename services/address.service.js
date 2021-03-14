@@ -6,9 +6,9 @@ const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await Address.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -59,10 +59,10 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        let updates = get_updates(request_body);
         var res = await Address.update(updates, {
             where: {
                 id: id
@@ -140,36 +140,36 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+function get_entity_to_save(request_body) {
     return {
-        address: requestBody.address ? requestBody.address : null,
-        city: requestBody.city ? requestBody.city : null,
-        state: requestBody.state ? requestBody.state : null,
-        country: requestBody.country ? requestBody.country : null,
-        pincode: requestBody.pincode ? requestBody.pincode : null,
-        address_type: requestBody.address_type ? requestBody.address_type : null
+        address: request_body.address ? request_body.address : null,
+        city: request_body.city ? request_body.city : null,
+        state: request_body.state ? request_body.state : null,
+        country: request_body.country ? request_body.country : null,
+        pincode: request_body.pincode ? request_body.pincode : null,
+        address_type: request_body.address_type ? request_body.address_type : null
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('address')) {
-        updates.address = requestBody.address;
+    if (request_body.hasOwnProperty('address')) {
+        updates.address = request_body.address;
     }
-    if (requestBody.hasOwnProperty('city')) {
-        updates.city = requestBody.city;
+    if (request_body.hasOwnProperty('city')) {
+        updates.city = request_body.city;
     }
-    if (requestBody.hasOwnProperty('state')) {
-        updates.state = requestBody.state;
+    if (request_body.hasOwnProperty('state')) {
+        updates.state = request_body.state;
     }
-    if (requestBody.hasOwnProperty('country')) {
-        updates.country = requestBody.country;
+    if (request_body.hasOwnProperty('country')) {
+        updates.country = request_body.country;
     }
-    if (requestBody.hasOwnProperty('pincode')) {
-        updates.pincode = requestBody.pincode;
+    if (request_body.hasOwnProperty('pincode')) {
+        updates.pincode = request_body.pincode;
     }
-    if (requestBody.hasOwnProperty('address_type')) {
-        updates.address_type = requestBody.address_type;
+    if (request_body.hasOwnProperty('address_type')) {
+        updates.address_type = request_body.address_type;
     }
     return updates;
 }

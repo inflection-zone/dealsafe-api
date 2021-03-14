@@ -6,9 +6,9 @@ const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await Notification.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -59,10 +59,10 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        let updates = get_updates(request_body);
         var res = await Notification.update(updates, {
             where: {
                 id: id
@@ -140,36 +140,36 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+function get_entity_to_save(request_body) {
     return {
-        user_id: requestBody.user_id ? requestBody.user_id : null,
-        notification_type: requestBody.notification_type ? requestBody.notification_type : null,
-        details_json_object: requestBody.details_json_object ? requestBody.details_json_object : null,
-        text: requestBody.text ? requestBody.text : null,
-        generated_on: requestBody.generated_on ? requestBody.generated_on : null,
-        read_date: requestBody.read_date ? requestBody.read_date : null
+        user_id: request_body.user_id ? request_body.user_id : null,
+        notification_type: request_body.notification_type ? request_body.notification_type : null,
+        details_json_object: request_body.details_json_object ? request_body.details_json_object : null,
+        text: request_body.text ? request_body.text : null,
+        generated_on: request_body.generated_on ? request_body.generated_on : null,
+        read_date: request_body.read_date ? request_body.read_date : null
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('user_id')) {
-        updates.user_id = requestBody.user_id;
+    if (request_body.hasOwnProperty('user_id')) {
+        updates.user_id = request_body.user_id;
     }
-    if (requestBody.hasOwnProperty('notification_type')) {
-        updates.notification_type = requestBody.notification_type;
+    if (request_body.hasOwnProperty('notification_type')) {
+        updates.notification_type = request_body.notification_type;
     }
-    if (requestBody.hasOwnProperty('details_json_object')) {
-        updates.details_json_object = requestBody.details_json_object;
+    if (request_body.hasOwnProperty('details_json_object')) {
+        updates.details_json_object = request_body.details_json_object;
     }
-    if (requestBody.hasOwnProperty('text')) {
-        updates.text = requestBody.text;
+    if (request_body.hasOwnProperty('text')) {
+        updates.text = request_body.text;
     }
-    if (requestBody.hasOwnProperty('generated_on')) {
-        updates.generated_on = requestBody.generated_on;
+    if (request_body.hasOwnProperty('generated_on')) {
+        updates.generated_on = request_body.generated_on;
     }
-    if (requestBody.hasOwnProperty('read_date')) {
-        updates.read_date = requestBody.read_date;
+    if (request_body.hasOwnProperty('read_date')) {
+        updates.read_date = request_body.read_date;
     }
     return updates;
 }

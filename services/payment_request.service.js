@@ -6,9 +6,9 @@ const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await PaymentRequest.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -59,10 +59,10 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        let updates = get_updates(request_body);
         var res = await PaymentRequest.update(updates, {
             where: {
                 id: id
@@ -140,56 +140,56 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+function get_entity_to_save(request_body) {
     return {
-        display_id: requestBody.display_id ? requestBody.display_id : null,
-        contract_id: requestBody.contract_id ? requestBody.contract_id : null,
-        milestone_id: requestBody.milestone_id ? requestBody.milestone_id : null,
-        requested_by_user_id: requestBody.requested_by_user_id ? requestBody.requested_by_user_id : null,
-        requested_to_user_id: requestBody.requested_to_user_id ? requestBody.requested_to_user_id : null,
-        requested_to_company_id: requestBody.requested_to_company_id ? requestBody.requested_to_company_id : null,
-        amount: requestBody.amount ? requestBody.amount : null,
-        remarks: requestBody.remarks ? requestBody.remarks : null,
-        request_date: requestBody.request_date ? requestBody.request_date : null,
-        transaction_reference_id: requestBody.transaction_reference_id ? requestBody.transaction_reference_id : null,
-        escrow_bank_reference_id: requestBody.escrow_bank_reference_id ? requestBody.escrow_bank_reference_id : null
+        display_id: request_body.display_id ? request_body.display_id : null,
+        contract_id: request_body.contract_id ? request_body.contract_id : null,
+        milestone_id: request_body.milestone_id ? request_body.milestone_id : null,
+        requested_by_user_id: request_body.requested_by_user_id ? request_body.requested_by_user_id : null,
+        requested_to_user_id: request_body.requested_to_user_id ? request_body.requested_to_user_id : null,
+        requested_to_company_id: request_body.requested_to_company_id ? request_body.requested_to_company_id : null,
+        amount: request_body.amount ? request_body.amount : null,
+        remarks: request_body.remarks ? request_body.remarks : null,
+        request_date: request_body.request_date ? request_body.request_date : null,
+        transaction_reference_id: request_body.transaction_reference_id ? request_body.transaction_reference_id : null,
+        escrow_bank_reference_id: request_body.escrow_bank_reference_id ? request_body.escrow_bank_reference_id : null
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('display_id')) {
-        updates.display_id = requestBody.display_id;
+    if (request_body.hasOwnProperty('display_id')) {
+        updates.display_id = request_body.display_id;
     }
-    if (requestBody.hasOwnProperty('contract_id')) {
-        updates.contract_id = requestBody.contract_id;
+    if (request_body.hasOwnProperty('contract_id')) {
+        updates.contract_id = request_body.contract_id;
     }
-    if (requestBody.hasOwnProperty('milestone_id')) {
-        updates.milestone_id = requestBody.milestone_id;
+    if (request_body.hasOwnProperty('milestone_id')) {
+        updates.milestone_id = request_body.milestone_id;
     }
-    if (requestBody.hasOwnProperty('requested_by_user_id')) {
-        updates.requested_by_user_id = requestBody.requested_by_user_id;
+    if (request_body.hasOwnProperty('requested_by_user_id')) {
+        updates.requested_by_user_id = request_body.requested_by_user_id;
     }
-    if (requestBody.hasOwnProperty('requested_to_user_id')) {
-        updates.requested_to_user_id = requestBody.requested_to_user_id;
+    if (request_body.hasOwnProperty('requested_to_user_id')) {
+        updates.requested_to_user_id = request_body.requested_to_user_id;
     }
-    if (requestBody.hasOwnProperty('requested_to_company_id')) {
-        updates.requested_to_company_id = requestBody.requested_to_company_id;
+    if (request_body.hasOwnProperty('requested_to_company_id')) {
+        updates.requested_to_company_id = request_body.requested_to_company_id;
     }
-    if (requestBody.hasOwnProperty('amount')) {
-        updates.amount = requestBody.amount;
+    if (request_body.hasOwnProperty('amount')) {
+        updates.amount = request_body.amount;
     }
-    if (requestBody.hasOwnProperty('remarks')) {
-        updates.remarks = requestBody.remarks;
+    if (request_body.hasOwnProperty('remarks')) {
+        updates.remarks = request_body.remarks;
     }
-    if (requestBody.hasOwnProperty('request_date')) {
-        updates.request_date = requestBody.request_date;
+    if (request_body.hasOwnProperty('request_date')) {
+        updates.request_date = request_body.request_date;
     }
-    if (requestBody.hasOwnProperty('transaction_reference_id')) {
-        updates.transaction_reference_id = requestBody.transaction_reference_id;
+    if (request_body.hasOwnProperty('transaction_reference_id')) {
+        updates.transaction_reference_id = request_body.transaction_reference_id;
     }
-    if (requestBody.hasOwnProperty('escrow_bank_reference_id')) {
-        updates.escrow_bank_reference_id = requestBody.escrow_bank_reference_id;
+    if (request_body.hasOwnProperty('escrow_bank_reference_id')) {
+        updates.escrow_bank_reference_id = request_body.escrow_bank_reference_id;
     }
     return updates;
 }

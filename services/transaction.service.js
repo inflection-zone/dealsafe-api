@@ -6,9 +6,9 @@ const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await Transaction.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -59,10 +59,10 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        let updates = get_updates(request_body);
         var res = await Transaction.update(updates, {
             where: {
                 id: id
@@ -140,92 +140,92 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+function get_entity_to_save(request_body) {
     return {
-        display_id: requestBody.display_id ? requestBody.display_id : null,
-        transaction_reference_id: requestBody.transaction_reference_id ? requestBody.transaction_reference_id : null,
-        escrow_bank_reference_id: requestBody.escrow_bank_reference_id ? requestBody.escrow_bank_reference_id : null,
-        contract_id: requestBody.contract_id ? requestBody.contract_id : null,
-        milestone_id: requestBody.milestone_id ? requestBody.milestone_id : null,
-        paid_by_id: requestBody.paid_by_id ? requestBody.paid_by_id : null,
-        paid_to_id: requestBody.paid_to_id ? requestBody.paid_to_id : null,
-        payee_account_type_id: requestBody.payee_account_type_id ? requestBody.payee_account_type_id : null,
-        payer_account_type_id: requestBody.payer_account_type_id ? requestBody.payer_account_type_id : null,
-        pay_from_account_number: requestBody.pay_from_account_number ? requestBody.pay_from_account_number : null,
-        pay_to_account_number: requestBody.pay_to_account_number ? requestBody.pay_to_account_number : null,
-        transaction_amount: requestBody.transaction_amount ? requestBody.transaction_amount : null,
-        transaction_date: requestBody.transaction_date ? requestBody.transaction_date : null,
-        transaction_initiated_by: requestBody.transaction_initiated_by ? requestBody.transaction_initiated_by : null,
-        transaction_approved_by: requestBody.transaction_approved_by ? requestBody.transaction_approved_by : null,
-        transaction_type: requestBody.transaction_type ? requestBody.transaction_type : null,
-        currency: requestBody.currency ? requestBody.currency : 'INR',
-        payment_request_id: requestBody.payment_request_id ? requestBody.payment_request_id : null,
-        transaction_status: requestBody.transaction_status ? requestBody.transaction_status : 1,
-        remarks: requestBody.remarks ? requestBody.remarks : null
+        display_id: request_body.display_id ? request_body.display_id : null,
+        transaction_reference_id: request_body.transaction_reference_id ? request_body.transaction_reference_id : null,
+        escrow_bank_reference_id: request_body.escrow_bank_reference_id ? request_body.escrow_bank_reference_id : null,
+        contract_id: request_body.contract_id ? request_body.contract_id : null,
+        milestone_id: request_body.milestone_id ? request_body.milestone_id : null,
+        paid_by_id: request_body.paid_by_id ? request_body.paid_by_id : null,
+        paid_to_id: request_body.paid_to_id ? request_body.paid_to_id : null,
+        payee_account_type_id: request_body.payee_account_type_id ? request_body.payee_account_type_id : null,
+        payer_account_type_id: request_body.payer_account_type_id ? request_body.payer_account_type_id : null,
+        pay_from_account_number: request_body.pay_from_account_number ? request_body.pay_from_account_number : null,
+        pay_to_account_number: request_body.pay_to_account_number ? request_body.pay_to_account_number : null,
+        transaction_amount: request_body.transaction_amount ? request_body.transaction_amount : null,
+        transaction_date: request_body.transaction_date ? request_body.transaction_date : null,
+        transaction_initiated_by: request_body.transaction_initiated_by ? request_body.transaction_initiated_by : null,
+        transaction_approved_by: request_body.transaction_approved_by ? request_body.transaction_approved_by : null,
+        transaction_type: request_body.transaction_type ? request_body.transaction_type : null,
+        currency: request_body.currency ? request_body.currency : 'INR',
+        payment_request_id: request_body.payment_request_id ? request_body.payment_request_id : null,
+        transaction_status: request_body.transaction_status ? request_body.transaction_status : 1,
+        remarks: request_body.remarks ? request_body.remarks : null
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('display_id')) {
-        updates.display_id = requestBody.display_id;
+    if (request_body.hasOwnProperty('display_id')) {
+        updates.display_id = request_body.display_id;
     }
-    if (requestBody.hasOwnProperty('transaction_reference_id')) {
-        updates.transaction_reference_id = requestBody.transaction_reference_id;
+    if (request_body.hasOwnProperty('transaction_reference_id')) {
+        updates.transaction_reference_id = request_body.transaction_reference_id;
     }
-    if (requestBody.hasOwnProperty('escrow_bank_reference_id')) {
-        updates.escrow_bank_reference_id = requestBody.escrow_bank_reference_id;
+    if (request_body.hasOwnProperty('escrow_bank_reference_id')) {
+        updates.escrow_bank_reference_id = request_body.escrow_bank_reference_id;
     }
-    if (requestBody.hasOwnProperty('contract_id')) {
-        updates.contract_id = requestBody.contract_id;
+    if (request_body.hasOwnProperty('contract_id')) {
+        updates.contract_id = request_body.contract_id;
     }
-    if (requestBody.hasOwnProperty('milestone_id')) {
-        updates.milestone_id = requestBody.milestone_id;
+    if (request_body.hasOwnProperty('milestone_id')) {
+        updates.milestone_id = request_body.milestone_id;
     }
-    if (requestBody.hasOwnProperty('paid_by_id')) {
-        updates.paid_by_id = requestBody.paid_by_id;
+    if (request_body.hasOwnProperty('paid_by_id')) {
+        updates.paid_by_id = request_body.paid_by_id;
     }
-    if (requestBody.hasOwnProperty('paid_to_id')) {
-        updates.paid_to_id = requestBody.paid_to_id;
+    if (request_body.hasOwnProperty('paid_to_id')) {
+        updates.paid_to_id = request_body.paid_to_id;
     }
-    if (requestBody.hasOwnProperty('payee_account_type_id')) {
-        updates.payee_account_type_id = requestBody.payee_account_type_id;
+    if (request_body.hasOwnProperty('payee_account_type_id')) {
+        updates.payee_account_type_id = request_body.payee_account_type_id;
     }
-    if (requestBody.hasOwnProperty('payer_account_type_id')) {
-        updates.payer_account_type_id = requestBody.payer_account_type_id;
+    if (request_body.hasOwnProperty('payer_account_type_id')) {
+        updates.payer_account_type_id = request_body.payer_account_type_id;
     }
-    if (requestBody.hasOwnProperty('pay_from_account_number')) {
-        updates.pay_from_account_number = requestBody.pay_from_account_number;
+    if (request_body.hasOwnProperty('pay_from_account_number')) {
+        updates.pay_from_account_number = request_body.pay_from_account_number;
     }
-    if (requestBody.hasOwnProperty('pay_to_account_number')) {
-        updates.pay_to_account_number = requestBody.pay_to_account_number;
+    if (request_body.hasOwnProperty('pay_to_account_number')) {
+        updates.pay_to_account_number = request_body.pay_to_account_number;
     }
-    if (requestBody.hasOwnProperty('transaction_amount')) {
-        updates.transaction_amount = requestBody.transaction_amount;
+    if (request_body.hasOwnProperty('transaction_amount')) {
+        updates.transaction_amount = request_body.transaction_amount;
     }
-    if (requestBody.hasOwnProperty('transaction_date')) {
-        updates.transaction_date = requestBody.transaction_date;
+    if (request_body.hasOwnProperty('transaction_date')) {
+        updates.transaction_date = request_body.transaction_date;
     }
-    if (requestBody.hasOwnProperty('transaction_initiated_by')) {
-        updates.transaction_initiated_by = requestBody.transaction_initiated_by;
+    if (request_body.hasOwnProperty('transaction_initiated_by')) {
+        updates.transaction_initiated_by = request_body.transaction_initiated_by;
     }
-    if (requestBody.hasOwnProperty('transaction_approved_by')) {
-        updates.transaction_approved_by = requestBody.transaction_approved_by;
+    if (request_body.hasOwnProperty('transaction_approved_by')) {
+        updates.transaction_approved_by = request_body.transaction_approved_by;
     }
-    if (requestBody.hasOwnProperty('transaction_type')) {
-        updates.transaction_type = requestBody.transaction_type;
+    if (request_body.hasOwnProperty('transaction_type')) {
+        updates.transaction_type = request_body.transaction_type;
     }
-    if (requestBody.hasOwnProperty('currency')) {
-        updates.currency = requestBody.currency;
+    if (request_body.hasOwnProperty('currency')) {
+        updates.currency = request_body.currency;
     }
-    if (requestBody.hasOwnProperty('payment_request_id')) {
-        updates.payment_request_id = requestBody.payment_request_id;
+    if (request_body.hasOwnProperty('payment_request_id')) {
+        updates.payment_request_id = request_body.payment_request_id;
     }
-    if (requestBody.hasOwnProperty('transaction_status')) {
-        updates.transaction_status = requestBody.transaction_status;
+    if (request_body.hasOwnProperty('transaction_status')) {
+        updates.transaction_status = request_body.transaction_status;
     }
-    if (requestBody.hasOwnProperty('remarks')) {
-        updates.remarks = requestBody.remarks;
+    if (request_body.hasOwnProperty('remarks')) {
+        updates.remarks = request_body.remarks;
     }
     return updates;
 }

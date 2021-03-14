@@ -6,9 +6,9 @@ const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await AgreementClause.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -59,10 +59,10 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        let updates = get_updates(request_body);
         var res = await AgreementClause.update(updates, {
             where: {
                 id: id
@@ -140,28 +140,28 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+function get_entity_to_save(request_body) {
     return {
-        contract_id: requestBody.contract_id ? requestBody.contract_id : null,
-        milestone_id: requestBody.milestone_id ? requestBody.milestone_id : null,
-        text: requestBody.text ? requestBody.text : null,
-        added_by: requestBody.added_by ? requestBody.added_by : null
+        contract_id: request_body.contract_id ? request_body.contract_id : null,
+        milestone_id: request_body.milestone_id ? request_body.milestone_id : null,
+        text: request_body.text ? request_body.text : null,
+        added_by: request_body.added_by ? request_body.added_by : null
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('contract_id')) {
-        updates.contract_id = requestBody.contract_id;
+    if (request_body.hasOwnProperty('contract_id')) {
+        updates.contract_id = request_body.contract_id;
     }
-    if (requestBody.hasOwnProperty('milestone_id')) {
-        updates.milestone_id = requestBody.milestone_id;
+    if (request_body.hasOwnProperty('milestone_id')) {
+        updates.milestone_id = request_body.milestone_id;
     }
-    if (requestBody.hasOwnProperty('text')) {
-        updates.text = requestBody.text;
+    if (request_body.hasOwnProperty('text')) {
+        updates.text = request_body.text;
     }
-    if (requestBody.hasOwnProperty('added_by')) {
-        updates.added_by = requestBody.added_by;
+    if (request_body.hasOwnProperty('added_by')) {
+        updates.added_by = request_body.added_by;
     }
     return updates;
 }

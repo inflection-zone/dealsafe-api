@@ -6,9 +6,9 @@ const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await ContractMilestone.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -59,10 +59,10 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        let updates = get_updates(request_body);
         var res = await ContractMilestone.update(updates, {
             where: {
                 id: id
@@ -140,72 +140,72 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+function get_entity_to_save(request_body) {
     return {
-        display_id: requestBody.display_id ? requestBody.display_id : null,
-        contract_id: requestBody.contract_id ? requestBody.contract_id : null,
-        milestone_index: requestBody.milestone_index ? requestBody.milestone_index : 1,
-        name: requestBody.name ? requestBody.name : null,
-        description: requestBody.description ? requestBody.description : null,
-        created_date: requestBody.created_date ? requestBody.created_date : null,
-        execution_planned_start_date: requestBody.execution_planned_start_date ? requestBody.execution_planned_start_date : null,
-        execution_planned_end_date: requestBody.execution_planned_end_date ? requestBody.execution_planned_end_date : null,
-        execution_actual_start_date: requestBody.execution_actual_start_date ? requestBody.execution_actual_start_date : null,
-        execution_actual_end_date: requestBody.execution_actual_end_date ? requestBody.execution_actual_end_date : null,
-        milestone_amount: requestBody.milestone_amount ? requestBody.milestone_amount : null,
-        current_status: requestBody.current_status ? requestBody.current_status : 1,
-        is_cancelled: requestBody.is_cancelled ? requestBody.is_cancelled : false,
-        is_closed: requestBody.is_closed ? requestBody.is_closed : false,
-        transaction_id: requestBody.transaction_id ? requestBody.transaction_id : null
+        display_id: request_body.display_id ? request_body.display_id : null,
+        contract_id: request_body.contract_id ? request_body.contract_id : null,
+        milestone_index: request_body.milestone_index ? request_body.milestone_index : 1,
+        name: request_body.name ? request_body.name : null,
+        description: request_body.description ? request_body.description : null,
+        created_date: request_body.created_date ? request_body.created_date : null,
+        execution_planned_start_date: request_body.execution_planned_start_date ? request_body.execution_planned_start_date : null,
+        execution_planned_end_date: request_body.execution_planned_end_date ? request_body.execution_planned_end_date : null,
+        execution_actual_start_date: request_body.execution_actual_start_date ? request_body.execution_actual_start_date : null,
+        execution_actual_end_date: request_body.execution_actual_end_date ? request_body.execution_actual_end_date : null,
+        milestone_amount: request_body.milestone_amount ? request_body.milestone_amount : null,
+        current_status: request_body.current_status ? request_body.current_status : 1,
+        is_cancelled: request_body.is_cancelled ? request_body.is_cancelled : false,
+        is_closed: request_body.is_closed ? request_body.is_closed : false,
+        transaction_id: request_body.transaction_id ? request_body.transaction_id : null
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('display_id')) {
-        updates.display_id = requestBody.display_id;
+    if (request_body.hasOwnProperty('display_id')) {
+        updates.display_id = request_body.display_id;
     }
-    if (requestBody.hasOwnProperty('contract_id')) {
-        updates.contract_id = requestBody.contract_id;
+    if (request_body.hasOwnProperty('contract_id')) {
+        updates.contract_id = request_body.contract_id;
     }
-    if (requestBody.hasOwnProperty('milestone_index')) {
-        updates.milestone_index = requestBody.milestone_index;
+    if (request_body.hasOwnProperty('milestone_index')) {
+        updates.milestone_index = request_body.milestone_index;
     }
-    if (requestBody.hasOwnProperty('name')) {
-        updates.name = requestBody.name;
+    if (request_body.hasOwnProperty('name')) {
+        updates.name = request_body.name;
     }
-    if (requestBody.hasOwnProperty('description')) {
-        updates.description = requestBody.description;
+    if (request_body.hasOwnProperty('description')) {
+        updates.description = request_body.description;
     }
-    if (requestBody.hasOwnProperty('created_date')) {
-        updates.created_date = requestBody.created_date;
+    if (request_body.hasOwnProperty('created_date')) {
+        updates.created_date = request_body.created_date;
     }
-    if (requestBody.hasOwnProperty('execution_planned_start_date')) {
-        updates.execution_planned_start_date = requestBody.execution_planned_start_date;
+    if (request_body.hasOwnProperty('execution_planned_start_date')) {
+        updates.execution_planned_start_date = request_body.execution_planned_start_date;
     }
-    if (requestBody.hasOwnProperty('execution_planned_end_date')) {
-        updates.execution_planned_end_date = requestBody.execution_planned_end_date;
+    if (request_body.hasOwnProperty('execution_planned_end_date')) {
+        updates.execution_planned_end_date = request_body.execution_planned_end_date;
     }
-    if (requestBody.hasOwnProperty('execution_actual_start_date')) {
-        updates.execution_actual_start_date = requestBody.execution_actual_start_date;
+    if (request_body.hasOwnProperty('execution_actual_start_date')) {
+        updates.execution_actual_start_date = request_body.execution_actual_start_date;
     }
-    if (requestBody.hasOwnProperty('execution_actual_end_date')) {
-        updates.execution_actual_end_date = requestBody.execution_actual_end_date;
+    if (request_body.hasOwnProperty('execution_actual_end_date')) {
+        updates.execution_actual_end_date = request_body.execution_actual_end_date;
     }
-    if (requestBody.hasOwnProperty('milestone_amount')) {
-        updates.milestone_amount = requestBody.milestone_amount;
+    if (request_body.hasOwnProperty('milestone_amount')) {
+        updates.milestone_amount = request_body.milestone_amount;
     }
-    if (requestBody.hasOwnProperty('current_status')) {
-        updates.current_status = requestBody.current_status;
+    if (request_body.hasOwnProperty('current_status')) {
+        updates.current_status = request_body.current_status;
     }
-    if (requestBody.hasOwnProperty('is_cancelled')) {
-        updates.is_cancelled = requestBody.is_cancelled;
+    if (request_body.hasOwnProperty('is_cancelled')) {
+        updates.is_cancelled = request_body.is_cancelled;
     }
-    if (requestBody.hasOwnProperty('is_closed')) {
-        updates.is_closed = requestBody.is_closed;
+    if (request_body.hasOwnProperty('is_closed')) {
+        updates.is_closed = request_body.is_closed;
     }
-    if (requestBody.hasOwnProperty('transaction_id')) {
-        updates.transaction_id = requestBody.transaction_id;
+    if (request_body.hasOwnProperty('transaction_id')) {
+        updates.transaction_id = request_body.transaction_id;
     }
     return updates;
 }

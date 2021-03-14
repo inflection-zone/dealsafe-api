@@ -5,10 +5,14 @@ const User = require('../database/models/User').Model;
 const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
+const { DateTime } = require('luxon');
+const Op = require('sequelize').Op;
+const bcryptjs = require('bcryptjs');
+const messaging_service = require('../thirdparty/message.service');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await User.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -19,18 +23,44 @@ module.exports.create = async (requestBody) => {
 
 module.exports.get_all = async (filter) => {
     try {
-        let objects = [];
-        var search = {
-            where: {
-                is_active: true
-            }
-        };
-        // if (filter.hasOwnProperty('name')) {
-        //     search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
-        // }
+        var objects = [];
+        var search = { where: { is_active: true } };
+        if (filter.hasOwnProperty('name')) {
+            search = {
+                where: {
+                    is_active: true,
+                    [Op.or]: [
+                        { first_name: { [Op.iLike]: '%' + filter.name + '%' } },
+                        { last_name: { [Op.iLike]: '%' + filter.name + '%' } }
+                    ]
+                }
+            };
+        }
+        if (filter.hasOwnProperty("role_id")) {
+            var user_roles = await UserRole.findAll({ where: { is_active: true, role_id: filter.role_id } });
+            var user_ids = user_roles.map(x => x.user_id);
+            search.where.id = { [Op.or]: user_ids };
+        }
+        if (filter.hasOwnProperty('company_id')) {
+            search.where['company_id'] = filter.company_id;
+        }
+        if (filter.hasOwnProperty('phone')) {
+            search.where['phone_work'] = { [Op.iLike]: '%' + filter.phone + '%' };
+        }
+        if (filter.hasOwnProperty('email')) {
+            search.where['email'] = { [Op.iLike]: '%' + filter.email + '%' };
+        }
         var records = await User.findAll(search);
-        for (var record of records) {
-            objects.push(get_object_to_send(record));
+        if (filter.hasOwnProperty("role")) {
+            //If already filtered by role
+            objects = records.map(x => { return get_object_to_send(x); });
+        }
+        else {
+            for await (var record of records) {
+                var roles = await get_user_roles(record.id);
+                var obj = get_object_to_send(record, roles);
+                objects.push(obj);
+            }
         }
         return objects;
     } catch (error) {
@@ -51,18 +81,40 @@ module.exports.get_by_id = async (id) => {
         if (record == null) {
             return null;
         }
-
-        return get_object_to_send(record);
+        var roles = await get_user_roles(record.id);
+        return get_object_to_send(record, roles);
     } catch (error) {
         var msg = 'Problem encountered while retrieving user by id!';
         error_handler.throw_service_error(error, msg);
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.get_by_display_id = async (display_id) => {
+    try {
+        var search = {
+            where: {
+                display_id: display_id,
+                is_active: true
+            }
+        };
+        var record = await User.findOne(search);
+        if (record == null) {
+            return null;
+        }
+        var roles = await get_user_roles(record.id);
+        return get_object_to_send(record, roles);
+    }
+    catch (error) {
+        var msg = 'Problem encountered while retrieving user by display id!';
+        error_handler.throw_service_error(error, msg);
+    }
+}
+
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        await check_other_user_with_same_phone(id, request_body);
+        let updates = get_updates(request_body);
         var res = await User.update(updates, {
             where: {
                 id: id
@@ -82,7 +134,10 @@ module.exports.update = async (id, requestBody) => {
             return null;
         }
 
-        return get_object_to_send(record);
+        var record = await User.findOne({ where: { id: id, is_active: true } });
+        var roles = await get_user_roles(record.id);
+        return get_object_to_send(record, roles);
+
     } catch (error) {
         var msg = 'Problem encountered while updating user!';
         error_handler.throw_service_error(error, msg);
@@ -120,6 +175,41 @@ module.exports.get_deleted = async () => {
         error_handler.throw_service_error(error, msg);
     }
 }
+
+module.exports.phone_exists = async (phone) => {
+    try {
+        var search = {
+            where: {
+                phone: phone,
+                is_active: true
+            }
+        };
+        var record = await User.findOne(search);
+        return record != null;
+    }
+    catch (error) {
+        var msg = 'Problem encountered while checking existance of user with phone number! ';
+        error_handler.throw_service_error(error, msg);
+    }
+}
+
+module.exports.email_exists = async (email) => {
+    try {
+        var search = {
+            where: {
+                email: email,
+                is_active: true
+            }
+        };
+        var record = await User.findOne(search);
+        return record != null;
+    }
+    catch (error) {
+        var msg = 'Problem encountered while checking existance of user with email! ';
+        error_handler.throw_service_error(error, msg);
+    }
+}
+
 module.exports.exists = async (id) => {
     try {
         var search = {
@@ -132,7 +222,6 @@ module.exports.exists = async (id) => {
         if (record == null) {
             return null;
         }
-
         return record != null;
     } catch (error) {
         var msg = 'Problem encountered while checking existance of user with id ' + id.toString() + '!';
@@ -140,85 +229,230 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+module.exports.generate_otp = async (phone, user_name, user_id) => {
+    try {
+        var user = get_user(user_id, user_name, phone, null);
+        var otp = (Math.floor(Math.random() * 900000) + 100000).toString();
+        var valid_to = DateTime.fromJSDate(Date.now()).plus({ seconds: 180 });
+
+        var entity = await Otp.create({
+            user_name: user.user_name,
+            user_id: user.id,
+            phone_work: user.phone_work,
+            OTP: otp,
+            valid_from: Date.now(),
+            valid_to: valid_to
+        });
+        var platform_phone_number = '+91 1234567890';
+        var otp_message = `Hello ${user.first_name}, ${otp} is login OTP for login on Deal-Safe platform. If you have not requested this OTP, please contact Deal-Safe support.`;
+        await communication_service.send_sms(user.phone_work, otp_message, platform_phone_number);
+        return entity;
+    }
+    catch (error) {
+        var msg = 'Problem encountered while generating OTP!';
+        error_handler.throw_service_error(error, msg);
+    }
+}
+
+module.exports.login_with_otp = async (phone, user_name, user_id, otp) => {
+    try {
+        var user = await get_user(user_id, user_name, phone, null);
+        var otp_entity = await Otp.findOne({
+            where: {
+                phone_work: user.phone_work,
+                user_id: user.id,
+                user_name: user.user_name,
+                OTP: otp
+            }
+        });
+        if (!otp_entity) {
+            throw new Error("OTP record not found for the user!")
+        }
+        var date = new Date();
+        if ((otp_entity.valid_from >= date || otp_entity.valid_to <= date)) {
+            throw new Error('Login OTP has expired. Please regenerate OTP again!');
+        }
+        var obj = {
+            user_id: user.id,
+            user_name: user.user_name,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            phone: user.phone_work,
+            email: user.email,
+            enterprise_type_id: user.enterprise_type_id,
+            enterprise_id: user.enterprise_id
+        };
+        var access_token = authorization_handler.generate_token(obj);
+        var roles = await UserRole.findAll({ where: { user_id: user.id, is_active: true } });
+        var entity = get_object_to_send(user, null, roles);
+        var obj = {
+            user: entity,
+            access_token: access_token,
+            first_login_update_password: user.last_login == null,
+            last_logged_in_on: user.last_login
+        };
+        user.last_login = Date.now();
+        await user.save();
+        return obj;
+    }
+    catch (error) {
+        var msg = 'Problem encountered during login with OTP!';
+        error_handler.throw_service_error(error, msg);
+    }
+}
+
+module.exports.login = async (phone, email, user_name, password) => {
+    try {
+        var user = await get_user(null, user_name, phone, email);
+        var is_password_valid = await bcryptjs.compareSync(password, user.password);
+        if (!is_password_valid) {
+            throw new Error('Incorrect password!');
+        }
+        //The following user data is immutable. Don't include any mutable data
+        var obj = {
+            user_id: user.id,
+            user_name: user.user_name,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            phone: user.phone_work,
+            email: user.email,
+            enterprise_type_id: user.enterprise_type_id,
+            enterprise_id: user.enterprise_id
+        };
+        var access_token = authorization_handler.generate_token(obj);
+        var roles = await UserRole.findAll({ where: { user_id: user.id } });
+        var entity = get_object_to_send(user, null, roles);
+        var obj = {
+            user: entity,
+            access_token: access_token,
+            first_login_update_password: user.last_login == null,
+            last_logged_in_on: user.last_login
+        };
+        user.last_login = Date.now();
+        await user.save();
+        return obj;
+    }
+    catch (error) {
+        var msg = 'Problem encountered during user login!';
+        error_handler.throw_service_error(error, msg);
+    }
+}
+
+module.exports.change_password = async (user_id, previous_password, new_password) => {
+    try {
+        if (new_password == null) {
+            throw new Error('New password is not specified!');
+        }
+        var validated = validate_password(new_password);
+        if (!validated) {
+            throw new Error('New password does not fit the security criteria. \
+                The new password must be between 7 to 15 character long, \
+                should have atleast 1 digit, 1 special character, \
+                1 lower-case and 1 uppercase letter.');
+        }
+        let user = await User.findOne({ where: { id: user_id, is_active: true } });
+        if (user == null) {
+            throw new Error('User does not exist!');
+        }
+        if (previous_password != null) {
+            var is_previous_password_valid = await bcryptjs.compareSync(previous_password, user.password);
+            if (!is_previous_password_valid) {
+                throw new Error('Invalid previous password!');
+            }
+        }
+        var same_password_specified = await bcryptjs.compareSync(new_password, user.password);
+        if (same_password_specified) {
+            throw new Error('New password is same as old password!');
+        }
+        var new_encrypted_password = bcryptjs.hashSync(new_password, bcryptjs.genSaltSync(8), null);
+        user.password = new_encrypted_password;
+        await user.save();
+    }
+    catch (error) {
+        var msg = 'Problem encountered while creating user instance!';
+        error_handler.throw_service_error(error, msg);
+    }
+};
+
+function get_entity_to_save(request_body) {
     return {
-        display_id: requestBody.display_id ? requestBody.display_id : null,
-        first_name: requestBody.first_name ? requestBody.first_name : null,
-        last_name: requestBody.last_name ? requestBody.last_name : null,
-        prefix: requestBody.prefix ? requestBody.prefix : null,
-        phone: requestBody.phone ? requestBody.phone : null,
-        email: requestBody.email ? requestBody.email : null,
-        user_name: requestBody.user_name ? requestBody.user_name : null,
-        password: requestBody.password ? requestBody.password : null,
-        profile_picture: requestBody.profile_picture ? requestBody.profile_picture : null,
-        gender: requestBody.gender ? requestBody.gender : null,
-        birth_date: requestBody.birth_date ? requestBody.birth_date : null,
-        company_id: requestBody.company_id ? requestBody.company_id : null,
-        company_type: requestBody.company_type ? requestBody.company_type : null,
-        is_contact_person_for_organization: requestBody.is_contact_person_for_organization ? requestBody.is_contact_person_for_organization : false,
-        primary_address_id: requestBody.primary_address_id ? requestBody.primary_address_id : null,
-        deleted_at: requestBody.deleted_at ? requestBody.deleted_at : null,
-        last_login: requestBody.last_login ? requestBody.last_login : null
+        display_id: request_body.display_id ? request_body.display_id : null,
+        first_name: request_body.first_name ? request_body.first_name : null,
+        last_name: request_body.last_name ? request_body.last_name : null,
+        prefix: request_body.prefix ? request_body.prefix : null,
+        phone: request_body.phone ? request_body.phone : null,
+        email: request_body.email ? request_body.email : null,
+        user_name: request_body.user_name ? request_body.user_name : generate_user_name(request_body.first_name, request_body.last_name),
+        password: request_body.password ? request_body.password : null,
+        profile_picture: request_body.profile_picture ? request_body.profile_picture : null,
+        gender: request_body.gender ? request_body.gender : null,
+        birth_date: request_body.birth_date ? request_body.birth_date : null,
+        company_id: request_body.company_id ? request_body.company_id : null,
+        company_type: request_body.company_type ? request_body.company_type : null,
+        is_contact_person_for_organization: request_body.is_contact_person_for_organization ? request_body.is_contact_person_for_organization : false,
+        primary_address_id: request_body.primary_address_id ? request_body.primary_address_id : null,
+        deleted_at: request_body.deleted_at ? request_body.deleted_at : null,
+        last_login: request_body.last_login ? request_body.last_login : null
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('display_id')) {
-        updates.display_id = requestBody.display_id;
+    if (request_body.hasOwnProperty('display_id')) {
+        updates.display_id = request_body.display_id;
     }
-    if (requestBody.hasOwnProperty('first_name')) {
-        updates.first_name = requestBody.first_name;
+    if (request_body.hasOwnProperty('first_name')) {
+        updates.first_name = request_body.first_name;
     }
-    if (requestBody.hasOwnProperty('last_name')) {
-        updates.last_name = requestBody.last_name;
+    if (request_body.hasOwnProperty('last_name')) {
+        updates.last_name = request_body.last_name;
     }
-    if (requestBody.hasOwnProperty('prefix')) {
-        updates.prefix = requestBody.prefix;
+    if (request_body.hasOwnProperty('prefix')) {
+        updates.prefix = request_body.prefix;
     }
-    if (requestBody.hasOwnProperty('phone')) {
-        updates.phone = requestBody.phone;
+    if (request_body.hasOwnProperty('phone')) {
+        updates.phone = request_body.phone;
     }
-    if (requestBody.hasOwnProperty('email')) {
-        updates.email = requestBody.email;
+    if (request_body.hasOwnProperty('email')) {
+        updates.email = request_body.email;
     }
-    if (requestBody.hasOwnProperty('user_name')) {
-        updates.user_name = requestBody.user_name;
+    if (request_body.hasOwnProperty('user_name')) {
+        updates.user_name = request_body.user_name;
     }
-    if (requestBody.hasOwnProperty('password')) {
-        updates.password = requestBody.password;
+    if (request_body.hasOwnProperty('password')) {
+        updates.password = request_body.password;
     }
-    if (requestBody.hasOwnProperty('profile_picture')) {
-        updates.profile_picture = requestBody.profile_picture;
+    if (request_body.hasOwnProperty('profile_picture')) {
+        updates.profile_picture = request_body.profile_picture;
     }
-    if (requestBody.hasOwnProperty('gender')) {
-        updates.gender = requestBody.gender;
+    if (request_body.hasOwnProperty('gender')) {
+        updates.gender = request_body.gender;
     }
-    if (requestBody.hasOwnProperty('birth_date')) {
-        updates.birth_date = requestBody.birth_date;
+    if (request_body.hasOwnProperty('birth_date')) {
+        updates.birth_date = request_body.birth_date;
     }
-    if (requestBody.hasOwnProperty('company_id')) {
-        updates.company_id = requestBody.company_id;
+    if (request_body.hasOwnProperty('company_id')) {
+        updates.company_id = request_body.company_id;
     }
-    if (requestBody.hasOwnProperty('company_type')) {
-        updates.company_type = requestBody.company_type;
+    if (request_body.hasOwnProperty('company_type')) {
+        updates.company_type = request_body.company_type;
     }
-    if (requestBody.hasOwnProperty('is_contact_person_for_organization')) {
-        updates.is_contact_person_for_organization = requestBody.is_contact_person_for_organization;
+    if (request_body.hasOwnProperty('is_contact_person_for_organization')) {
+        updates.is_contact_person_for_organization = request_body.is_contact_person_for_organization;
     }
-    if (requestBody.hasOwnProperty('primary_address_id')) {
-        updates.primary_address_id = requestBody.primary_address_id;
+    if (request_body.hasOwnProperty('primary_address_id')) {
+        updates.primary_address_id = request_body.primary_address_id;
     }
-    if (requestBody.hasOwnProperty('deleted_at')) {
-        updates.deleted_at = requestBody.deleted_at;
+    if (request_body.hasOwnProperty('deleted_at')) {
+        updates.deleted_at = request_body.deleted_at;
     }
-    if (requestBody.hasOwnProperty('last_login')) {
-        updates.last_login = requestBody.last_login;
+    if (request_body.hasOwnProperty('last_login')) {
+        updates.last_login = request_body.last_login;
     }
     return updates;
 }
 
-function get_object_to_send(record) {
+function get_object_to_send(record, roles = null) {
     if (record == null) {
         return null;
     }
@@ -239,7 +473,99 @@ function get_object_to_send(record) {
         company_type: record.company_type,
         is_contact_person_for_organization: record.is_contact_person_for_organization,
         primary_address_id: record.primary_address_id,
+        roles: roles,
         deleted_at: record.deleted_at,
         last_login: record.last_login
     };
+}
+
+async function check_other_user_with_same_phone(id, request_body) {
+    if (request_body.phone) {
+        var exists = await User.findOne({
+            where: {
+                phone: request_body.phone,
+                is_active: true,
+                [Op.not]: [{ id: id }]
+            }
+        });
+        if (exists) {
+            throw new Error("User with this phone already exists!");
+        };
+    }
+}
+
+async function get_user_roles(user_id) {
+    var roles = [];
+    var user_roles = await UserRole.findAll({ where: { user_id: user_id } });
+    for await (var r of user_roles) {
+        var role = await Role.findByPk(r.role_id);
+        if (role != null) {
+            roles.push(role);
+        }
+    }
+    return roles;
+}
+
+function validate_password(password) {
+    var passw = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{7,15}$/;
+    if (password.value.match(passw)) {
+        return true;
+    }
+    return false;
+}
+
+async function generate_user_name(first, last) {
+    var rand = Math.random().toString(10).substr(2, 5);
+    var user_name = first.substr(0, 3) + last.substr(0, 3) + rand;
+    user_name = user_name.toLowerCase();
+    var users = await User.findAll({
+        where: {
+            user_name: { [Op.like]: '%' + user_name + '%' }
+        }
+    });
+    while (users.length > 0) {
+        rand = Math.random().toString(36).substr(2, 5);
+        user_name = first.substr(0, 3) + last.substr(0, 2) + rand;
+        user_name = user_name.toLowerCase();
+        users = await User.findAll({
+            where: {
+                user_name: { [Op.like]: '%' + user_name + '%' }
+            }
+        });
+    }
+    return user_name;
+}
+
+async function get_user(user_id, user_name, phone, email) {
+    var user = null;
+    if (phone != null) {
+        user = await User.findOne({
+            where: {
+                is_active: true,
+                [Op.or]: [
+                    { phone_work: { [Op.like]: '%' + phone + '%' } },
+                    { phone_personal: { [Op.like]: '%' + phone + '%' } }
+                ]
+            }
+        });
+    }
+    else if (email != null) {
+        user = await User.findOne({ where: { email: email } });
+    }
+    else if (user_id != null) {
+        user = await User.findOne({ where: { id: user_id, is_active: true } });
+    }
+    else if (user_name != null) {
+        user = await User.findOne({ where: { user_name: user_name, is_active: true } });
+    }
+    if (user == null) {
+        var err_message = 'User does not exist';
+        err_message += phone ? ' with Phone(' + phone.toString() + ')' : '';
+        err_message += email ? ' - with Email(' + email + ')' : '';
+        err_message += user_name ? ' - with username(' + user_name + ')' : '';
+        err_message += user_id ? ' - with user id(' + user_id + ')' : '';
+        
+        throw new Error(err_message);
+    }
+    return user;
 }

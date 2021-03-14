@@ -6,9 +6,9 @@ const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await BankAccountDetails.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -59,10 +59,10 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        let updates = get_updates(request_body);
         var res = await BankAccountDetails.update(updates, {
             where: {
                 id: id
@@ -140,52 +140,52 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+function get_entity_to_save(request_body) {
     return {
-        company_id: requestBody.company_id ? requestBody.company_id : null,
-        user_id: requestBody.user_id ? requestBody.user_id : null,
-        is_company_account: requestBody.is_company_account ? requestBody.is_company_account : null,
-        account_number: requestBody.account_number ? requestBody.account_number : null,
-        account_name: requestBody.account_name ? requestBody.account_name : null,
-        account_type: requestBody.account_type ? requestBody.account_type : null,
-        bank_name: requestBody.bank_name ? requestBody.bank_name : null,
-        bank_branch: requestBody.bank_branch ? requestBody.bank_branch : null,
-        bank_ifsc_code: requestBody.bank_ifsc_code ? requestBody.bank_ifsc_code : null,
-        PAN: requestBody.pan ? requestBody.pan : null
+        company_id: request_body.company_id ? request_body.company_id : null,
+        user_id: request_body.user_id ? request_body.user_id : null,
+        is_company_account: request_body.is_company_account ? request_body.is_company_account : null,
+        account_number: request_body.account_number ? request_body.account_number : null,
+        account_name: request_body.account_name ? request_body.account_name : null,
+        account_type: request_body.account_type ? request_body.account_type : null,
+        bank_name: request_body.bank_name ? request_body.bank_name : null,
+        bank_branch: request_body.bank_branch ? request_body.bank_branch : null,
+        bank_ifsc_code: request_body.bank_ifsc_code ? request_body.bank_ifsc_code : null,
+        PAN: request_body.pan ? request_body.pan : null
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('company_id')) {
-        updates.company_id = requestBody.company_id;
+    if (request_body.hasOwnProperty('company_id')) {
+        updates.company_id = request_body.company_id;
     }
-    if (requestBody.hasOwnProperty('user_id')) {
-        updates.user_id = requestBody.user_id;
+    if (request_body.hasOwnProperty('user_id')) {
+        updates.user_id = request_body.user_id;
     }
-    if (requestBody.hasOwnProperty('is_company_account')) {
-        updates.is_company_account = requestBody.is_company_account;
+    if (request_body.hasOwnProperty('is_company_account')) {
+        updates.is_company_account = request_body.is_company_account;
     }
-    if (requestBody.hasOwnProperty('account_number')) {
-        updates.account_number = requestBody.account_number;
+    if (request_body.hasOwnProperty('account_number')) {
+        updates.account_number = request_body.account_number;
     }
-    if (requestBody.hasOwnProperty('account_name')) {
-        updates.account_name = requestBody.account_name;
+    if (request_body.hasOwnProperty('account_name')) {
+        updates.account_name = request_body.account_name;
     }
-    if (requestBody.hasOwnProperty('account_type')) {
-        updates.account_type = requestBody.account_type;
+    if (request_body.hasOwnProperty('account_type')) {
+        updates.account_type = request_body.account_type;
     }
-    if (requestBody.hasOwnProperty('bank_name')) {
-        updates.bank_name = requestBody.bank_name;
+    if (request_body.hasOwnProperty('bank_name')) {
+        updates.bank_name = request_body.bank_name;
     }
-    if (requestBody.hasOwnProperty('bank_branch')) {
-        updates.bank_branch = requestBody.bank_branch;
+    if (request_body.hasOwnProperty('bank_branch')) {
+        updates.bank_branch = request_body.bank_branch;
     }
-    if (requestBody.hasOwnProperty('bank_ifsc_code')) {
-        updates.bank_ifsc_code = requestBody.bank_ifsc_code;
+    if (request_body.hasOwnProperty('bank_ifsc_code')) {
+        updates.bank_ifsc_code = request_body.bank_ifsc_code;
     }
-    if (requestBody.hasOwnProperty('PAN')) {
-        updates.PAN = requestBody.PAN;
+    if (request_body.hasOwnProperty('PAN')) {
+        updates.PAN = request_body.PAN;
     }
     return updates;
 }

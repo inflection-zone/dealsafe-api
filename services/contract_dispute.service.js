@@ -6,9 +6,9 @@ const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await ContractDispute.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -59,10 +59,10 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        let updates = get_updates(request_body);
         var res = await ContractDispute.update(updates, {
             where: {
                 id: id
@@ -140,52 +140,52 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+function get_entity_to_save(request_body) {
     return {
-        contract_id: requestBody.contract_id ? requestBody.contract_id : null,
-        milestone_id: requestBody.milestone_id ? requestBody.milestone_id : null,
-        reason: requestBody.reason ? requestBody.reason : null,
-        raised_by: requestBody.raised_by ? requestBody.raised_by : null,
-        raised_date: requestBody.raised_date ? requestBody.raised_date : null,
-        resolution_date: requestBody.resolution_date ? requestBody.resolution_date : null,
-        is_resolved: requestBody.is_resolved ? requestBody.is_resolved : false,
-        resolution_dates: requestBody.resolution_dates ? requestBody.resolution_dates : null,
-        is_blocking: requestBody.is_blocking ? requestBody.is_blocking : true,
-        arbitrator_user_id: requestBody.arbitrator_user_id ? requestBody.arbitrator_user_id : null
+        contract_id: request_body.contract_id ? request_body.contract_id : null,
+        milestone_id: request_body.milestone_id ? request_body.milestone_id : null,
+        reason: request_body.reason ? request_body.reason : null,
+        raised_by: request_body.raised_by ? request_body.raised_by : null,
+        raised_date: request_body.raised_date ? request_body.raised_date : null,
+        resolution_date: request_body.resolution_date ? request_body.resolution_date : null,
+        is_resolved: request_body.is_resolved ? request_body.is_resolved : false,
+        resolution_dates: request_body.resolution_dates ? request_body.resolution_dates : null,
+        is_blocking: request_body.is_blocking ? request_body.is_blocking : true,
+        arbitrator_user_id: request_body.arbitrator_user_id ? request_body.arbitrator_user_id : null
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('contract_id')) {
-        updates.contract_id = requestBody.contract_id;
+    if (request_body.hasOwnProperty('contract_id')) {
+        updates.contract_id = request_body.contract_id;
     }
-    if (requestBody.hasOwnProperty('milestone_id')) {
-        updates.milestone_id = requestBody.milestone_id;
+    if (request_body.hasOwnProperty('milestone_id')) {
+        updates.milestone_id = request_body.milestone_id;
     }
-    if (requestBody.hasOwnProperty('reason')) {
-        updates.reason = requestBody.reason;
+    if (request_body.hasOwnProperty('reason')) {
+        updates.reason = request_body.reason;
     }
-    if (requestBody.hasOwnProperty('raised_by')) {
-        updates.raised_by = requestBody.raised_by;
+    if (request_body.hasOwnProperty('raised_by')) {
+        updates.raised_by = request_body.raised_by;
     }
-    if (requestBody.hasOwnProperty('raised_date')) {
-        updates.raised_date = requestBody.raised_date;
+    if (request_body.hasOwnProperty('raised_date')) {
+        updates.raised_date = request_body.raised_date;
     }
-    if (requestBody.hasOwnProperty('resolution_date')) {
-        updates.resolution_date = requestBody.resolution_date;
+    if (request_body.hasOwnProperty('resolution_date')) {
+        updates.resolution_date = request_body.resolution_date;
     }
-    if (requestBody.hasOwnProperty('is_resolved')) {
-        updates.is_resolved = requestBody.is_resolved;
+    if (request_body.hasOwnProperty('is_resolved')) {
+        updates.is_resolved = request_body.is_resolved;
     }
-    if (requestBody.hasOwnProperty('resolution_dates')) {
-        updates.resolution_dates = requestBody.resolution_dates;
+    if (request_body.hasOwnProperty('resolution_dates')) {
+        updates.resolution_dates = request_body.resolution_dates;
     }
-    if (requestBody.hasOwnProperty('is_blocking')) {
-        updates.is_blocking = requestBody.is_blocking;
+    if (request_body.hasOwnProperty('is_blocking')) {
+        updates.is_blocking = request_body.is_blocking;
     }
-    if (requestBody.hasOwnProperty('arbitrator_user_id')) {
-        updates.arbitrator_user_id = requestBody.arbitrator_user_id;
+    if (request_body.hasOwnProperty('arbitrator_user_id')) {
+        updates.arbitrator_user_id = request_body.arbitrator_user_id;
     }
     return updates;
 }

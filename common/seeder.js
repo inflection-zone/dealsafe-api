@@ -34,10 +34,10 @@ async function seed_roles() {
         return;
     };
     //await Role.create({ name: Constants.Roles.Admin });
-    
-       await Role.create({ name: Constants.Roles.Admin });
-   await Role.create({ name: Constants.Roles.Buyer });
-   await Role.create({ name: Constants.Roles.Seller });
+
+    await Role.create({ name: Constants.Roles.Admin });
+    await Role.create({ name: Constants.Roles.Buyer });
+    await Role.create({ name: Constants.Roles.Seller });
 
 }
 
@@ -59,7 +59,6 @@ async function seed_role_privileges() {
     };
     for await (const rp of role_privileges_list) {
         await add_role_privileges(rp.role, rp.privileges);
-        logger.log(`Seeded priviles for role ${key}!`);
     }
 }
 
@@ -85,7 +84,7 @@ async function seed_city_state() {
 async function seed_city_pincodes_from_json() {
 
     return new Promise((resolve, reject) => {
-        try{
+        try {
             const stream_array = require('stream-json/streamers/StreamArray');
             const { Writable: writable } = require('stream');
             const path = require('path');
@@ -93,17 +92,17 @@ async function seed_city_pincodes_from_json() {
             var file_path = path.join(process.cwd(), './raw_data/pincodes.json');
             const fileStream = fs.createReadStream(file_path);
             const jsonStream = stream_array.withParser();
-        
+
             const processingStream = new writable({
                 objectMode: true, //Don't skip this, as we need to operate with objects, not buffers
                 write({ key, value }, encoding, callback) {
-                    ( async () => {
+                    (async () => {
                         var existing = await CityPincode.findAll({
                             where: {
                                 pincode: value.Pincode
                             }
                         });
-                        if(existing.length == 0){
+                        if (existing.length == 0) {
                             await CityPincode.create({
                                 city: value.City,
                                 pincode: value.Pincode,
@@ -119,11 +118,11 @@ async function seed_city_pincodes_from_json() {
                     })();
                 }
             });
-        
+
             //Pipe the streams as follows
             fileStream.pipe(jsonStream.input);
             jsonStream.pipe(processingStream);
-        
+
             //So we're waiting for the 'finish' event when everything is done.
             processingStream.on('finish', () => {
                 var message = 'City, pincode and state data has been seeded successfully!';
@@ -132,7 +131,7 @@ async function seed_city_pincodes_from_json() {
             });
 
         }
-        catch(error){
+        catch (error) {
             reject(error);
         }
     });

@@ -6,9 +6,9 @@ const helper = require('../common/helper');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
-module.exports.create = async (requestBody) => {
+module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(requestBody)
+        var entity = get_entity_to_save(request_body)
         var record = await Contract.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -59,10 +59,10 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, requestBody) => {
+module.exports.update = async (id, request_body) => {
 
     try {
-        let updates = get_updates(requestBody);
+        let updates = get_updates(request_body);
         var res = await Contract.update(updates, {
             where: {
                 id: id
@@ -140,120 +140,120 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(requestBody) {
+function get_entity_to_save(request_body) {
     return {
-        display_id: requestBody.display_id ? requestBody.display_id : null,
-        contract_type: requestBody.contract_type ? requestBody.contract_type : 1,
-        name: requestBody.name ? requestBody.name : null,
-        description: requestBody.description ? requestBody.description : null,
-        is_full_payment_contract: requestBody.is_full_payment_contract ? requestBody.is_full_payment_contract : true,
-        buyer_id: requestBody.buyer_id ? requestBody.buyer_id : null,
-        buyer_contact_user_id: requestBody.buyer_contact_user_id ? requestBody.buyer_contact_user_id : null,
-        seller_id: requestBody.seller_id ? requestBody.seller_id : null,
-        seller_contact_user_id: requestBody.seller_contact_user_id ? requestBody.seller_contact_user_id : null,
-        created_date: requestBody.created_date ? requestBody.created_date : null,
-        buyer_agreed_date: requestBody.buyer_agreed_date ? requestBody.buyer_agreed_date : null,
-        seller_agreed_date: requestBody.seller_agreed_date ? requestBody.seller_agreed_date : null,
-        execution_planned_start_date: requestBody.execution_planned_start_date ? requestBody.execution_planned_start_date : null,
-        execution_planned_end_date: requestBody.execution_planned_end_date ? requestBody.execution_planned_end_date : null,
-        execution_actual_start_date: requestBody.execution_actual_start_date ? requestBody.execution_actual_start_date : null,
-        execution_actual_end_date: requestBody.execution_actual_end_date ? requestBody.execution_actual_end_date : null,
-        base_contract_amount: requestBody.base_contract_amount ? requestBody.base_contract_amount : null,
-        tax_amount: requestBody.tax_amount ? requestBody.tax_amount : null,
-        buyer_brokerage_amount: requestBody.buyer_brokerage_amount ? requestBody.buyer_brokerage_amount : null,
-        seller_brokerage_amount: requestBody.seller_brokerage_amount ? requestBody.seller_brokerage_amount : null,
-        has_buyer_deposited_amount: requestBody.has_buyer_deposited_amount ? requestBody.has_buyer_deposited_amount : false,
-        has_seller_deposited_amount: requestBody.has_seller_deposited_amount ? requestBody.has_seller_deposited_amount : false,
-        current_status: requestBody.current_status ? requestBody.current_status : 1,
-        is_cancelled: requestBody.is_cancelled ? requestBody.is_cancelled : false,
-        is_closed: requestBody.is_closed ? requestBody.is_closed : false,
-        created_by: requestBody.created_by ? requestBody.created_by : null,
-        arbitrator_user_id: requestBody.arbitrator_user_id ? requestBody.arbitrator_user_id : null
+        display_id: request_body.display_id ? request_body.display_id : null,
+        contract_type: request_body.contract_type ? request_body.contract_type : 1,
+        name: request_body.name ? request_body.name : null,
+        description: request_body.description ? request_body.description : null,
+        is_full_payment_contract: request_body.is_full_payment_contract ? request_body.is_full_payment_contract : true,
+        buyer_id: request_body.buyer_id ? request_body.buyer_id : null,
+        buyer_contact_user_id: request_body.buyer_contact_user_id ? request_body.buyer_contact_user_id : null,
+        seller_id: request_body.seller_id ? request_body.seller_id : null,
+        seller_contact_user_id: request_body.seller_contact_user_id ? request_body.seller_contact_user_id : null,
+        created_date: request_body.created_date ? request_body.created_date : null,
+        buyer_agreed_date: request_body.buyer_agreed_date ? request_body.buyer_agreed_date : null,
+        seller_agreed_date: request_body.seller_agreed_date ? request_body.seller_agreed_date : null,
+        execution_planned_start_date: request_body.execution_planned_start_date ? request_body.execution_planned_start_date : null,
+        execution_planned_end_date: request_body.execution_planned_end_date ? request_body.execution_planned_end_date : null,
+        execution_actual_start_date: request_body.execution_actual_start_date ? request_body.execution_actual_start_date : null,
+        execution_actual_end_date: request_body.execution_actual_end_date ? request_body.execution_actual_end_date : null,
+        base_contract_amount: request_body.base_contract_amount ? request_body.base_contract_amount : null,
+        tax_amount: request_body.tax_amount ? request_body.tax_amount : null,
+        buyer_brokerage_amount: request_body.buyer_brokerage_amount ? request_body.buyer_brokerage_amount : null,
+        seller_brokerage_amount: request_body.seller_brokerage_amount ? request_body.seller_brokerage_amount : null,
+        has_buyer_deposited_amount: request_body.has_buyer_deposited_amount ? request_body.has_buyer_deposited_amount : false,
+        has_seller_deposited_amount: request_body.has_seller_deposited_amount ? request_body.has_seller_deposited_amount : false,
+        current_status: request_body.current_status ? request_body.current_status : 1,
+        is_cancelled: request_body.is_cancelled ? request_body.is_cancelled : false,
+        is_closed: request_body.is_closed ? request_body.is_closed : false,
+        created_by: request_body.created_by ? request_body.created_by : null,
+        arbitrator_user_id: request_body.arbitrator_user_id ? request_body.arbitrator_user_id : null
     };
 }
 
-function get_updates(requestBody) {
+function get_updates(request_body) {
     let updates = {};
-    if (requestBody.hasOwnProperty('display_id')) {
-        updates.display_id = requestBody.display_id;
+    if (request_body.hasOwnProperty('display_id')) {
+        updates.display_id = request_body.display_id;
     }
-    if (requestBody.hasOwnProperty('contract_type')) {
-        updates.contract_type = requestBody.contract_type;
+    if (request_body.hasOwnProperty('contract_type')) {
+        updates.contract_type = request_body.contract_type;
     }
-    if (requestBody.hasOwnProperty('name')) {
-        updates.name = requestBody.name;
+    if (request_body.hasOwnProperty('name')) {
+        updates.name = request_body.name;
     }
-    if (requestBody.hasOwnProperty('description')) {
-        updates.description = requestBody.description;
+    if (request_body.hasOwnProperty('description')) {
+        updates.description = request_body.description;
     }
-    if (requestBody.hasOwnProperty('is_full_payment_contract')) {
-        updates.is_full_payment_contract = requestBody.is_full_payment_contract;
+    if (request_body.hasOwnProperty('is_full_payment_contract')) {
+        updates.is_full_payment_contract = request_body.is_full_payment_contract;
     }
-    if (requestBody.hasOwnProperty('buyer_id')) {
-        updates.buyer_id = requestBody.buyer_id;
+    if (request_body.hasOwnProperty('buyer_id')) {
+        updates.buyer_id = request_body.buyer_id;
     }
-    if (requestBody.hasOwnProperty('buyer_contact_user_id')) {
-        updates.buyer_contact_user_id = requestBody.buyer_contact_user_id;
+    if (request_body.hasOwnProperty('buyer_contact_user_id')) {
+        updates.buyer_contact_user_id = request_body.buyer_contact_user_id;
     }
-    if (requestBody.hasOwnProperty('seller_id')) {
-        updates.seller_id = requestBody.seller_id;
+    if (request_body.hasOwnProperty('seller_id')) {
+        updates.seller_id = request_body.seller_id;
     }
-    if (requestBody.hasOwnProperty('seller_contact_user_id')) {
-        updates.seller_contact_user_id = requestBody.seller_contact_user_id;
+    if (request_body.hasOwnProperty('seller_contact_user_id')) {
+        updates.seller_contact_user_id = request_body.seller_contact_user_id;
     }
-    if (requestBody.hasOwnProperty('created_date')) {
-        updates.created_date = requestBody.created_date;
+    if (request_body.hasOwnProperty('created_date')) {
+        updates.created_date = request_body.created_date;
     }
-    if (requestBody.hasOwnProperty('buyer_agreed_date')) {
-        updates.buyer_agreed_date = requestBody.buyer_agreed_date;
+    if (request_body.hasOwnProperty('buyer_agreed_date')) {
+        updates.buyer_agreed_date = request_body.buyer_agreed_date;
     }
-    if (requestBody.hasOwnProperty('seller_agreed_date')) {
-        updates.seller_agreed_date = requestBody.seller_agreed_date;
+    if (request_body.hasOwnProperty('seller_agreed_date')) {
+        updates.seller_agreed_date = request_body.seller_agreed_date;
     }
-    if (requestBody.hasOwnProperty('execution_planned_start_date')) {
-        updates.execution_planned_start_date = requestBody.execution_planned_start_date;
+    if (request_body.hasOwnProperty('execution_planned_start_date')) {
+        updates.execution_planned_start_date = request_body.execution_planned_start_date;
     }
-    if (requestBody.hasOwnProperty('execution_planned_end_date')) {
-        updates.execution_planned_end_date = requestBody.execution_planned_end_date;
+    if (request_body.hasOwnProperty('execution_planned_end_date')) {
+        updates.execution_planned_end_date = request_body.execution_planned_end_date;
     }
-    if (requestBody.hasOwnProperty('execution_actual_start_date')) {
-        updates.execution_actual_start_date = requestBody.execution_actual_start_date;
+    if (request_body.hasOwnProperty('execution_actual_start_date')) {
+        updates.execution_actual_start_date = request_body.execution_actual_start_date;
     }
-    if (requestBody.hasOwnProperty('execution_actual_end_date')) {
-        updates.execution_actual_end_date = requestBody.execution_actual_end_date;
+    if (request_body.hasOwnProperty('execution_actual_end_date')) {
+        updates.execution_actual_end_date = request_body.execution_actual_end_date;
     }
-    if (requestBody.hasOwnProperty('base_contract_amount')) {
-        updates.base_contract_amount = requestBody.base_contract_amount;
+    if (request_body.hasOwnProperty('base_contract_amount')) {
+        updates.base_contract_amount = request_body.base_contract_amount;
     }
-    if (requestBody.hasOwnProperty('tax_amount')) {
-        updates.tax_amount = requestBody.tax_amount;
+    if (request_body.hasOwnProperty('tax_amount')) {
+        updates.tax_amount = request_body.tax_amount;
     }
-    if (requestBody.hasOwnProperty('buyer_brokerage_amount')) {
-        updates.buyer_brokerage_amount = requestBody.buyer_brokerage_amount;
+    if (request_body.hasOwnProperty('buyer_brokerage_amount')) {
+        updates.buyer_brokerage_amount = request_body.buyer_brokerage_amount;
     }
-    if (requestBody.hasOwnProperty('seller_brokerage_amount')) {
-        updates.seller_brokerage_amount = requestBody.seller_brokerage_amount;
+    if (request_body.hasOwnProperty('seller_brokerage_amount')) {
+        updates.seller_brokerage_amount = request_body.seller_brokerage_amount;
     }
-    if (requestBody.hasOwnProperty('has_buyer_deposited_amount')) {
-        updates.has_buyer_deposited_amount = requestBody.has_buyer_deposited_amount;
+    if (request_body.hasOwnProperty('has_buyer_deposited_amount')) {
+        updates.has_buyer_deposited_amount = request_body.has_buyer_deposited_amount;
     }
-    if (requestBody.hasOwnProperty('has_seller_deposited_amount')) {
-        updates.has_seller_deposited_amount = requestBody.has_seller_deposited_amount;
+    if (request_body.hasOwnProperty('has_seller_deposited_amount')) {
+        updates.has_seller_deposited_amount = request_body.has_seller_deposited_amount;
     }
-    if (requestBody.hasOwnProperty('current_status')) {
-        updates.current_status = requestBody.current_status;
+    if (request_body.hasOwnProperty('current_status')) {
+        updates.current_status = request_body.current_status;
     }
-    if (requestBody.hasOwnProperty('is_cancelled')) {
-        updates.is_cancelled = requestBody.is_cancelled;
+    if (request_body.hasOwnProperty('is_cancelled')) {
+        updates.is_cancelled = request_body.is_cancelled;
     }
-    if (requestBody.hasOwnProperty('is_closed')) {
-        updates.is_closed = requestBody.is_closed;
+    if (request_body.hasOwnProperty('is_closed')) {
+        updates.is_closed = request_body.is_closed;
     }
-    if (requestBody.hasOwnProperty('created_by')) {
-        updates.created_by = requestBody.created_by;
+    if (request_body.hasOwnProperty('created_by')) {
+        updates.created_by = request_body.created_by;
     }
-    if (requestBody.hasOwnProperty('arbitrator_user_id')) {
-        updates.arbitrator_user_id = requestBody.arbitrator_user_id;
+    if (request_body.hasOwnProperty('arbitrator_user_id')) {
+        updates.arbitrator_user_id = request_body.arbitrator_user_id;
     }
     return updates;
 }
