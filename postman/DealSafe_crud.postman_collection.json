@@ -1,0 +1,2802 @@
+{
+    "info": {
+        "_postman_id": "a7aca3a7-ab19-408e-8366-0b462f6f1723",
+        "name": "DealSafe CRUD",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Address",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"address\": \"\",\r\n\"city\": \"\",\r\n\"state\": \"\",\r\n\"country\": \"\",\r\n\"pincode\": \"\",\r\n\"address_type\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/address",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "address"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{ADDRESS_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/address/{{ADDRESS_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "address",
+                                "{{ADDRESS_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/address/search?address=xyz&city=xyz&state=xyz&country=xyz&pincode=xyz&address_type=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "address",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "address",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "city",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "state",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "country",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "pincode",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "address_type",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"address\": \"\",\r\n\"city\": \"\",\r\n\"state\": \"\",\r\n\"country\": \"\",\r\n\"pincode\": \"\",\r\n\"address_type\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/address/{{ADDRESS_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "address",
+                                "{{ADDRESS_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{ADDRESS_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/address/{{ADDRESS_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "address",
+                                "{{ADDRESS_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Agreement clause",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"text\": \"\",\r\n\"added_by\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/agreement-clause",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "agreement-clause"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{AGREEMENT_CLAUSE_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/agreement-clause/{{AGREEMENT_CLAUSE_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "agreement-clause",
+                                "{{AGREEMENT_CLAUSE_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/agreement-clause/search?contract_id=xyz&milestone_id=xyz&text=xyz&added_by=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "agreement-clause",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "contract_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "milestone_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "text",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "added_by",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"text\": \"\",\r\n\"added_by\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/agreement-clause/{{AGREEMENT_CLAUSE_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "agreement-clause",
+                                "{{AGREEMENT_CLAUSE_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{AGREEMENT_CLAUSE_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/agreement-clause/{{AGREEMENT_CLAUSE_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "agreement-clause",
+                                "{{AGREEMENT_CLAUSE_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Bank account details",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"company_id\": \"\",\r\n\"user_id\": \"\",\r\n\"is_company_account\": \"\",\r\n\"account_number\": \"\",\r\n\"account_name\": \"\",\r\n\"account_type\": \"\",\r\n\"bank_name\": \"\",\r\n\"bank_branch\": \"\",\r\n\"bank_ifsc_code\": \"\",\r\n\"PAN\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/bank-account-details",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "bank-account-details"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{BANK_ACCOUNT_DETAILS_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/bank-account-details/{{BANK_ACCOUNT_DETAILS_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "bank-account-details",
+                                "{{BANK_ACCOUNT_DETAILS_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/bank-account-details/search?company_id=xyz&user_id=xyz&is_company_account=xyz&account_number=xyz&account_name=xyz&account_type=xyz&bank_name=xyz&bank_branch=xyz&bank_ifsc_code=xyz&PAN=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "bank-account-details",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "company_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "user_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "is_company_account",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "account_number",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "account_name",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "account_type",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "bank_name",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "bank_branch",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "bank_ifsc_code",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "PAN",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"company_id\": \"\",\r\n\"user_id\": \"\",\r\n\"is_company_account\": \"\",\r\n\"account_number\": \"\",\r\n\"account_name\": \"\",\r\n\"account_type\": \"\",\r\n\"bank_name\": \"\",\r\n\"bank_branch\": \"\",\r\n\"bank_ifsc_code\": \"\",\r\n\"PAN\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/bank-account-details/{{BANK_ACCOUNT_DETAILS_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "bank-account-details",
+                                "{{BANK_ACCOUNT_DETAILS_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{BANK_ACCOUNT_DETAILS_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/bank-account-details/{{BANK_ACCOUNT_DETAILS_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "bank-account-details",
+                                "{{BANK_ACCOUNT_DETAILS_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Company",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"default_address\": \"\",\r\n\"contact_email\": \"\",\r\n\"contact_number\": \"\",\r\n\"GSTN\": \"\",\r\n\"PAN\": \"\",\r\n\"TAN\": \"\",\r\n\"contact_person_prefix\": \"\",\r\n\"contact_person_first_name\": \"\",\r\n\"contact_person_last_name\": \"\",\r\n\"primary_address_id\": \"\",\r\n\"subscription_type\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/company",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "company"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{COMPANY_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/company/{{COMPANY_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "company",
+                                "{{COMPANY_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/company/search?display_id=xyz&name=xyz&description=xyz&default_address=xyz&contact_email=xyz&contact_number=xyz&GSTN=xyz&PAN=xyz&TAN=xyz&contact_person_prefix=xyz&contact_person_first_name=xyz&contact_person_last_name=xyz&primary_address_id=xyz&subscription_type=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "company",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "display_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "description",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "default_address",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "contact_email",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "contact_number",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "GSTN",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "PAN",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "TAN",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "contact_person_prefix",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "contact_person_first_name",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "contact_person_last_name",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "primary_address_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "subscription_type",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"default_address\": \"\",\r\n\"contact_email\": \"\",\r\n\"contact_number\": \"\",\r\n\"GSTN\": \"\",\r\n\"PAN\": \"\",\r\n\"TAN\": \"\",\r\n\"contact_person_prefix\": \"\",\r\n\"contact_person_first_name\": \"\",\r\n\"contact_person_last_name\": \"\",\r\n\"primary_address_id\": \"\",\r\n\"subscription_type\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/company/{{COMPANY_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "company",
+                                "{{COMPANY_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{COMPANY_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/company/{{COMPANY_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "company",
+                                "{{COMPANY_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Contract",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"contract_type\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"is_full_payment_contract\": \"\",\r\n\"buyer_id\": \"\",\r\n\"buyer_contact_user_id\": \"\",\r\n\"seller_id\": \"\",\r\n\"seller_contact_user_id\": \"\",\r\n\"created_date\": \"\",\r\n\"buyer_agreed_date\": \"\",\r\n\"seller_agreed_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"base_contract_amount\": \"\",\r\n\"tax_amount\": \"\",\r\n\"buyer_brokerage_amount\": \"\",\r\n\"seller_brokerage_amount\": \"\",\r\n\"has_buyer_deposited_amount\": \"\",\r\n\"has_seller_deposited_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"created_by\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{CONTRACT_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract/{{CONTRACT_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract",
+                                "{{CONTRACT_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract/search?display_id=xyz&contract_type=xyz&name=xyz&description=xyz&is_full_payment_contract=xyz&buyer_id=xyz&buyer_contact_user_id=xyz&seller_id=xyz&seller_contact_user_id=xyz&created_date=xyz&buyer_agreed_date=xyz&seller_agreed_date=xyz&execution_planned_start_date=xyz&execution_planned_end_date=xyz&execution_actual_start_date=xyz&execution_actual_end_date=xyz&base_contract_amount=xyz&tax_amount=xyz&buyer_brokerage_amount=xyz&seller_brokerage_amount=xyz&has_buyer_deposited_amount=xyz&has_seller_deposited_amount=xyz&current_status=xyz&is_cancelled=xyz&is_closed=xyz&created_by=xyz&arbitrator_user_id=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "display_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "contract_type",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "description",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "is_full_payment_contract",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "buyer_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "buyer_contact_user_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "seller_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "seller_contact_user_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "created_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "buyer_agreed_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "seller_agreed_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "execution_planned_start_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "execution_planned_end_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "execution_actual_start_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "execution_actual_end_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "base_contract_amount",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "tax_amount",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "buyer_brokerage_amount",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "seller_brokerage_amount",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "has_buyer_deposited_amount",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "has_seller_deposited_amount",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "current_status",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "is_cancelled",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "is_closed",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "created_by",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "arbitrator_user_id",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"contract_type\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"is_full_payment_contract\": \"\",\r\n\"buyer_id\": \"\",\r\n\"buyer_contact_user_id\": \"\",\r\n\"seller_id\": \"\",\r\n\"seller_contact_user_id\": \"\",\r\n\"created_date\": \"\",\r\n\"buyer_agreed_date\": \"\",\r\n\"seller_agreed_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"base_contract_amount\": \"\",\r\n\"tax_amount\": \"\",\r\n\"buyer_brokerage_amount\": \"\",\r\n\"seller_brokerage_amount\": \"\",\r\n\"has_buyer_deposited_amount\": \"\",\r\n\"has_seller_deposited_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"created_by\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract/{{CONTRACT_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract",
+                                "{{CONTRACT_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{CONTRACT_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract/{{CONTRACT_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract",
+                                "{{CONTRACT_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Contract dispute",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"reason\": \"\",\r\n\"raised_by\": \"\",\r\n\"raised_date\": \"\",\r\n\"resolution_date\": \"\",\r\n\"is_resolved\": \"\",\r\n\"resolution_dates\": \"\",\r\n\"is_blocking\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract-dispute",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract-dispute"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{CONTRACT_DISPUTE_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract-dispute/{{CONTRACT_DISPUTE_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract-dispute",
+                                "{{CONTRACT_DISPUTE_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract-dispute/search?contract_id=xyz&milestone_id=xyz&reason=xyz&raised_by=xyz&raised_date=xyz&resolution_date=xyz&is_resolved=xyz&resolution_dates=xyz&is_blocking=xyz&arbitrator_user_id=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract-dispute",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "contract_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "milestone_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "reason",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "raised_by",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "raised_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "resolution_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "is_resolved",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "resolution_dates",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "is_blocking",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "arbitrator_user_id",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"reason\": \"\",\r\n\"raised_by\": \"\",\r\n\"raised_date\": \"\",\r\n\"resolution_date\": \"\",\r\n\"is_resolved\": \"\",\r\n\"resolution_dates\": \"\",\r\n\"is_blocking\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract-dispute/{{CONTRACT_DISPUTE_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract-dispute",
+                                "{{CONTRACT_DISPUTE_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{CONTRACT_DISPUTE_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract-dispute/{{CONTRACT_DISPUTE_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract-dispute",
+                                "{{CONTRACT_DISPUTE_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Contract milestone",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract-milestone",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract-milestone"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract-milestone",
+                                "{{CONTRACT_MILESTONE_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract-milestone/search?display_id=xyz&contract_id=xyz&milestone_index=xyz&name=xyz&description=xyz&created_date=xyz&execution_planned_start_date=xyz&execution_planned_end_date=xyz&execution_actual_start_date=xyz&execution_actual_end_date=xyz&milestone_amount=xyz&current_status=xyz&is_cancelled=xyz&is_closed=xyz&transaction_id=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract-milestone",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "display_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "contract_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "milestone_index",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "description",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "created_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "execution_planned_start_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "execution_planned_end_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "execution_actual_start_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "execution_actual_end_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "milestone_amount",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "current_status",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "is_cancelled",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "is_closed",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "transaction_id",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract-milestone",
+                                "{{CONTRACT_MILESTONE_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "contract-milestone",
+                                "{{CONTRACT_MILESTONE_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Notification",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"user_id\": \"\",\r\n\"notification_type\": \"\",\r\n\"details_json_object\": \"\",\r\n\"text\": \"\",\r\n\"generated_on\": \"\",\r\n\"read_date\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/notification",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "notification"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{NOTIFICATION_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/notification/{{NOTIFICATION_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "notification",
+                                "{{NOTIFICATION_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/notification/search?user_id=xyz&notification_type=xyz&details_json_object=xyz&text=xyz&generated_on=xyz&read_date=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "notification",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "user_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "notification_type",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "details_json_object",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "text",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "generated_on",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "read_date",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"user_id\": \"\",\r\n\"notification_type\": \"\",\r\n\"details_json_object\": \"\",\r\n\"text\": \"\",\r\n\"generated_on\": \"\",\r\n\"read_date\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/notification/{{NOTIFICATION_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "notification",
+                                "{{NOTIFICATION_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{NOTIFICATION_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/notification/{{NOTIFICATION_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "notification",
+                                "{{NOTIFICATION_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Payment request",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"requested_by_user_id\": \"\",\r\n\"requested_to_user_id\": \"\",\r\n\"requested_to_company_id\": \"\",\r\n\"amount\": \"\",\r\n\"remarks\": \"\",\r\n\"request_date\": \"\",\r\n\"transaction_reference_id\": \"\",\r\n\"escrow_bank_reference_id\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/payment-request",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "payment-request"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{PAYMENT_REQUEST_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/payment-request/{{PAYMENT_REQUEST_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "payment-request",
+                                "{{PAYMENT_REQUEST_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/payment-request/search?display_id=xyz&contract_id=xyz&milestone_id=xyz&requested_by_user_id=xyz&requested_to_user_id=xyz&requested_to_company_id=xyz&amount=xyz&remarks=xyz&request_date=xyz&transaction_reference_id=xyz&escrow_bank_reference_id=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "payment-request",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "display_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "contract_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "milestone_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "requested_by_user_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "requested_to_user_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "requested_to_company_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "amount",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "remarks",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "request_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "transaction_reference_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "escrow_bank_reference_id",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"requested_by_user_id\": \"\",\r\n\"requested_to_user_id\": \"\",\r\n\"requested_to_company_id\": \"\",\r\n\"amount\": \"\",\r\n\"remarks\": \"\",\r\n\"request_date\": \"\",\r\n\"transaction_reference_id\": \"\",\r\n\"escrow_bank_reference_id\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/payment-request/{{PAYMENT_REQUEST_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "payment-request",
+                                "{{PAYMENT_REQUEST_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{PAYMENT_REQUEST_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/payment-request/{{PAYMENT_REQUEST_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "payment-request",
+                                "{{PAYMENT_REQUEST_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Transaction",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"transaction_reference_id\": \"\",\r\n\"escrow_bank_reference_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"paid_by_id\": \"\",\r\n\"paid_to_id\": \"\",\r\n\"payee_account_type_id\": \"\",\r\n\"payer_account_type_id\": \"\",\r\n\"pay_from_account_number\": \"\",\r\n\"pay_to_account_number\": \"\",\r\n\"transaction_amount\": \"\",\r\n\"transaction_date\": \"\",\r\n\"transaction_initiated_by\": \"\",\r\n\"transaction_approved_by\": \"\",\r\n\"transaction_type\": \"\",\r\n\"currency\": \"\",\r\n\"payment_request_id\": \"\",\r\n\"transaction_status\": \"\",\r\n\"remarks\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/transaction",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "transaction"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{TRANSACTION_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/transaction/{{TRANSACTION_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "transaction",
+                                "{{TRANSACTION_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/transaction/search?display_id=xyz&transaction_reference_id=xyz&escrow_bank_reference_id=xyz&contract_id=xyz&milestone_id=xyz&paid_by_id=xyz&paid_to_id=xyz&payee_account_type_id=xyz&payer_account_type_id=xyz&pay_from_account_number=xyz&pay_to_account_number=xyz&transaction_amount=xyz&transaction_date=xyz&transaction_initiated_by=xyz&transaction_approved_by=xyz&transaction_type=xyz&currency=xyz&payment_request_id=xyz&transaction_status=xyz&remarks=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "transaction",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "display_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "transaction_reference_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "escrow_bank_reference_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "contract_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "milestone_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "paid_by_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "paid_to_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "payee_account_type_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "payer_account_type_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "pay_from_account_number",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "pay_to_account_number",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "transaction_amount",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "transaction_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "transaction_initiated_by",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "transaction_approved_by",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "transaction_type",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "currency",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "payment_request_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "transaction_status",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "remarks",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"transaction_reference_id\": \"\",\r\n\"escrow_bank_reference_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"paid_by_id\": \"\",\r\n\"paid_to_id\": \"\",\r\n\"payee_account_type_id\": \"\",\r\n\"payer_account_type_id\": \"\",\r\n\"pay_from_account_number\": \"\",\r\n\"pay_to_account_number\": \"\",\r\n\"transaction_amount\": \"\",\r\n\"transaction_date\": \"\",\r\n\"transaction_initiated_by\": \"\",\r\n\"transaction_approved_by\": \"\",\r\n\"transaction_type\": \"\",\r\n\"currency\": \"\",\r\n\"payment_request_id\": \"\",\r\n\"transaction_status\": \"\",\r\n\"remarks\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/transaction/{{TRANSACTION_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "transaction",
+                                "{{TRANSACTION_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{TRANSACTION_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/transaction/{{TRANSACTION_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "transaction",
+                                "{{TRANSACTION_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "User",
+            "item": [
+                {
+                    "name": "Create",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"first_name\": \"\",\r\n\"last_name\": \"\",\r\n\"prefix\": \"\",\r\n\"phone\": \"\",\r\n\"email\": \"\",\r\n\"user_name\": \"\",\r\n\"password\": \"\",\r\n\"profile_picture\": \"\",\r\n\"gender\": \"\",\r\n\"birth_date\": \"\",\r\n\"company_id\": \"\",\r\n\"company_type\": \"\",\r\n\"is_contact_person_for_organization\": \"\",\r\n\"primary_address_id\": \"\",\r\n\"deleted_at\": \"\",\r\n\"last_login\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/user",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "user"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{USER_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Get by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/user/{{USER_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "user",
+                                "{{USER_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search with filters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/user/search?display_id=xyz&first_name=xyz&last_name=xyz&prefix=xyz&phone=xyz&email=xyz&user_name=xyz&password=xyz&profile_picture=xyz&gender=xyz&birth_date=xyz&company_id=xyz&company_type=xyz&is_contact_person_for_organization=xyz&primary_address_id=xyz&deleted_at=xyz&last_login=xyz",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "user",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "display_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "first_name",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "last_name",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "prefix",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "phone",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "email",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "user_name",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "profile_picture",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "gender",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "birth_date",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "company_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "company_type",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "is_contact_person_for_organization",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "primary_address_id",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "deleted_at",
+                                    "value": "xyz"
+                                },
+                                {
+                                    "key": "last_login",
+                                    "value": "xyz"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"first_name\": \"\",\r\n\"last_name\": \"\",\r\n\"prefix\": \"\",\r\n\"phone\": \"\",\r\n\"email\": \"\",\r\n\"user_name\": \"\",\r\n\"password\": \"\",\r\n\"profile_picture\": \"\",\r\n\"gender\": \"\",\r\n\"birth_date\": \"\",\r\n\"company_id\": \"\",\r\n\"company_type\": \"\",\r\n\"is_contact_person_for_organization\": \"\",\r\n\"primary_address_id\": \"\",\r\n\"deleted_at\": \"\",\r\n\"last_login\": \"\"\r\n\r\n}\r\n"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/user/{{USER_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "user",
+                                "{{USER_ID}}"
+                            ]
+                        }
+                    },
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "try {\r",
+                                    "    var resp_data = pm.response.json();\r",
+                                    "    pm.environment.set(\"{{USER_ID}}\", resp_data.data.entity.id);\r",
+                                    "}\r",
+                                    "catch (error) {\r",
+                                    "    console.log(error.message);\r",
+                                    "}\r",
+                                    "\r"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "type": "text",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "type": "text",
+                                "value": "Bearer {{USER_JWT}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/user/{{USER_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "user",
+                                "{{USER_ID}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ]
+}
