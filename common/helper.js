@@ -3,12 +3,22 @@ const logger = require('./logger');
 
 const NEARNESS_SEARCH_DISTANCE = 15.0; //In kilometers
 
-function create_unique_user_display_id(prefix) {
-    var id = uuidv4();
-    id = id.replace(/[^\d]/g, '');
-    id = id.replace('-', '');
-    id = id.substr(0, 10);
-    const identifier = prefix + '-' + id;
+// function create_unique_user_display_id(prefix) {
+//     var id = uuidv4();
+//     id = id.replace(/[^\d]/g, '');
+//     id = id.replace('-', '');
+//     id = id.substr(0, 10);
+//     const identifier = prefix + '-' + id;
+//     return identifier;
+// }
+
+module.exports.generate_display_id = (prefix = null) => {
+    var timestamp = new Date().getTime().toString();
+    var display_id = timestamp.substr(4, 8);
+    var identifier = display_id;
+    if(prefix != null){
+        identifier = prefix + '-' + identifier;
+    }
     return identifier;
 }
 
@@ -255,3 +265,4 @@ module.exports.sleep = (miliseconds) => {
 module.exports.is_empty = (obj) => {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
+

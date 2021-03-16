@@ -1,5 +1,5 @@
 const db = require(__dirname + '/../connection');
-
+var bcryptjs = require('bcryptjs');
 const Sequelize = db.Sequelize;
 const sequelize = db.sequelize;
 
@@ -108,7 +108,12 @@ module.exports.Model = sequelize.define(modelName, schema, {
     createdAt: 'created_at',
     updatedAt: 'updated_at',
     freezeTableName: true,
-    tableName: tableName
+    tableName: tableName,
+    hooks: {
+        beforeCreate: (user) => {
+          user.password = bcryptjs.hashSync(user.password, bcryptjs.genSaltSync(8), null);
+        }
+      }
 });
 module.exports.Schema = schema;
 module.exports.TableName = tableName;

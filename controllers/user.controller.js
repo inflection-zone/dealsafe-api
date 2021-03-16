@@ -8,10 +8,10 @@ const activity_handler = require('../common/activity_handler');
 
 exports.create = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('user.create', req, res)) {
-            return;
-        }
-        if (!req.body.display_id || 
+        // if (!await authorization_handler.is_authorized('user.create', req, res)) {
+        //     return;
+        // }
+        if (
             !req.body.first_name || 
             !req.body.last_name || 
             !req.body.prefix ||

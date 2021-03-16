@@ -2,7 +2,9 @@
 
 const db = require('../database/connection');
 const User = require('../database/models/User').Model;
+const UserRole = require('../database/models/UserRole').Model;
 const helper = require('../common/helper');
+const authorization_handler = require('../common/authorization_handler');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 const { DateTime } = require('luxon');
@@ -12,7 +14,7 @@ const messaging_service = require('../thirdparty/message.service');
 
 module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(request_body)
+        var entity = await get_entity_to_save(request_body)
         var record = await User.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -374,15 +376,18 @@ module.exports.change_password = async (user_id, previous_password, new_password
     }
 };
 
-function get_entity_to_save(request_body) {
+async function get_entity_to_save(request_body) {
+    
+    var user_name = await generate_user_name(request_body.first_name, request_body.last_name);
+
     return {
-        display_id: request_body.display_id ? request_body.display_id : null,
+        display_id: helper.generate_display_id(),
         first_name: request_body.first_name ? request_body.first_name : null,
         last_name: request_body.last_name ? request_body.last_name : null,
         prefix: request_body.prefix ? request_body.prefix : null,
         phone: request_body.phone ? request_body.phone : null,
         email: request_body.email ? request_body.email : null,
-        user_name: request_body.user_name ? request_body.user_name : generate_user_name(request_body.first_name, request_body.last_name),
+        user_name: request_body.user_name ? request_body.user_name : user_name,
         password: request_body.password ? request_body.password : null,
         profile_picture: request_body.profile_picture ? request_body.profile_picture : null,
         gender: request_body.gender ? request_body.gender : null,
@@ -514,27 +519,6 @@ function validate_password(password) {
     return false;
 }
 
-async function generate_user_name(first, last) {
-    var rand = Math.random().toString(10).substr(2, 5);
-    var user_name = first.substr(0, 3) + last.substr(0, 3) + rand;
-    user_name = user_name.toLowerCase();
-    var users = await User.findAll({
-        where: {
-            user_name: { [Op.like]: '%' + user_name + '%' }
-        }
-    });
-    while (users.length > 0) {
-        rand = Math.random().toString(36).substr(2, 5);
-        user_name = first.substr(0, 3) + last.substr(0, 2) + rand;
-        user_name = user_name.toLowerCase();
-        users = await User.findAll({
-            where: {
-                user_name: { [Op.like]: '%' + user_name + '%' }
-            }
-        });
-    }
-    return user_name;
-}
 
 async function get_user(user_id, user_name, phone, email) {
     var user = null;
@@ -568,4 +552,26 @@ async function get_user(user_id, user_name, phone, email) {
         throw new Error(err_message);
     }
     return user;
+}
+
+async function generate_user_name(first, last) {
+    var rand = Math.random().toString(10).substr(2, 5);
+    var user_name = first.substr(0, 3) + last.substr(0, 3) + rand;
+    user_name = user_name.toLowerCase();
+    var users = await User.findAll({
+        where: {
+            user_name: { [Op.like]: '%' + user_name + '%' }
+        }
+    });
+    while (users.length > 0) {
+        rand = Math.random().toString(36).substr(2, 5);
+        user_name = first.substr(0, 3) + last.substr(0, 2) + rand;
+        user_name = user_name.toLowerCase();
+        users = await User.findAll({
+            where: {
+                user_name: { [Op.like]: '%' + user_name + '%' }
+            }
+        });
+    }
+    return user_name;
 }
