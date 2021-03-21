@@ -18,11 +18,6 @@ const schema = {
         type: Sequelize.STRING(64),
         allowNull: false
     },
-    contract_type: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 1
-    },
     name: {
         type: Sequelize.STRING(64),
         allowNull: false
@@ -36,7 +31,7 @@ const schema = {
         allowNull: false,
         defaultValue: true
     },
-    buyer_id: {
+    buyer_company_id: {
         type: Sequelize.UUID,
         allowNull: true
     },
@@ -44,7 +39,7 @@ const schema = {
         type: Sequelize.UUID,
         allowNull: true
     },
-    seller_id: {
+    seller_company_id: {
         type: Sequelize.UUID,
         allowNull: true
     },

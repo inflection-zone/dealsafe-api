@@ -147,9 +147,9 @@ function get_entity_to_save(request_body) {
         name: request_body.name ? request_body.name : null,
         description: request_body.description ? request_body.description : null,
         is_full_payment_contract: request_body.is_full_payment_contract ? request_body.is_full_payment_contract : true,
-        buyer_id: request_body.buyer_id ? request_body.buyer_id : null,
+        buyer_company_id: request_body.buyer_company_id ? request_body.buyer_company_id : null,
         buyer_contact_user_id: request_body.buyer_contact_user_id ? request_body.buyer_contact_user_id : null,
-        seller_id: request_body.seller_id ? request_body.seller_id : null,
+        seller_company_id: request_body.seller_company_id ? request_body.seller_company_id : null,
         seller_contact_user_id: request_body.seller_contact_user_id ? request_body.seller_contact_user_id : null,
         created_date: request_body.created_date ? request_body.created_date : null,
         buyer_agreed_date: request_body.buyer_agreed_date ? request_body.buyer_agreed_date : null,
@@ -189,14 +189,14 @@ function get_updates(request_body) {
     if (request_body.hasOwnProperty('is_full_payment_contract')) {
         updates.is_full_payment_contract = request_body.is_full_payment_contract;
     }
-    if (request_body.hasOwnProperty('buyer_id')) {
-        updates.buyer_id = request_body.buyer_id;
+    if (request_body.hasOwnProperty('buyer_company_id')) {
+        updates.buyer_company_id = request_body.buyer_company_id;
     }
     if (request_body.hasOwnProperty('buyer_contact_user_id')) {
         updates.buyer_contact_user_id = request_body.buyer_contact_user_id;
     }
-    if (request_body.hasOwnProperty('seller_id')) {
-        updates.seller_id = request_body.seller_id;
+    if (request_body.hasOwnProperty('seller_company_id')) {
+        updates.seller_company_id = request_body.seller_company_id;
     }
     if (request_body.hasOwnProperty('seller_contact_user_id')) {
         updates.seller_contact_user_id = request_body.seller_contact_user_id;
@@ -269,9 +269,9 @@ function get_object_to_send(record) {
         name: record.name,
         description: record.description,
         is_full_payment_contract: record.is_full_payment_contract,
-        buyer_id: record.buyer_id,
+        buyer_company_id: record.buyer_company_id,
         buyer_contact_user_id: record.buyer_contact_user_id,
-        seller_id: record.seller_id,
+        seller_company_id: record.seller_company_id,
         seller_contact_user_id: record.seller_contact_user_id,
         created_date: record.created_date,
         buyer_agreed_date: record.buyer_agreed_date,

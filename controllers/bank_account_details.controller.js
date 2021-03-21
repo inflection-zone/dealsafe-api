@@ -11,7 +11,11 @@ exports.create = async (req, res) => {
         if (!await authorization_handler.is_authorized('bank_account_details.create', req, res)) {
             return;
         }
-        if (!req.body.is_company_account || !req.body.account_number || !req.body.account_name || !req.body.account_type || !req.body.pan) {
+        if (!req.body.is_company_account || 
+            !req.body.account_number || 
+            !req.body.account_name || 
+            !req.body.account_type || 
+            !req.body.PAN) {
             response_handler.set_failure_response(res, 200, 'Missing required parameters.', req);
             return;
         }

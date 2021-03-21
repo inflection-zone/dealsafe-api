@@ -88,6 +88,57 @@
 					"response": []
 				},
 				{
+					"name": "Update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"try {\r",
+									"    var resp_data = pm.response.json();\r",
+									"    pm.environment.set(\"{{USER_ID}}\", resp_data.data.entity.id);\r",
+									"}\r",
+									"catch (error) {\r",
+									"    console.log(error.message);\r",
+									"}\r",
+									"\r"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{USER_JWT}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\",\r\n    \"prefix\": \"\",\r\n    \"phone\": \"\",\r\n    \"email\": \"\",\r\n    \"user_name\": \"\",\r\n    \"password\": \"\",\r\n    \"profile_picture\": \"\",\r\n    \"gender\": \"\",\r\n    \"birth_date\": \"\",\r\n    \"company_id\": \"\",\r\n    \"company_type\": \"\",\r\n    \"is_contact_person_for_organization\": false,\r\n    \"primary_address_id\": \"\",\r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/user/{{USER_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"{{USER_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Search with filters",
 					"request": {
 						"method": "GET",
@@ -181,57 +232,6 @@
 									"key": "last_login",
 									"value": "xyz"
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"try {\r",
-									"    var resp_data = pm.response.json();\r",
-									"    pm.environment.set(\"{{USER_ID}}\", resp_data.data.entity.id);\r",
-									"}\r",
-									"catch (error) {\r",
-									"    console.log(error.message);\r",
-									"}\r",
-									"\r"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "Bearer {{USER_JWT}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\",\r\n    \"prefix\": \"\",\r\n    \"phone\": \"\",\r\n    \"email\": \"\",\r\n    \"user_name\": \"\",\r\n    \"password\": \"\",\r\n    \"profile_picture\": \"\",\r\n    \"gender\": \"\",\r\n    \"birth_date\": \"\",\r\n    \"company_id\": \"\",\r\n    \"company_type\": \"\",\r\n    \"is_contact_person_for_organization\": false,\r\n    \"primary_address_id\": \"\",\r\n}"
-						},
-						"url": {
-							"raw": "{{BASE_URL}}/user/{{USER_ID}}",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"user",
-								"{{USER_ID}}"
 							]
 						}
 					},
@@ -1412,7 +1412,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
 									"try {\r",
 									"    var resp_data = pm.response.json();\r",
@@ -1422,7 +1421,8 @@
 									"    console.log(error.message);\r",
 									"}\r",
 									"\r"
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],

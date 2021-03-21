@@ -974,7 +974,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\r\n\"display_id\": \"\",\r\n\"contract_type\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"is_full_payment_contract\": \"\",\r\n\"buyer_id\": \"\",\r\n\"buyer_contact_user_id\": \"\",\r\n\"seller_id\": \"\",\r\n\"seller_contact_user_id\": \"\",\r\n\"created_date\": \"\",\r\n\"buyer_agreed_date\": \"\",\r\n\"seller_agreed_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"base_contract_amount\": \"\",\r\n\"tax_amount\": \"\",\r\n\"buyer_brokerage_amount\": \"\",\r\n\"seller_brokerage_amount\": \"\",\r\n\"has_buyer_deposited_amount\": \"\",\r\n\"has_seller_deposited_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"created_by\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"contract_type\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"is_full_payment_contract\": \"\",\r\n\"buyer_company_id\": \"\",\r\n\"buyer_contact_user_id\": \"\",\r\n\"seller_company_id\": \"\",\r\n\"seller_contact_user_id\": \"\",\r\n\"created_date\": \"\",\r\n\"buyer_agreed_date\": \"\",\r\n\"seller_agreed_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"base_contract_amount\": \"\",\r\n\"tax_amount\": \"\",\r\n\"buyer_brokerage_amount\": \"\",\r\n\"seller_brokerage_amount\": \"\",\r\n\"has_buyer_deposited_amount\": \"\",\r\n\"has_seller_deposited_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"created_by\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
                         },
                         "url": {
                             "raw": "{{BASE_URL}}/contract",
@@ -1060,7 +1060,7 @@
                             "raw": ""
                         },
                         "url": {
-                            "raw": "{{BASE_URL}}/contract/search?display_id=xyz&contract_type=xyz&name=xyz&description=xyz&is_full_payment_contract=xyz&buyer_id=xyz&buyer_contact_user_id=xyz&seller_id=xyz&seller_contact_user_id=xyz&created_date=xyz&buyer_agreed_date=xyz&seller_agreed_date=xyz&execution_planned_start_date=xyz&execution_planned_end_date=xyz&execution_actual_start_date=xyz&execution_actual_end_date=xyz&base_contract_amount=xyz&tax_amount=xyz&buyer_brokerage_amount=xyz&seller_brokerage_amount=xyz&has_buyer_deposited_amount=xyz&has_seller_deposited_amount=xyz&current_status=xyz&is_cancelled=xyz&is_closed=xyz&created_by=xyz&arbitrator_user_id=xyz",
+                            "raw": "{{BASE_URL}}/contract/search?display_id=xyz&contract_type=xyz&name=xyz&description=xyz&is_full_payment_contract=xyz&buyer_company_id=xyz&buyer_contact_user_id=xyz&seller_company_id=xyz&seller_contact_user_id=xyz&created_date=xyz&buyer_agreed_date=xyz&seller_agreed_date=xyz&execution_planned_start_date=xyz&execution_planned_end_date=xyz&execution_actual_start_date=xyz&execution_actual_end_date=xyz&base_contract_amount=xyz&tax_amount=xyz&buyer_brokerage_amount=xyz&seller_brokerage_amount=xyz&has_buyer_deposited_amount=xyz&has_seller_deposited_amount=xyz&current_status=xyz&is_cancelled=xyz&is_closed=xyz&created_by=xyz&arbitrator_user_id=xyz",
                             "host": [
                                 "{{BASE_URL}}"
                             ],
@@ -1090,7 +1090,7 @@
                                     "value": "xyz"
                                 },
                                 {
-                                    "key": "buyer_id",
+                                    "key": "buyer_company_id",
                                     "value": "xyz"
                                 },
                                 {
@@ -1098,7 +1098,7 @@
                                     "value": "xyz"
                                 },
                                 {
-                                    "key": "seller_id",
+                                    "key": "seller_company_id",
                                     "value": "xyz"
                                 },
                                 {
@@ -1200,7 +1200,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\r\n\"display_id\": \"\",\r\n\"contract_type\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"is_full_payment_contract\": \"\",\r\n\"buyer_id\": \"\",\r\n\"buyer_contact_user_id\": \"\",\r\n\"seller_id\": \"\",\r\n\"seller_contact_user_id\": \"\",\r\n\"created_date\": \"\",\r\n\"buyer_agreed_date\": \"\",\r\n\"seller_agreed_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"base_contract_amount\": \"\",\r\n\"tax_amount\": \"\",\r\n\"buyer_brokerage_amount\": \"\",\r\n\"seller_brokerage_amount\": \"\",\r\n\"has_buyer_deposited_amount\": \"\",\r\n\"has_seller_deposited_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"created_by\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
+                            "raw": "{\r\n\"display_id\": \"\",\r\n\"contract_type\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"is_full_payment_contract\": \"\",\r\n\"buyer_company_id\": \"\",\r\n\"buyer_contact_user_id\": \"\",\r\n\"seller_company_id\": \"\",\r\n\"seller_contact_user_id\": \"\",\r\n\"created_date\": \"\",\r\n\"buyer_agreed_date\": \"\",\r\n\"seller_agreed_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"base_contract_amount\": \"\",\r\n\"tax_amount\": \"\",\r\n\"buyer_brokerage_amount\": \"\",\r\n\"seller_brokerage_amount\": \"\",\r\n\"has_buyer_deposited_amount\": \"\",\r\n\"has_seller_deposited_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"created_by\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
                         },
                         "url": {
                             "raw": "{{BASE_URL}}/contract/{{CONTRACT_ID}}",

@@ -29,9 +29,9 @@ module.exports.get_all = async (filter) => {
                 is_active: true
             }
         };
-        // if (filter.hasOwnProperty('name')) {
-        //     search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
-        // }
+        if (filter.hasOwnProperty('name')) {
+            search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
+        }
         var records = await Company.findAll(search);
         for (var record of records) {
             objects.push(get_object_to_send(record));

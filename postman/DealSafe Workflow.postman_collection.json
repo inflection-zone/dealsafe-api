@@ -1,0 +1,1392 @@
+{
+	"info": {
+		"_postman_id": "07b0dc3e-b813-4250-8e70-23d738970854",
+		"name": "DealSafe Workflow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register/Login/Update",
+			"item": [
+				{
+					"name": "Create buyer",
+					"item": [
+						{
+							"name": "Register user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"USER_ID\", resp_data.data.entity.id);\r",
+											"    pm.environment.set(\"USER_NAME\", resp_data.data.entity.user_name);\r",
+											"    pm.environment.set(\"BUYER_USER_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"first_name\": \"{{FIRST_NAME}}\",\r\n    \"last_name\": \"{{LAST_NAME}}\",\r\n    \"prefix\": \"{{PREFIX}}\",\r\n    \"phone\": \"{{PHONE}}\",\r\n    \"email\": \"{{EMAIL}}\",\r\n    \"password\": \"{{PASSWORD}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user by id",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/user/{{USER_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"{{USER_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"USER_JWT\", resp_data.data.entity.access_token);\r",
+											"    pm.environment.set(\"BUYER_USER_JWT\", resp_data.data.entity.access_token);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_name\": \"{{USER_NAME}}\",\r\n    \"password\": \"Test@123\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create address",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"ADDRESS_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_phone\": \"9932323234\",\r\n    \"user_email\": \"kk@gmail.com\",\r\n    \"contract_name\": \"Sale of building materials\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/agreement/invite-user",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"agreement",
+										"invite-user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create company",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"COMPANY_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Inflection Zone Private Limited\",\r\n    \"description\": \"Solution providers\",\r\n    \"default_address_id\": \"{{ADDRESS_ID}}\",\r\n    \"contact_email\": \"{{EMAIL}}\",\r\n    \"contact_number\": \"{{PHONE}}\",\r\n    \"GSTN\": \"gfhgfhgh-fgjfkjdkfjdjs\",\r\n    \"PAN\": \"XXXXX1234Y\",\r\n    \"TAN\": \"XXXXX1234Y\",\r\n    \"contact_person_id\": \"{{USER_ID}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/company",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"company"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create bank details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"BANK_ACCOUNT_DETAILS_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"company_id\": \"{{COMPANY_ID}}\",\r\n    \"user_id\": \"{{USER_ID}}\",\r\n    \"is_company_account\": true,\r\n    \"account_number\": \"434325355767\",\r\n    \"account_name\": \"{{FIRST_NAME}} {{LAST_NAME}}\",\r\n    \"account_type\": 1,\r\n    \"bank_name\": \"ICICI Bank\",\r\n    \"bank_branch\": \"Shivajinagar, Pune\",\r\n    \"bank_ifsc_code\": \"ICIC0000039\",\r\n    \"PAN\": \"MNBVC1234A\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/bank-account-details",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"bank-account-details"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update bank details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{BANK_ACCOUNT_DETAILS_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"company_id\": \"{{COMPANY_ID}}\",\r\n    \"user_id\": \"{{USER_ID}}\",\r\n    \"is_company_account\": false,\r\n    \"account_number\": \"1111111111\",\r\n    \"account_name\": \"{{FIRST_NAME}} {{LAST_NAME}}\",\r\n    \"account_type\": 2,\r\n    \"bank_name\": \"HDFC Bank\",\r\n    \"bank_branch\": \"Kothrud, Pune\",\r\n    \"bank_ifsc_code\": \"HDFC0000039\",\r\n    \"PAN\": \"TERRE3233Q\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/bank-account-details/{{BANK_ACCOUNT_DETAILS_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"bank-account-details",
+										"{{BANK_ACCOUNT_DETAILS_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search users with filter",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/user/search?phone=1231231231&company_id={{COMPANY_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"search"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "Tom",
+											"disabled": true
+										},
+										{
+											"key": "phone",
+											"value": "1231231231"
+										},
+										{
+											"key": "email",
+											"value": "@gmail.com",
+											"disabled": true
+										},
+										{
+											"key": "company_id",
+											"value": "{{COMPANY_ID}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update user profile",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"first_name\": \"Sachin\",\r\n    \"last_name\": \"Tendulkar\",\r\n    \"phone\": \"1231231231\",\r\n    \"email\": \"sachin.tendulkar@inflectionzone.com\",\r\n    \"user_name\": \"sachin74\",\r\n    \"profile_picture\": \"wewq wewewe wqe\",\r\n    \"gender\": \"Male\",\r\n    \"birth_date\": \"1975-05-09\",\r\n    \"company_id\": \"{{COMPANY_ID}}\",\r\n    \"company_type\": \"Private Limited\",\r\n    \"is_contact_person_for_organization\": true,\r\n    \"primary_address_id\": \"{{ADDRESS_ID}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/{{USER_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"{{USER_ID}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var first_names = ['Jerry', 'Tom', 'Garfield', 'Jerome', 'Hobbes', 'Calvin', 'Nate', 'Peanuts', 'John', 'Abigale', 'Erin'];",
+									"",
+									"var last_names = ['Smith', 'Johnson',  'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall'];",
+									"",
+									"var first = first_names[Math.floor(Math.random() * first_names.length)];",
+									"var last = last_names[Math.floor(Math.random() * last_names.length)];",
+									"var phonenumber = (Math.floor(Math.random() * 9000000000) + 1000000000).toString();",
+									"var random_postfix = (Math.floor(Math.random() * 90000) + 10000).toString();",
+									"var email = first + \".\" + random_postfix + \".\" + last + \"@gmail.com\";",
+									"var password = \"Test@123\";",
+									"",
+									"pm.environment.set(\"FIRST_NAME\", first);",
+									"pm.environment.set(\"LAST_NAME\", last);",
+									"pm.environment.set(\"PREFIX\", \"Mr\");",
+									"pm.environment.set(\"PHONE\", phonenumber);",
+									"pm.environment.set(\"EMAIL\", email);",
+									"pm.environment.set(\"PASSWORD\", password);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Create seller",
+					"item": [
+						{
+							"name": "Register user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"USER_ID\", resp_data.data.entity.id);\r",
+											"    pm.environment.set(\"USER_NAME\", resp_data.data.entity.user_name);\r",
+											"    pm.environment.set(\"SELLER_USER_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"first_name\": \"{{FIRST_NAME}}\",\r\n    \"last_name\": \"{{LAST_NAME}}\",\r\n    \"prefix\": \"{{PREFIX}}\",\r\n    \"phone\": \"{{PHONE}}\",\r\n    \"email\": \"{{EMAIL}}\",\r\n    \"password\": \"{{PASSWORD}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user by id",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/user/{{USER_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"{{USER_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"USER_JWT\", resp_data.data.entity.access_token);\r",
+											"    pm.environment.set(\"SELLER_USER_JWT\", resp_data.data.entity.access_token);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_name\": \"{{USER_NAME}}\",\r\n    \"password\": \"Test@123\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create address",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"ADDRESS_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_phone\": \"9932323234\",\r\n    \"user_email\": \"kk@gmail.com\",\r\n    \"contract_name\": \"Sale of building materials\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/agreement/invite-user",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"agreement",
+										"invite-user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create company",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"COMPANY_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Inflection Zone Private Limited\",\r\n    \"description\": \"Solution providers\",\r\n    \"default_address_id\": \"{{ADDRESS_ID}}\",\r\n    \"contact_email\": \"{{EMAIL}}\",\r\n    \"contact_number\": \"{{PHONE}}\",\r\n    \"GSTN\": \"gfhgfhgh-fgjfkjdkfjdjs\",\r\n    \"PAN\": \"XXXXX1234Y\",\r\n    \"TAN\": \"XXXXX1234Y\",\r\n    \"contact_person_id\": \"{{USER_ID}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/company",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"company"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create bank details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"BANK_ACCOUNT_DETAILS_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"company_id\": \"{{COMPANY_ID}}\",\r\n    \"user_id\": \"{{USER_ID}}\",\r\n    \"is_company_account\": true,\r\n    \"account_number\": \"434325355767\",\r\n    \"account_name\": \"{{FIRST_NAME}} {{LAST_NAME}}\",\r\n    \"account_type\": 1,\r\n    \"bank_name\": \"ICICI Bank\",\r\n    \"bank_branch\": \"Shivajinagar, Pune\",\r\n    \"bank_ifsc_code\": \"ICIC0000039\",\r\n    \"PAN\": \"MNBVC1234A\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/bank-account-details",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"bank-account-details"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update bank details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{BANK_ACCOUNT_DETAILS_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"company_id\": \"{{COMPANY_ID}}\",\r\n    \"user_id\": \"{{USER_ID}}\",\r\n    \"is_company_account\": false,\r\n    \"account_number\": \"2222222222\",\r\n    \"account_name\": \"{{FIRST_NAME}} {{LAST_NAME}}\",\r\n    \"account_type\": 2,\r\n    \"bank_name\": \"HDFC Bank\",\r\n    \"bank_branch\": \"Kothrud, Pune\",\r\n    \"bank_ifsc_code\": \"ICIC0000039\",\r\n    \"PAN\": \"RERERR221Q\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/bank-account-details/{{BANK_ACCOUNT_DETAILS_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"bank-account-details",
+										"{{BANK_ACCOUNT_DETAILS_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search users with filter",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/user/search?phone=1231231231&company_id={{COMPANY_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"search"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "Tom",
+											"disabled": true
+										},
+										{
+											"key": "phone",
+											"value": "1231231231"
+										},
+										{
+											"key": "email",
+											"value": "@gmail.com",
+											"disabled": true
+										},
+										{
+											"key": "company_id",
+											"value": "{{COMPANY_ID}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update user profile",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"first_name\": \"Brian\",\r\n    \"last_name\": \"Lara\",\r\n    \"phone\": \"4343434343\",\r\n    \"email\": \"Brian.Lara@gmail.com\",\r\n    \"user_name\": \"lara74\",\r\n    \"profile_picture\": \"wewq wewewe wqe\",\r\n    \"gender\": \"Male\",\r\n    \"birth_date\": \"1975-05-09\",\r\n    \"company_id\": \"{{COMPANY_ID}}\",\r\n    \"company_type\": \"Private Limited\",\r\n    \"is_contact_person_for_organization\": true,\r\n    \"primary_address_id\": \"{{ADDRESS_ID}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/{{USER_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"{{USER_ID}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var first_names = ['Jerry', 'Tom', 'Garfield', 'Jerome', 'Hobbes', 'Calvin', 'Nate', 'Peanuts', 'John', 'Abigale', 'Erin'];",
+									"",
+									"var last_names = ['Smith', 'Johnson',  'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall'];",
+									"",
+									"var first = first_names[Math.floor(Math.random() * first_names.length)];",
+									"var last = last_names[Math.floor(Math.random() * last_names.length)];",
+									"var phonenumber = (Math.floor(Math.random() * 9000000000) + 1000000000).toString();",
+									"var random_postfix = (Math.floor(Math.random() * 90000) + 10000).toString();",
+									"var email = first + \".\" + random_postfix + \".\" + last + \"@gmail.com\";",
+									"var password = \"Test@123\";",
+									"",
+									"pm.environment.set(\"FIRST_NAME\", first);",
+									"pm.environment.set(\"LAST_NAME\", last);",
+									"pm.environment.set(\"PREFIX\", \"Mr\");",
+									"pm.environment.set(\"PHONE\", phonenumber);",
+									"pm.environment.set(\"EMAIL\", email);",
+									"pm.environment.set(\"PASSWORD\", password);",
+									"",
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Create contract",
+			"item": [
+				{
+					"name": "Create contract",
+					"item": [
+						{
+							"name": "Invite other user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"ADDRESS_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"address\": \"No 209/214 & 26, Kailash Building, KG Marg, Connaught Place\",\r\n    \"city\": \"Pune\",\r\n    \"state\": \"Maharashtra\",\r\n    \"country\": \"India\",\r\n    \"pincode\": \"411001\",\r\n    \"address_type\": \"Company address\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/address",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"address"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create contract",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Purchase of building supplies\",\r\n    \"is_full_payment_contract\": true,\r\n    \"buyer_company_id\": \"\",\r\n    \"buyer_contact_user_id\": \"\",\r\n    \"seller_company_id\": \"\",\r\n    \"seller_contact_user_id\": \"\",\r\n    \"created_date\": \"2021-03-25\",\r\n    \"execution_planned_start_date\": \"2021-03-28\",\r\n    \"execution_planned_end_date\": \"2021-04-25\",\r\n    \"base_contract_amount\": \"3213132\",\r\n    \"tax_amount\": \"21211\",\r\n    \"buyer_brokerage_amount\": \"1223\",\r\n    \"seller_brokerage_amount\": \"1323\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get contract by id",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/contract/{{CONTRACT_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract",
+										"{{CONTRACT_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search contracts with filters",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/contract/search?display_id=xyz&contract_type=xyz&name=xyz&description=xyz&is_full_payment_contract=xyz&buyer_id=xyz&buyer_contact_user_id=xyz&seller_id=xyz&seller_contact_user_id=xyz&created_date=xyz&buyer_agreed_date=xyz&seller_agreed_date=xyz&execution_planned_start_date=xyz&execution_planned_end_date=xyz&execution_actual_start_date=xyz&execution_actual_end_date=xyz&base_contract_amount=xyz&tax_amount=xyz&buyer_brokerage_amount=xyz&seller_brokerage_amount=xyz&has_buyer_deposited_amount=xyz&has_seller_deposited_amount=xyz&current_status=xyz&is_cancelled=xyz&is_closed=xyz&created_by=xyz&arbitrator_user_id=xyz",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract",
+										"search"
+									],
+									"query": [
+										{
+											"key": "display_id",
+											"value": "xyz"
+										},
+										{
+											"key": "contract_type",
+											"value": "xyz"
+										},
+										{
+											"key": "name",
+											"value": "xyz"
+										},
+										{
+											"key": "description",
+											"value": "xyz"
+										},
+										{
+											"key": "is_full_payment_contract",
+											"value": "xyz"
+										},
+										{
+											"key": "buyer_id",
+											"value": "xyz"
+										},
+										{
+											"key": "buyer_contact_user_id",
+											"value": "xyz"
+										},
+										{
+											"key": "seller_id",
+											"value": "xyz"
+										},
+										{
+											"key": "seller_contact_user_id",
+											"value": "xyz"
+										},
+										{
+											"key": "created_date",
+											"value": "xyz"
+										},
+										{
+											"key": "buyer_agreed_date",
+											"value": "xyz"
+										},
+										{
+											"key": "seller_agreed_date",
+											"value": "xyz"
+										},
+										{
+											"key": "execution_planned_start_date",
+											"value": "xyz"
+										},
+										{
+											"key": "execution_planned_end_date",
+											"value": "xyz"
+										},
+										{
+											"key": "execution_actual_start_date",
+											"value": "xyz"
+										},
+										{
+											"key": "execution_actual_end_date",
+											"value": "xyz"
+										},
+										{
+											"key": "base_contract_amount",
+											"value": "xyz"
+										},
+										{
+											"key": "tax_amount",
+											"value": "xyz"
+										},
+										{
+											"key": "buyer_brokerage_amount",
+											"value": "xyz"
+										},
+										{
+											"key": "seller_brokerage_amount",
+											"value": "xyz"
+										},
+										{
+											"key": "has_buyer_deposited_amount",
+											"value": "xyz"
+										},
+										{
+											"key": "has_seller_deposited_amount",
+											"value": "xyz"
+										},
+										{
+											"key": "current_status",
+											"value": "xyz"
+										},
+										{
+											"key": "is_cancelled",
+											"value": "xyz"
+										},
+										{
+											"key": "is_closed",
+											"value": "xyz"
+										},
+										{
+											"key": "created_by",
+											"value": "xyz"
+										},
+										{
+											"key": "arbitrator_user_id",
+											"value": "xyz"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update contract",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_type\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"is_full_payment_contract\": \"\",\r\n\"buyer_id\": \"\",\r\n\"buyer_contact_user_id\": \"\",\r\n\"seller_id\": \"\",\r\n\"seller_contact_user_id\": \"\",\r\n\"created_date\": \"\",\r\n\"buyer_agreed_date\": \"\",\r\n\"seller_agreed_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"base_contract_amount\": \"\",\r\n\"tax_amount\": \"\",\r\n\"buyer_brokerage_amount\": \"\",\r\n\"seller_brokerage_amount\": \"\",\r\n\"has_buyer_deposited_amount\": \"\",\r\n\"has_seller_deposited_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"created_by\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract/{{CONTRACT_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract",
+										"{{CONTRACT_ID}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Add milestones",
+					"item": []
+				},
+				{
+					"name": "Update contract",
+					"item": []
+				}
+			]
+		},
+		{
+			"name": "Accept contract",
+			"item": [
+				{
+					"name": "Buyer deposits amount",
+					"item": []
+				},
+				{
+					"name": "Seller deposits brokerage",
+					"item": []
+				},
+				{
+					"name": "Accept contract",
+					"item": []
+				}
+			]
+		},
+		{
+			"name": "Contract execution",
+			"item": [
+				{
+					"name": "Start milestone",
+					"item": []
+				},
+				{
+					"name": "End milestone",
+					"item": []
+				},
+				{
+					"name": "Send payment request",
+					"item": []
+				},
+				{
+					"name": "Confirm payment receipt",
+					"item": []
+				},
+				{
+					"name": "Close milestone",
+					"item": []
+				}
+			]
+		},
+		{
+			"name": "Close contract",
+			"item": []
+		},
+		{
+			"name": "Raise dispute",
+			"item": []
+		}
+	]
+}

@@ -151,7 +151,7 @@ function get_entity_to_save(request_body) {
         bank_name: request_body.bank_name ? request_body.bank_name : null,
         bank_branch: request_body.bank_branch ? request_body.bank_branch : null,
         bank_ifsc_code: request_body.bank_ifsc_code ? request_body.bank_ifsc_code : null,
-        PAN: request_body.pan ? request_body.pan : null
+        PAN: request_body.PAN ? request_body.PAN : null
     };
 }
 

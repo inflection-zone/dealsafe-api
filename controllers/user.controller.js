@@ -258,9 +258,21 @@ exports.change_password = async (req, res) => {
 
 function get_search_filters(req) {
     var filter = {};
-    //var name = req.query.name ? req.query.name : null;
-    // if (name != null) {
-    //     filter['name'] = name;
-    // }
+    var name = req.query.name ? req.query.name : null;
+    if (name != null) {
+        filter['name'] = name;
+    }
+    var phone = req.query.phone ? req.query.phone : null;
+    if (phone != null) {
+        filter['phone'] = phone;
+    }
+    var email = req.query.email ? req.query.email : null;
+    if (email != null) {
+        filter['email'] = email;
+    }
+    var company_id = req.query.company_id ? req.query.company_id : null;
+    if (company_id != null) {
+        filter['company_id'] = company_id;
+    }
     return filter;
 }

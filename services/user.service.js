@@ -23,7 +23,7 @@ module.exports.create = async (request_body, roles) => {
         if (roles && roles.length > 0) {
             user_roles = await add_user_roles(record.id, roles);
         }
-        return get_object_to_send(record, user_roles);
+        return get_object_to_send(record, await get_user_roles(record.id));
     } catch (error) {
         var msg = 'Problem encountered while creating user instance!';
         error_handler.throw_service_error(error, msg);
@@ -525,7 +525,6 @@ function validate_password(password) {
     }
     return false;
 }
-
 
 async function get_user(user_id, user_name, phone, email) {
     var user = null;
