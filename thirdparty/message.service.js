@@ -2,7 +2,7 @@
 // const auth_token = process.env.TWILIO_AUTH_TOKEN;
 // const client = require('twilio')(account_sid, auth_token);
 
-module.exports.SendMessage_SMS = async (
+module.exports.send_message_sms = async (
     to_phone, 
     message_body, 
     from_phone) => {
@@ -17,7 +17,7 @@ module.exports.SendMessage_SMS = async (
     //     });
 }
 
-module.exports.SendMessage_WhatsApp = async (
+module.exports.send_message_whatsapp = async (
     to_phone, 
     message_body, 
     from_phone) => {

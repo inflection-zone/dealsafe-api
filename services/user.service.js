@@ -3,6 +3,7 @@
 const db = require('../database/connection');
 const User = require('../database/models/User').Model;
 const UserRole = require('../database/models/UserRole').Model;
+const Role = require('../database/models/Role').Model;
 const helper = require('../common/helper');
 const authorization_handler = require('../common/authorization_handler');
 const error_handler = require('../common/error_handler');
@@ -10,13 +11,19 @@ const logger = require('../common/logger');
 const { DateTime } = require('luxon');
 const Op = require('sequelize').Op;
 const bcryptjs = require('bcryptjs');
+const Roles = require('../common/constants').Roles;
+
 const messaging_service = require('../thirdparty/message.service');
 
-module.exports.create = async (request_body) => {
+module.exports.create = async (request_body, roles) => {
     try {
         var entity = await get_entity_to_save(request_body)
         var record = await User.create(entity);
-        return get_object_to_send(record);
+        var user_roles = [];
+        if (roles && roles.length > 0) {
+            user_roles = await add_user_roles(record.id, roles);
+        }
+        return get_object_to_send(record, user_roles);
     } catch (error) {
         var msg = 'Problem encountered while creating user instance!';
         error_handler.throw_service_error(error, msg);
@@ -47,7 +54,7 @@ module.exports.get_all = async (filter) => {
             search.where['company_id'] = filter.company_id;
         }
         if (filter.hasOwnProperty('phone')) {
-            search.where['phone_work'] = { [Op.iLike]: '%' + filter.phone + '%' };
+            search.where['phone'] = { [Op.iLike]: '%' + filter.phone + '%' };
         }
         if (filter.hasOwnProperty('email')) {
             search.where['email'] = { [Op.iLike]: '%' + filter.email + '%' };
@@ -240,14 +247,14 @@ module.exports.generate_otp = async (phone, user_name, user_id) => {
         var entity = await Otp.create({
             user_name: user.user_name,
             user_id: user.id,
-            phone_work: user.phone_work,
+            phone: user.phone,
             OTP: otp,
             valid_from: Date.now(),
             valid_to: valid_to
         });
         var platform_phone_number = '+91 1234567890';
         var otp_message = `Hello ${user.first_name}, ${otp} is login OTP for login on Deal-Safe platform. If you have not requested this OTP, please contact Deal-Safe support.`;
-        await communication_service.send_sms(user.phone_work, otp_message, platform_phone_number);
+        await messaging_service.send_message_sms(user.phone, otp_message, platform_phone_number);
         return entity;
     }
     catch (error) {
@@ -261,7 +268,7 @@ module.exports.login_with_otp = async (phone, user_name, user_id, otp) => {
         var user = await get_user(user_id, user_name, phone, null);
         var otp_entity = await Otp.findOne({
             where: {
-                phone_work: user.phone_work,
+                phone: user.phone,
                 user_id: user.id,
                 user_name: user.user_name,
                 OTP: otp
@@ -279,7 +286,7 @@ module.exports.login_with_otp = async (phone, user_name, user_id, otp) => {
             user_name: user.user_name,
             first_name: user.first_name,
             last_name: user.last_name,
-            phone: user.phone_work,
+            phone: user.phone,
             email: user.email,
             enterprise_type_id: user.enterprise_type_id,
             enterprise_id: user.enterprise_id
@@ -316,7 +323,7 @@ module.exports.login = async (phone, email, user_name, password) => {
             user_name: user.user_name,
             first_name: user.first_name,
             last_name: user.last_name,
-            phone: user.phone_work,
+            phone: user.phone,
             email: user.email,
             enterprise_type_id: user.enterprise_type_id,
             enterprise_id: user.enterprise_id
@@ -377,7 +384,7 @@ module.exports.change_password = async (user_id, previous_password, new_password
 };
 
 async function get_entity_to_save(request_body) {
-    
+
     var user_name = await generate_user_name(request_body.first_name, request_body.last_name);
 
     return {
@@ -527,8 +534,7 @@ async function get_user(user_id, user_name, phone, email) {
             where: {
                 is_active: true,
                 [Op.or]: [
-                    { phone_work: { [Op.like]: '%' + phone + '%' } },
-                    { phone_personal: { [Op.like]: '%' + phone + '%' } }
+                    { phone: { [Op.like]: '%' + phone + '%' } }
                 ]
             }
         });
@@ -548,7 +554,7 @@ async function get_user(user_id, user_name, phone, email) {
         err_message += email ? ' - with Email(' + email + ')' : '';
         err_message += user_name ? ' - with username(' + user_name + ')' : '';
         err_message += user_id ? ' - with user id(' + user_id + ')' : '';
-        
+
         throw new Error(err_message);
     }
     return user;
@@ -574,4 +580,35 @@ async function generate_user_name(first, last) {
         });
     }
     return user_name;
+}
+
+async function get_roles(role_names) {
+    var roles = [];
+    for await (var role_name of role_names) {
+        var role = await Role.findOne({
+            where:
+            {
+                name: {
+                    [Op.like]: '%' + role_name + '%'
+                }
+            }
+        });
+        if (role) {
+            roles.push(role);
+        }
+    }
+    return roles;
+}
+
+async function add_user_roles(user_id, role_names) {
+    var roles = await get_roles(role_names);
+    var user_roles = [];
+    for await (var role of roles) {
+        var user_role = await UserRole.create({
+            user_id: user_id,
+            role_id: role.id
+        });
+        user_roles.push(user_role);
+    }
+    return user_roles;
 }

@@ -13,7 +13,6 @@ const schema = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true
     },
-
     display_id: {
         type: Sequelize.STRING(64),
         allowNull: false
@@ -26,7 +25,7 @@ const schema = {
         type: Sequelize.STRING(1024),
         allowNull: true
     },
-    default_address: {
+    default_address_id: {
         type: Sequelize.UUID,
         allowNull: true
     },
@@ -50,19 +49,7 @@ const schema = {
         type: Sequelize.STRING(256),
         allowNull: false
     },
-    contact_person_prefix: {
-        type: Sequelize.STRING(16),
-        allowNull: true
-    },
-    contact_person_first_name: {
-        type: Sequelize.STRING(64),
-        allowNull: true
-    },
-    contact_person_last_name: {
-        type: Sequelize.STRING(64),
-        allowNull: true
-    },
-    primary_address_id: {
+    contact_person_id: {
         type: Sequelize.UUID,
         allowNull: true
     },
@@ -71,7 +58,6 @@ const schema = {
         allowNull: false,
         defaultValue: 'On-premises'
     },
-
 
     is_active: {
         type: Sequelize.BOOLEAN,

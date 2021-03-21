@@ -10,7 +10,7 @@ const schema = {
 
     user_id: { type: Sequelize.UUID, allowNull: true },
     user_name: { type: Sequelize.STRING(30), allowNull: true },
-    phone_work: { type: Sequelize.STRING(15), allowNull: true },
+    phone: { type: Sequelize.STRING(15), allowNull: true },
 
     OTP: { type: Sequelize.STRING(6), allowNull: false },
     valid_from: { type: Sequelize.DATE, allowNull: true },

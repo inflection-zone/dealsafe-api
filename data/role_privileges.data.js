@@ -1,22 +1,82 @@
 module.exports.RolePrivileges = [
-    { 
-            role: 'Admin', 
-            privileges: [
-                //'user.get_by_id',
-                ],
-            },
-        { 
-            role: 'Buyer', 
-            privileges: [
-                //'user.get_by_id',
-                ],
-            },
-        { 
-            role: 'Seller', 
-            privileges: [
-                //'user.get_by_id',
-                ],
-            },
-        
-    ]
-    
+    {
+        role: 'Admin',
+        privileges: [
+            'user.create',
+            'user.get_all',
+            'user.get_by_id',
+            'user.update',
+            'user.delete'
+        ],
+    },
+    {
+        role: 'Basic User',
+        privileges: [
+            'address.create',
+            'address.get_all',
+            'address.get_by_id',
+            'address.update',
+            'address.delete',
+            'company.create',
+            'company.get_all',
+            'company.get_by_id',
+            'company.update',
+            'company.delete',
+            'user.get_all',
+            'user.get_by_id',
+            'user.update',
+            'bank_account_details.create',
+            'bank_account_details.get_all',
+            'bank_account_details.get_by_id',
+            'bank_account_details.update',
+            'bank_account_details.delete',
+        ],
+    },
+    {
+        role: 'Buyer',
+        privileges: [
+            'address.create',
+            'address.get_all',
+            'address.get_by_id',
+            'address.update',
+            'address.delete',
+            'company.create',
+            'company.get_all',
+            'company.get_by_id',
+            'company.update',
+            'company.delete',
+            'user.get_all',
+            'user.get_by_id',
+            'user.update',
+            'bank_account_details.create',
+            'bank_account_details.get_all',
+            'bank_account_details.get_by_id',
+            'bank_account_details.update',
+            'bank_account_details.delete',
+        ],
+    },
+    {
+        role: 'Seller',
+        privileges: [
+            'address.create',
+            'address.get_all',
+            'address.get_by_id',
+            'address.update',
+            'address.delete',
+            'company.create',
+            'company.get_all',
+            'company.get_by_id',
+            'company.update',
+            'company.delete',
+            'user.get_all',
+            'user.get_by_id',
+            'user.update',
+            'bank_account_details.create',
+            'bank_account_details.get_all',
+            'bank_account_details.get_by_id',
+            'bank_account_details.update',
+            'bank_account_details.delete',
+        ],
+    },
+
+]

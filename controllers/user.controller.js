@@ -3,6 +3,7 @@ const helper = require('../common/helper');
 const response_handler = require('../common/response_handler');
 const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
+const Roles = require('../common/constants').Roles;
 const authorization_handler = require('../common/authorization_handler');
 const activity_handler = require('../common/activity_handler');
 
@@ -19,7 +20,7 @@ exports.create = async (req, res) => {
             response_handler.set_failure_response(res, 200, 'Missing required parameters.', req);
             return;
         }
-        const entity = await user_service.create(req.body);
+        const entity = await user_service.create(req.body, [Roles.BasicUser]);
         activity_handler.record_activity(req.user, 'user.create', req, res, 'User');
         response_handler.set_success_response(res, 201, 'User added successfully!', {
             entity: entity

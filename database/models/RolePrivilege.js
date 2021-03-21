@@ -19,7 +19,7 @@ const schema = {
         allowNull: false
     },
     privilege_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false
     },
 

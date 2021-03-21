@@ -33,12 +33,10 @@ async function seed_roles() {
     if (roles.length > 0) {
         return;
     };
-    //await Role.create({ name: Constants.Roles.Admin });
-
     await Role.create({ name: Constants.Roles.Admin });
     await Role.create({ name: Constants.Roles.Buyer });
     await Role.create({ name: Constants.Roles.Seller });
-
+    await Role.create({ name: Constants.Roles.BasicUser });
 }
 
 async function seed_privileges() {

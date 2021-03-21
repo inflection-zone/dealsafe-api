@@ -63,4 +63,4 @@
     'user.get_all',
     'user.get_by_id',
     'user.update',
-    'user.delete',
+    'user.delete'

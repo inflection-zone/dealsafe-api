@@ -23,7 +23,6 @@ const schema = {
         allowNull: false
     },
 
-
     is_active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

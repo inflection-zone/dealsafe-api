@@ -7,12 +7,7 @@ const sequelize = db.sequelize;
 
 const schema = {
 
-    id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        defaultValue: Sequelize.UUIDV4,
-        primaryKey: true
-    },
+    id: { type: Sequelize.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
 
     name: {
         type: Sequelize.STRING(128),
@@ -22,7 +17,6 @@ const schema = {
         type: Sequelize.STRING(256),
         allowNull: true
     },
-
 
     is_active: {
         type: Sequelize.BOOLEAN,

@@ -11,8 +11,17 @@ exports.create = async (req, res) => {
         if (!await authorization_handler.is_authorized('company.create', req, res)) {
             return;
         }
-        if (!req.body.display_id || !req.body.name || !req.body.contact_number || !req.body.tan || !req.body.subscription_type) {
+        if (!req.body.name || !req.body.contact_number || !req.body.TAN) {
             response_handler.set_failure_response(res, 200, 'Missing required parameters.', req);
+            return;
+        }
+        var exists = await company_service.company_exists_with(
+            req.body.contact_number,
+            req.body.contact_email,
+            req.body.GSTN,
+            req.body.TAN);
+        if (exists) {
+            response_handler.set_failure_response(res, 200, 'Company already exists with the given contact details.', req);
             return;
         }
         const entity = await company_service.create(req.body);
