@@ -3,7 +3,7 @@
 const db = require('../database/connection');
 const Notification = require('../database/models/Notification').Model;
 const helper = require('../common/helper');
-const error_handler = require('../common/error_handler');
+const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
 
 module.exports.create = async (request_body) => {
@@ -12,12 +12,11 @@ module.exports.create = async (request_body) => {
         var record = await Notification.create(entity);
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while creating notification instance!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-module.exports.get_all = async (filter) => {
+module.exports.search = async (filter) => {
     try {
         let objects = [];
         var search = {
@@ -34,8 +33,7 @@ module.exports.get_all = async (filter) => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while retrieving notification instances!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -51,11 +49,9 @@ module.exports.get_by_id = async (id) => {
         if (record == null) {
             return null;
         }
-
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while retrieving notification by id!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -69,7 +65,7 @@ module.exports.update = async (id, request_body) => {
             }
         });
         if (res.length != 1) {
-            throw new Error('Unable to update notification!');
+            throw new ApiError('Unable to update notification!');
         }
         var search = {
             where: {
@@ -84,8 +80,7 @@ module.exports.update = async (id, request_body) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while updating notification!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -100,8 +95,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        var msg = 'Problem encountered while deleting notification!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 module.exports.get_deleted = async () => {
@@ -116,8 +110,7 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while deleted instances of notification!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 module.exports.exists = async (id) => {
@@ -135,8 +128,7 @@ module.exports.exists = async (id) => {
 
         return record != null;
     } catch (error) {
-        var msg = 'Problem encountered while checking existance of notification with id ' + id.toString() + '!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 

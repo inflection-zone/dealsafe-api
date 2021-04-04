@@ -1,51 +1,79 @@
 const logger = require('./logger');
+const activity_handler = require('./activity_handler');
+const { ApiError } = require('./api_error');
 
-
-module.exports.set_success_response = (response, code, message, data, logData = true) => {
-    var obj = {
+exports.set_success_response = (response, request, response_code, message, data, logData = true) => {
+    var response_object = {
         status: 'success',
         message: message,
-        data: data
+        response_code: response_code,
+        data: data ? data : null,
+        api_version: process.env.API_VERSION,
+        service_version: process.env.SERVICE_VERSION
     };
-    if (logData) {
-        if (process.env.NODE_ENV != 'test') {
-            logger.log(JSON.stringify(obj));
-        }
-    }
-    else {
-        var tempObj = {
+    var request_object = {
+        host: request.hostname,
+        headers: request.headers,
+        body: request.body,
+        method: request.method,
+        url: request.originalUrl,
+        params: request.params,
+        client_ip: request.client_ip,
+    };
+    if (process.env.NODE_ENV != 'test') {
+        var obj = {
             status: 'success',
             message: message,
-            data: null
+            response_code: response_code
         };
-        if(process.env.NODE_ENV != 'test'){
-            logger.log(JSON.stringify(tempObj));
+        if(logData){
+            obj = response_object;
         }
+        logger.log(JSON.stringify(obj, null, 2));
     }
-    return response.status(code).send(obj);
+    activity_handler.record_activity(request_object, response_object, null);
+    return response.status(response_code).send(response_object);
 }
 
-module.exports.set_failure_response = (response, code, message, request = null, trace = null, error_details = null, logData = true) => {
+exports.set_failure_response = (response, request, error = null) => {
 
-    var tmp = trace ? trace.split('\n') : null;
-    var trace_path = tmp ? tmp.map(x => x.trim()) : null;
+    var response_code = error ? error.http_error_code : 500;
 
     var obj = {
         status: 'failure',
-        error: error_details,
-        message: message,
-        trace: trace_path,
+        message: error? error.message : message,
+        api_error_code: error ? error.api_error_code : null,
+        trace: error ? error.trace : null,
         request: {
+            context: request.context ? request.context : null,
+            user_id: request.user ? request.user.user_id : null,
+            user_full_name: request.user? request.user.first_name + ' ' + request.user.last_name : 'unknown: <public route>',
             host: request.hostname,
             headers: request.headers,
             body: request.body,
             method: request.method,
             url: request.originalUrl,
-            params: request.params
-        }
+            params: request.params,
+            client_ip: request.client_ip
+        },
+        api_version: process.env.API_VERSION,
+        service_version: process.env.SERVICE_VERSION
     };
     if(process.env.NODE_ENV != 'test'){
-        logger.log(JSON.stringify(obj));
+        logger.log(JSON.stringify(obj, null, 2));
     }
-    return response.status(code).send(obj);
+    return response.status(response_code).send(obj);
+}
+
+exports.handle_error = (error, res, req) => {
+
+    if (error instanceof ApiError) {
+        activity_handler.record_activity(req, res, error);
+        exports.set_failure_response(res, req, error);
+    }
+    else {
+        var api_error = new ApiError(error.message, 500, null, error.stack);
+        activity_handler.record_activity(req, res, api_error);
+        exports.set_failure_response(res, req, api_error);
+    }
 }

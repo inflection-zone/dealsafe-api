@@ -3,8 +3,8 @@
 const db = require('../database/connection');
 const BankAccountDetails = require('../database/models/BankAccountDetails').Model;
 const helper = require('../common/helper');
-const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
+const { ApiError } = require('../common/api_error');
 
 module.exports.create = async (request_body) => {
     try {
@@ -12,12 +12,11 @@ module.exports.create = async (request_body) => {
         var record = await BankAccountDetails.create(entity);
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while creating bank_account_details instance!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-module.exports.get_all = async (filter) => {
+module.exports.search = async (filter) => {
     try {
         let objects = [];
         var search = {
@@ -34,8 +33,7 @@ module.exports.get_all = async (filter) => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while retrieving bank_account_details instances!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -54,8 +52,7 @@ module.exports.get_by_id = async (id) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while retrieving bank_account_details by id!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -69,7 +66,7 @@ module.exports.update = async (id, request_body) => {
             }
         });
         if (res.length != 1) {
-            throw new Error('Unable to update bank_account_details!');
+            throw new ApiError('Unable to update bank_account_details!');
         }
         var search = {
             where: {
@@ -81,11 +78,9 @@ module.exports.update = async (id, request_body) => {
         if (record == null) {
             return null;
         }
-
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while updating bank_account_details!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -100,8 +95,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        var msg = 'Problem encountered while deleting bank_account_details!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 module.exports.get_deleted = async () => {
@@ -116,8 +110,7 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while deleted instances of bank_account_details!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 module.exports.exists = async (id) => {
@@ -132,11 +125,9 @@ module.exports.exists = async (id) => {
         if (record == null) {
             return null;
         }
-
         return record != null;
     } catch (error) {
-        var msg = 'Problem encountered while checking existance of bank_account_details with id ' + id.toString() + '!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 

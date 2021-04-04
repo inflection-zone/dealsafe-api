@@ -1,6 +1,6 @@
 const resource_service = require('../services/resource.service');
 const response_handler = require('../common/response_handler');
-const error_handler = require('../common/error_handler');
+
 const activity_handler = require('../common/activity_handler');
 var path = require('path');
 var mime = require('mime');
@@ -10,7 +10,7 @@ const authorization_handler = require('../common/authorization_handler');
 
 exports.upload = async (req, res) => {
     try {
-        if (! await authorization_handler.is_authorized('resource.upload', req, res)) {
+        if (! await authorization_handler.check_role_authorization('resource.upload', req, res)) {
             return;
         }
         var user_id = null;
@@ -25,17 +25,17 @@ exports.upload = async (req, res) => {
         var is_public = req.body.public ? req.body.public : false;
         var details = await resource_service.upload(user_id, req.files, is_public, reference_item_id);
         activity_handler.record_activity(req.user, 'resource.upload', req, res, 'Resource');
-        response_handler.set_success_response(res, 200, 'File/s uploaded successfully!', { details: details });
+        response_handler.set_success_response(res, req, 200, 'File/s uploaded successfully!', { details: details });
     }
     catch (error) {
         activity_handler.record_activity(req.user, 'resource.upload', req, res, 'Resource', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.download = async (req, res) => {
     try {
-        if (! await authorization_handler.is_authorized('resource.download', req, res)) {
+        if (! await authorization_handler.check_role_authorization('resource.download', req, res)) {
             return;
         }
         const resource_id = req.params.resource_id;
@@ -59,7 +59,7 @@ exports.download = async (req, res) => {
     }
     catch (error) {
         activity_handler.record_activity(req.user, 'resource.download', req, res, 'Resource', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
@@ -89,13 +89,13 @@ exports.download_public = async (req, res) => {
     }
     catch (error) {
         activity_handler.record_activity(req.user, 'resource.download_public', req, res, 'Resource', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.download_by_reference = async (req, res) => {
     try {
-        if (! await authorization_handler.is_authorized('resource.download_by_reference', req, res)) {
+        if (! await authorization_handler.check_role_authorization('resource.download_by_reference', req, res)) {
             return;
         }
         const reference_item_id = req.params.reference_item_id;
@@ -121,29 +121,29 @@ exports.download_by_reference = async (req, res) => {
     }
     catch (error) {
         activity_handler.record_activity(req.user, 'resource.download_by_reference', req, res, 'Resource', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.delete = async (req, res) => {
     try {
-        if (! await authorization_handler.is_authorized('resource.delete', req, res)) {
+        if (! await authorization_handler.check_role_authorization('resource.delete', req, res)) {
             return;
         }
         const resource_id = req.params.resource_id;
         await resource_service.delete(resource_id);
         activity_handler.record_activity(req.user, 'resource.delete', req, res, 'Resource');
-        response_handler.set_success_response(res, 200, 'Resource deleted successfully!', null);
+        response_handler.set_success_response(res, req, 200, 'Resource deleted successfully!', null);
     }
     catch (error) {
         activity_handler.record_activity(req.user, 'resource.delete', req, res, 'Resource', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.delete_by_reference = async (req, res) => {
     try {
-        if (! await authorization_handler.is_authorized('resource.delete_by_reference', req, res)) {
+        if (! await authorization_handler.check_role_authorization('resource.delete_by_reference', req, res)) {
             return;
         }
         const reference_item_id = req.params.reference_item_id;
@@ -153,34 +153,34 @@ exports.delete_by_reference = async (req, res) => {
             await resource_service.delete(resource.id);
         }
         activity_handler.record_activity(req.user, 'resource.delete_by_reference', req, res, 'Resource');
-        response_handler.set_success_response(res, 200, 'Resources deleted successfully!', null);
+        response_handler.set_success_response(res, req, 200, 'Resources deleted successfully!', null);
     }
     catch (error) {
         activity_handler.record_activity(req.user, 'resource.delete_by_reference', req, res, 'Resource', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.get_resources_by_reference = async (req, res) => {
     try {
-        if (! await authorization_handler.is_authorized('resource.get_resources_by_reference', req, res)) {
+        if (! await authorization_handler.check_role_authorization('resource.get_resources_by_reference', req, res)) {
             return;
         }
         const reference_item_id = req.params.reference_item_id;
         const reference_item_keyword = req.query.reference_item_keyword ? req.query.reference_item_keyword : null;
         var resources = await resource_service.get_resources_by_reference(reference_item_id, reference_item_keyword);
         activity_handler.record_activity(req.user, 'resource.get_resources_by_reference', req, res, 'Resource');
-        response_handler.set_success_response(res, 200, 'Resources for reference item retrieved successfully!', { resources: resources });
+        response_handler.set_success_response(res, req, 200, 'Resources for reference item retrieved successfully!', { resources: resources });
     }
     catch (error) {
         activity_handler.record_activity(req.user, 'resource.get_resources_by_reference', req, res, 'Resource', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.update_resource_reference = async (req, res) => {
     try {
-        if (! await authorization_handler.is_authorized('resource.update_resource_reference', req, res)) {
+        if (! await authorization_handler.check_role_authorization('resource.update_resource_reference', req, res)) {
             return;
         }
         if(!req.body.reference_item_id){
@@ -190,10 +190,10 @@ exports.update_resource_reference = async (req, res) => {
         const reference_item_keyword = req.body.reference_item_keyword ? req.body.reference_item_keyword : null;
         await resource_service.update_resource_reference(req.params.resource_id, reference_item_id, reference_item_keyword);
         activity_handler.record_activity(req.user, 'resource.update_resource_reference', req, res, 'Resource');
-        response_handler.set_success_response(res, 200, 'Resource reference updated successfully!', null);
+        response_handler.set_success_response(res, req, 200, 'Resource reference updated successfully!', null);
     }
     catch (error) {
         activity_handler.record_activity(req.user, 'resource.update_resource_reference', req, res, 'Resource', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 }

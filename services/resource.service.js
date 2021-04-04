@@ -1,7 +1,7 @@
 
 const Resource = require('../database/models/Resource').Model;
 const Op = require('sequelize').Op;
-const error_handler = require('../common/error_handler');
+const { ApiError } = require('../common/api_error');
 const file_upload = require('express-fileupload');
 const logger = require('../common/logger');
 const aws = require('aws-sdk');
@@ -202,7 +202,7 @@ module.exports.upload_to_cloud_storage = async (user_id, details, is_public, ref
 
     }
     catch (error) {
-        throw new Error(error.message);
+        throw(error);
     }
 }
 
@@ -229,7 +229,7 @@ module.exports.update_resource_reference = async (resource_id, reference_item_id
         await resource.save();
     }
     catch (error) {
-        throw new Error(error.message);
+        throw(error);
     }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -332,7 +332,7 @@ async function cleanup_folders(parent_folder) {
         }
     }
     catch (error) {
-        logger.log(error.message, 500, null);
+        logger.log(error.message);
     }
 }
 

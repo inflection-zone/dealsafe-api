@@ -5,7 +5,7 @@ const Company = require('../database/models/Company').Model;
 const Address = require('../database/models/Address').Model;
 const User = require('../database/models/User').Model;
 const helper = require('../common/helper');
-const error_handler = require('../common/error_handler');
+const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
 const _ = require('lodash');
 const Op = require('sequelize').Op;
@@ -16,12 +16,11 @@ module.exports.create = async (request_body) => {
         var record = await Company.create(entity);
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while creating company instance!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-module.exports.get_all = async (filter) => {
+module.exports.search = async (filter) => {
     try {
         let objects = [];
         var search = {
@@ -38,8 +37,7 @@ module.exports.get_all = async (filter) => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while retrieving company instances!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -55,11 +53,9 @@ module.exports.get_by_id = async (id) => {
         if (record == null) {
             return null;
         }
-
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while retrieving company by id!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -73,7 +69,7 @@ module.exports.update = async (id, request_body) => {
             }
         });
         if (res.length != 1) {
-            throw new Error('Unable to update company!');
+            throw new ApiError('Unable to update company!');
         }
         var search = {
             where: {
@@ -89,7 +85,7 @@ module.exports.update = async (id, request_body) => {
         return get_object_to_send(record);
     } catch (error) {
         var msg = 'Problem encountered while updating company!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -105,7 +101,7 @@ module.exports.delete = async (id) => {
         return res.length == 1;
     } catch (error) {
         var msg = 'Problem encountered while deleting company!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -122,7 +118,7 @@ module.exports.get_deleted = async () => {
         return objects;
     } catch (error) {
         var msg = 'Problem encountered while deleted instances of company!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -142,7 +138,7 @@ module.exports.exists = async (id) => {
         return record != null;
     } catch (error) {
         var msg = 'Problem encountered while checking existance of company with id ' + id.toString() + '!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -172,7 +168,7 @@ module.exports.company_exists_with = async (phone, email, gstn, tan, name = null
         return records.length > 0;
     } catch (error) {
         var msg = 'Problem encountered while checking existance of company!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 

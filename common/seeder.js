@@ -141,7 +141,7 @@ async function seed_city_pincodes_from_sql() {
         const path = require('path');
         const fs = require('fs');
 
-        var file_path = path.join(process.cwd(), './raw_data/pincodes.sql');
+        var file_path = path.join(process.cwd(), './data/pincodes.sql');
         var sql = fs.readFileSync(file_path).toString();
 
         const client = new Client({

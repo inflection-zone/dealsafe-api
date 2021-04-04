@@ -1,14 +1,14 @@
 const agreement_clause_service = require('../services/agreement_clause.service');
 const helper = require('../common/helper');
 const response_handler = require('../common/response_handler');
-const error_handler = require('../common/error_handler');
+
 const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
 const activity_handler = require('../common/activity_handler');
 
 exports.create = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('agreement_clause.create', req, res)) {
+        if (!await authorization_handler.check_role_authorization('agreement_clause.create', req, res)) {
             return;
         }
         if (!req.body.contract_id || !req.body.text) {
@@ -17,35 +17,35 @@ exports.create = async (req, res) => {
         }
         const entity = await agreement_clause_service.create(req.body);
         activity_handler.record_activity(req.user, 'agreement_clause.create', req, res, 'AgreementClause');
-        response_handler.set_success_response(res, 201, 'AgreementClause added successfully!', {
+        response_handler.set_success_response(res, req, 201, 'AgreementClause added successfully!', {
             entity: entity
         });
     } catch (error) {
         activity_handler.record_activity(req.user, 'agreement_clause.create', req, res, 'AgreementClause', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
-exports.get_all = async (req, res) => {
+exports.search = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('agreement_clause.get_all', req, res)) {
+        if (!await authorization_handler.check_role_authorization('agreement_clause.search', req, res)) {
             return;
         }
         var filter = get_search_filters(req);
-        const entities = await agreement_clause_service.get_all(filter);
-        activity_handler.record_activity(req.user, 'agreement_clause.get_all', req, res, 'AgreementClause');
-        response_handler.set_success_response(res, 200, 'Agreement clauses retrieved successfully!', {
+        const entities = await agreement_clause_service.search(filter);
+        activity_handler.record_activity(req.user, 'agreement_clause.search', req, res, 'AgreementClause');
+        response_handler.set_success_response(res, req, 200, 'Agreement clauses retrieved successfully!', {
             entities: entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'agreement_clause.get_all', req, res, 'AgreementClause', error);
-        error_handler.handle_controller_error(error, res, req);
+        activity_handler.record_activity(req.user, 'agreement_clause.search', req, res, 'AgreementClause', error);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.get_by_id = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('agreement_clause.get_by_id', req, res)) {
+        if (!await authorization_handler.check_role_authorization('agreement_clause.get_by_id', req, res)) {
             return;
         }
         var id = req.params.id;
@@ -56,18 +56,18 @@ exports.get_by_id = async (req, res) => {
         }
         const entity = await agreement_clause_service.get_by_id(id);
         activity_handler.record_activity(req.user, 'agreement_clause.get_by_id', req, res, 'AgreementClause');
-        response_handler.set_success_response(res, 200, 'AgreementClause retrieved successfully!', {
+        response_handler.set_success_response(res, req, 200, 'AgreementClause retrieved successfully!', {
             entity: entity
         });
     } catch (error) {
         activity_handler.record_activity(req.user, 'agreement_clause.get_by_id', req, res, 'AgreementClause', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.update = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('agreement_clause.update', req, res)) {
+        if (!await authorization_handler.check_role_authorization('agreement_clause.update', req, res)) {
             return;
         }
         var id = req.params.id;
@@ -79,7 +79,7 @@ exports.update = async (req, res) => {
         var updated = await agreement_clause_service.update(id, req.body);
         if (updated != null) {
             activity_handler.record_activity(req.user, 'agreement_clause.update', req, res, 'AgreementClause');
-            response_handler.set_success_response(res, 200, 'AgreementClause updated successfully!', {
+            response_handler.set_success_response(res, req, 200, 'AgreementClause updated successfully!', {
                 updated: updated
             });
             return;
@@ -87,13 +87,13 @@ exports.update = async (req, res) => {
         throw new Error('AgreementClause cannot be updated!');
     } catch (error) {
         activity_handler.record_activity(req.user, 'agreement_clause.update', req, res, 'AgreementClause', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.delete = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('agreement_clause.delete', req, res)) {
+        if (!await authorization_handler.check_role_authorization('agreement_clause.delete', req, res)) {
             return;
         }
         var id = req.params.id;
@@ -104,27 +104,27 @@ exports.delete = async (req, res) => {
         }
         var result = await agreement_clause_service.delete(id);
         activity_handler.record_activity(req.user, 'agreement_clause.delete', req, res, 'AgreementClause');
-        response_handler.set_success_response(res, 200, 'AgreementClause deleted successfully!', result);
+        response_handler.set_success_response(res, req, 200, 'AgreementClause deleted successfully!', result);
     } catch (error) {
         activity_handler.record_activity(req.user, 'agreement_clause.delete', req, res, 'AgreementClause', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 
 exports.get_deleted = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('agreement_clause.get_deleted', req, res)) {
+        if (!await authorization_handler.check_role_authorization('agreement_clause.get_deleted', req, res)) {
             return;
         }
         const deleted_entities = await agreement_clause_service.get_deleted(req.user);
         activity_handler.record_activity(req.user, 'agreement_clause.get_deleted', req, res, 'AgreementClause');
-        response_handler.set_success_response(res, 200, 'Deleted instances of Agreement clauses retrieved successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Deleted instances of Agreement clauses retrieved successfully!', {
             deleted_entities: deleted_entities
         });
     } catch (error) {
         activity_handler.record_activity(req.user, 'agreement_clause.get_deleted', req, res, 'AgreementClause', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 

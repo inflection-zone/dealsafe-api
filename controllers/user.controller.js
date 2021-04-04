@@ -1,17 +1,14 @@
 const user_service = require('../services/user.service');
 const helper = require('../common/helper');
 const response_handler = require('../common/response_handler');
-const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 const Roles = require('../common/constants').Roles;
 const authorization_handler = require('../common/authorization_handler');
-const activity_handler = require('../common/activity_handler');
+const { ApiError } = require('../common/api_error');
+
 
 exports.create = async (req, res) => {
     try {
-        // if (!await authorization_handler.is_authorized('user.create', req, res)) {
-        //     return;
-        // }
         if (
             !req.body.first_name || 
             !req.body.last_name || 
@@ -21,36 +18,32 @@ exports.create = async (req, res) => {
             return;
         }
         const entity = await user_service.create(req.body, [Roles.BasicUser]);
-        activity_handler.record_activity(req.user, 'user.create', req, res, 'User');
-        response_handler.set_success_response(res, 201, 'User added successfully!', {
+        response_handler.set_success_response(res, req, 201, 'User added successfully!', {
             entity: entity
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'user.create', req, res, 'User', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req, req.context);
     }
 };
 
-exports.get_all = async (req, res) => {
+exports.search = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('user.get_all', req, res)) {
+        if (!await authorization_handler.check_role_authorization('user.search', req, res)) {
             return;
         }
         var filter = get_search_filters(req);
-        const entities = await user_service.get_all(filter);
-        activity_handler.record_activity(req.user, 'user.get_all', req, res, 'User');
-        response_handler.set_success_response(res, 200, 'Users retrieved successfully!', {
+        const entities = await user_service.search(filter);
+        response_handler.set_success_response(res, req, 200, 'Users retrieved successfully!', {
             entities: entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'user.get_all', req, res, 'User', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req.context);
     }
 };
 
 exports.get_by_id = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('user.get_by_id', req, res)) {
+        if (!await authorization_handler.check_role_authorization('user.get_by_id', req, res)) {
             return;
         }
         var id = req.params.id;
@@ -60,19 +53,17 @@ exports.get_by_id = async (req, res) => {
             return;
         }
         const entity = await user_service.get_by_id(id);
-        activity_handler.record_activity(req.user, 'user.get_by_id', req, res, 'User');
-        response_handler.set_success_response(res, 200, 'User retrieved successfully!', {
+        response_handler.set_success_response(res, req, 200, 'User retrieved successfully!', {
             entity: entity
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'user.get_by_id', req, res, 'User', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req, req.context);
     }
 };
 
 exports.get_by_display_id = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('user.get_by_display_id', req, res)) {
+        if (!await authorization_handler.check_role_authorization('user.get_by_display_id', req, res)) {
             return;
         }
         var displayId = req.params.displayId;
@@ -81,18 +72,16 @@ exports.get_by_display_id = async (req, res) => {
             res.statusCode = 404;
             throw new Error('User with display id ' + displayId.toString() + ' cannot be found!');
         }
-        activity_handler.record_activity(req.user, 'user.get_by_display_id', req, res, 'User');
-        response_handler.set_success_response(res, 200, 'User retrieved successfully!', { entity: entity });
+        response_handler.set_success_response(res, req, 200, 'User retrieved successfully!', { entity: entity });
     }
     catch (error) {
-        activity_handler.record_activity(req.user, 'user.get_by_display_id', req, res, 'User', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req, req.context);
     }
 };
 
 exports.update = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('user.update', req, res)) {
+        if (!await authorization_handler.check_role_authorization('user.update', req, res)) {
             return;
         }
         var id = req.params.id;
@@ -103,22 +92,20 @@ exports.update = async (req, res) => {
         }
         var updated = await user_service.update(id, req.body);
         if (updated != null) {
-            activity_handler.record_activity(req.user, 'user.update', req, res, 'User');
-            response_handler.set_success_response(res, 200, 'User updated successfully!', {
+            response_handler.set_success_response(res, req, 200, 'User updated successfully!', {
                 updated: updated
             });
             return;
         }
         throw new Error('User cannot be updated!');
     } catch (error) {
-        activity_handler.record_activity(req.user, 'user.update', req, res, 'User', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req, req.context);
     }
 };
 
 exports.delete = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('user.delete', req, res)) {
+        if (!await authorization_handler.check_role_authorization('user.delete', req, res)) {
             return;
         }
         var id = req.params.id;
@@ -128,28 +115,24 @@ exports.delete = async (req, res) => {
             return;
         }
         var result = await user_service.delete(id);
-        activity_handler.record_activity(req.user, 'user.delete', req, res, 'User');
-        response_handler.set_success_response(res, 200, 'User deleted successfully!', result);
+        response_handler.set_success_response(res, req, 200, 'User deleted successfully!', result);
     } catch (error) {
-        activity_handler.record_activity(req.user, 'user.delete', req, res, 'User', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req, req.context);
     }
 };
 
 
 exports.get_deleted = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('user.get_deleted', req, res)) {
+        if (!await authorization_handler.check_role_authorization('user.get_deleted', req, res)) {
             return;
         }
         const deleted_entities = await user_service.get_deleted(req.user);
-        activity_handler.record_activity(req.user, 'user.get_deleted', req, res, 'User');
-        response_handler.set_success_response(res, 200, 'Deleted instances of Users retrieved successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Deleted instances of Users retrieved successfully!', {
             deleted_entities: deleted_entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'user.get_deleted', req, res, 'User', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req, req.context);
     }
 };
 
@@ -164,10 +147,10 @@ exports.generate_otp = async (req,res) => {
             return;
         };
         var u = await user_service.generate_otp(phone, user_name, user_id);
-        response_handler.set_success_response(res, 200, "Your OTP", { entity: u });
+        response_handler.set_success_response(res, req, 200, "Your OTP", { entity: u });
     }
     catch (error){
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req, req.context);
     }
 }
 
@@ -197,10 +180,10 @@ exports.login_with_otp = async (req,res) => {
         var last_name = (user.last_name != null) ? user.last_name : '';
         var name = first_name + ' ' + last_name;
         var message = 'User \'' + name + '\' logged in successfully!';
-        response_handler.set_success_response(res, 200, message, { entity: u });
+        response_handler.set_success_response(res, req, 200, message, { entity: u });
     }
     catch (error){
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req, req.context);
     }
 }
 
@@ -229,10 +212,10 @@ exports.login = async (req, res) => {
         var last_name = (user.last_name != null) ? user.last_name : '';
         var name = first_name + ' ' + last_name;
         var message = 'User \'' + name + '\' logged in successfully!';
-        response_handler.set_success_response(res, 200, message, { entity: u }, false);
+        response_handler.set_success_response(res, req, 200, message, { entity: u }, false);
     }
     catch (error) {
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req, req.context);
     }
 };
 
@@ -247,12 +230,10 @@ exports.change_password = async (req, res) => {
             response_handler.set_failure_response(res, 400, 'Problems encountered in updating the password!', req);
             return;
         }
-        activity_handler.record_activity(req.user, 'user.change_password', req, res, 'User');
-        response_handler.set_success_response(res, 201, 'Password updated successfully!', null);
+        response_handler.set_success_response(res, req, 201, 'Password updated successfully!', null);
     }
     catch (error) {
-        activity_handler.record_activity(req.user, 'user.change_password', req, res, 'User', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req, req.context);
     }
 };
 

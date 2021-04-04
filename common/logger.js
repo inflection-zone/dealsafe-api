@@ -1,4 +1,4 @@
-const { ServiceError } = require('./error_handler');
+const { ApiError } = require('./api_error');
 
 module.exports.log = (message) => {
     const dateTime = new Date().toISOString();
@@ -20,7 +20,7 @@ module.exports.log_error = (message, code, details) => {
 }
 
 module.exports.log_service_error = (error) => {
-    if (error instanceof ServiceError) {
+    if (error instanceof ApiError) {
         this.log_error(error.message, error.data.errorCode, error.Stringify());
     }
     else {

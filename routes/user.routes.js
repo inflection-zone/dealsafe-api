@@ -6,7 +6,7 @@ module.exports = app => {
     const router = require('express').Router();
 
     router.post('', controller.create);
-    router.get('/search', authenticate, controller.get_all);
+    router.get('/search', authenticate, controller.search);
     router.get('/:id', authenticate, controller.get_by_id);
     router.get('/display-id/:displayId', authenticate, controller.get_by_display_id);
     router.put('/:id', authenticate, controller.update);

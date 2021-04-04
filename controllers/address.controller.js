@@ -1,14 +1,12 @@
 const address_service = require('../services/address.service');
 const helper = require('../common/helper');
 const response_handler = require('../common/response_handler');
-const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
-const activity_handler = require('../common/activity_handler');
 
 exports.create = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('address.create', req, res)) {
+        if (!await authorization_handler.check_role_authorization('address.create', req, res)) {
             return;
         }
         if (!req.body.address || !req.body.city) {
@@ -16,36 +14,34 @@ exports.create = async (req, res) => {
             return;
         }
         const entity = await address_service.create(req.body);
-        activity_handler.record_activity(req.user, 'address.create', req, res, 'Address');
-        response_handler.set_success_response(res, 201, 'Address added successfully!', {
+        response_handler.set_success_response(res, req, 201, 'Address added successfully!', {
             entity: entity
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'address.create', req, res, 'Address', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
-exports.get_all = async (req, res) => {
+exports.search = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('address.get_all', req, res)) {
+        if (!await authorization_handler.check_role_authorization('address.search', req, res)) {
             return;
         }
         var filter = get_search_filters(req);
-        const entities = await address_service.get_all(filter);
-        activity_handler.record_activity(req.user, 'address.get_all', req, res, 'Address');
-        response_handler.set_success_response(res, 200, 'Addresses retrieved successfully!', {
+        const entities = await address_service.search(filter);
+        activity_handler.record_activity(req.user, 'address.search', req, res, 'Address');
+        response_handler.set_success_response(res, req, 200, 'Addresses retrieved successfully!', {
             entities: entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'address.get_all', req, res, 'Address', error);
-        error_handler.handle_controller_error(error, res, req);
+        activity_handler.record_activity(req.user, 'address.search', req, res, 'Address', error);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.get_by_id = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('address.get_by_id', req, res)) {
+        if (!await authorization_handler.check_role_authorization('address.get_by_id', req, res)) {
             return;
         }
         var id = req.params.id;
@@ -56,18 +52,18 @@ exports.get_by_id = async (req, res) => {
         }
         const entity = await address_service.get_by_id(id);
         activity_handler.record_activity(req.user, 'address.get_by_id', req, res, 'Address');
-        response_handler.set_success_response(res, 200, 'Address retrieved successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Address retrieved successfully!', {
             entity: entity
         });
     } catch (error) {
         activity_handler.record_activity(req.user, 'address.get_by_id', req, res, 'Address', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.update = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('address.update', req, res)) {
+        if (!await authorization_handler.check_role_authorization('address.update', req, res)) {
             return;
         }
         var id = req.params.id;
@@ -79,7 +75,7 @@ exports.update = async (req, res) => {
         var updated = await address_service.update(id, req.body);
         if (updated != null) {
             activity_handler.record_activity(req.user, 'address.update', req, res, 'Address');
-            response_handler.set_success_response(res, 200, 'Address updated successfully!', {
+            response_handler.set_success_response(res, req, 200, 'Address updated successfully!', {
                 updated: updated
             });
             return;
@@ -87,13 +83,13 @@ exports.update = async (req, res) => {
         throw new Error('Address cannot be updated!');
     } catch (error) {
         activity_handler.record_activity(req.user, 'address.update', req, res, 'Address', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.delete = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('address.delete', req, res)) {
+        if (!await authorization_handler.check_role_authorization('address.delete', req, res)) {
             return;
         }
         var id = req.params.id;
@@ -104,27 +100,27 @@ exports.delete = async (req, res) => {
         }
         var result = await address_service.delete(id);
         activity_handler.record_activity(req.user, 'address.delete', req, res, 'Address');
-        response_handler.set_success_response(res, 200, 'Address deleted successfully!', result);
+        response_handler.set_success_response(res, req, 200, 'Address deleted successfully!', result);
     } catch (error) {
         activity_handler.record_activity(req.user, 'address.delete', req, res, 'Address', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 
 exports.get_deleted = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('address.get_deleted', req, res)) {
+        if (!await authorization_handler.check_role_authorization('address.get_deleted', req, res)) {
             return;
         }
         const deleted_entities = await address_service.get_deleted(req.user);
         activity_handler.record_activity(req.user, 'address.get_deleted', req, res, 'Address');
-        response_handler.set_success_response(res, 200, 'Deleted instances of Addresses retrieved successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Deleted instances of Addresses retrieved successfully!', {
             deleted_entities: deleted_entities
         });
     } catch (error) {
         activity_handler.record_activity(req.user, 'address.get_deleted', req, res, 'Address', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 

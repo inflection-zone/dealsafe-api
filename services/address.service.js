@@ -3,7 +3,7 @@
 const db = require('../database/connection');
 const Address = require('../database/models/Address').Model;
 const helper = require('../common/helper');
-const error_handler = require('../common/error_handler');
+
 const logger = require('../common/logger');
 
 module.exports.create = async (request_body) => {
@@ -12,12 +12,11 @@ module.exports.create = async (request_body) => {
         var record = await Address.create(entity);
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while creating address instance!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-module.exports.get_all = async (filter) => {
+module.exports.search = async (filter) => {
     try {
         let objects = [];
         var search = {
@@ -34,8 +33,7 @@ module.exports.get_all = async (filter) => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while retrieving address instances!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -54,8 +52,7 @@ module.exports.get_by_id = async (id) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while retrieving address by id!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -84,8 +81,7 @@ module.exports.update = async (id, request_body) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while updating address!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -100,8 +96,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        var msg = 'Problem encountered while deleting address!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 module.exports.get_deleted = async () => {
@@ -116,8 +111,7 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while deleted instances of address!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 module.exports.exists = async (id) => {
@@ -135,8 +129,7 @@ module.exports.exists = async (id) => {
 
         return record != null;
     } catch (error) {
-        var msg = 'Problem encountered while checking existance of address with id ' + id.toString() + '!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
