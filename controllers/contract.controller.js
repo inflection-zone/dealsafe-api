@@ -12,7 +12,7 @@ const { check, body, oneOf, validationResult } = require('express-validator');
 
 exports.create = async (req, res) => {
     try {
-        var context = 'contract.create';
+        //var context = 'contract.create';
 
         // if (
         //     !req.body.name || 
@@ -212,6 +212,7 @@ exports.authorize_create = async (req, res, next) => {
     }
 }
 
+
 exports.sanitize_create = async (req, res, next) => {
     try{
 
@@ -241,3 +242,110 @@ exports.sanitize_create = async (req, res, next) => {
     }
 }
 
+exports.authorize_search = async (req, res, next) => {
+    try{
+        req.context = 'contract.search';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_search = async (req, res, next) => {
+    try{
+        await body('name', 'Contract name should be atleast 3 character long.').exists().isLength({ min: 3 }).trim().escape().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_get_by_id = async (req, res, next) => {
+    try{
+        req.context = 'contract.get_by_id';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_get_by_id =  async (req, res, next) => {
+    try{
+        param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_update = async (req, res, next) => {
+    try{
+        req.context = 'contract.update';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_update =  async (req, res, next) => {
+    try{
+        param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_delete = async (req, res, next) => {
+    try{
+        req.context = 'contract.update';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_delete =  async (req, res, next) => {
+    try{
+        param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
