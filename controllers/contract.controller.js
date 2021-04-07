@@ -295,7 +295,7 @@ exports.sanitize_get_by_id =  async (req, res, next) => {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
-
+ 
 exports.authorize_update = async (req, res, next) => {
     try{
         req.context = 'contract.update';

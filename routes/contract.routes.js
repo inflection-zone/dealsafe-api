@@ -11,6 +11,6 @@ module.exports = app => {
     router.put('/:id', authenticate, controller.authorize_update, controller.sanitize_update, controller.update);
     router.delete('/:id', authenticate, controller.authorize_delete, controller.sanitize_delete, controller.delete);
     router.get('/deleted', authenticate, controller.get_deleted);
-
+ 
     app.use('/api/v1/contract', router);
 };
