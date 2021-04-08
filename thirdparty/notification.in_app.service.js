@@ -1,5 +1,5 @@
 const firebaseAdmin = require('firebase-admin');
-const Logger = require('../common/Logger');
+const Logger = require('../common/logger');
 
 module.exports.initialize = () => {
     var adminApp = firebaseAdmin.initializeApp({
