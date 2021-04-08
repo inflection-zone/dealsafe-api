@@ -145,3 +145,147 @@ function get_search_filters(req) {
     // }
     return filter;
 }
+
+///////////////////////////////////////////////////////////////////////////////////
+//Middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.authorize_create = async (req, res, next) => {
+    try{
+        req.context = 'company.create';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_create = async (req, res, next) => {
+    try{
+        await body('name', 'Company name should be atleast 2 character long.').exists().trim().isLength({ min: 3 }).trim().escape().run(req);
+        await body('contact_number').exists().trim().isLength({ min: 10 }).trim().escape().run(req);
+        await body('contact_email').exists().trim().isEmail().run(req);
+        await body('GSTN').exists().trim().isAlphanumeric().isLength({ min: 15, max:15 }).run(req);
+        await body('TAN').exists().trim().isAlphanumeric().isLength({ min: 10, max:10 }).run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_search = async (req, res, next) => {
+    try{
+        req.context = 'company.search';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_search = async (req, res, next) => {
+    try{
+        // await body('name', 'Company name should be atleast 2 character long.').exists().isLength({ min: 2 }).trim().escape().run(req);
+        // const result = validationResult(req);
+        // if(!result.isEmpty()) {
+        //     result.throw();
+        // }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_get_by_id = async (req, res, next) => {
+    try{
+        req.context = 'company.get_by_id';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_get_by_id =  async (req, res, next) => {
+    try{
+        param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+ 
+exports.authorize_update = async (req, res, next) => {
+    try{
+        req.context = 'company.update';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_update =  async (req, res, next) => {
+    try{
+        param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_delete = async (req, res, next) => {
+    try{
+        req.context = 'company.update';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_delete =  async (req, res, next) => {
+    try{
+        param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
