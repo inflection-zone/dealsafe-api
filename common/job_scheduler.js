@@ -1,7 +1,7 @@
 const cron = require('node-cron');
 const env = process.env.NODE_ENV || 'development';
 const schedules = require('../config/cron_schedule')[env];
-const Logger = require('./Logger');
+const Logger = require('./logger');
 
 
 module.exports.schedule_cron_jobs = () => {

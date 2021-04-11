@@ -135,3 +135,150 @@ function get_search_filters(req) {
     // }
     return filter;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////
+//Middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.authorize_create = async (req, res, next) => {
+    try{
+        req.context = 'payment_request.create';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_create = async (req, res, next) => {
+    try{
+        await body('display_id').exists().run(req);
+        await body('contract_id').exists().isUUID().run(req);
+        await body('requested_by_user_id').exists().isUUID().run(req);
+        await body('amount').exists().run(req);
+        await body('request_date').exists().trim().isDate().run(req);
+        await body('transaction_reference_id').exists().trim().run(req);
+        
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_search = async (req, res, next) => {
+    try{
+        req.context = 'payment_request.search';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_search = async (req, res, next) => {
+    try{
+        // await body('name', 'Company name should be atleast 2 character long.').exists().isLength({ min: 2 }).trim().escape().run(req);
+        // const result = validationResult(req);
+        // if(!result.isEmpty()) {
+        //     result.throw();
+        // }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_get_by_id = async (req, res, next) => {
+    try{
+        req.context = 'payment_request.get_by_id';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_get_by_id =  async (req, res, next) => {
+    try{
+        param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+ 
+exports.authorize_update = async (req, res, next) => {
+    try{
+        req.context = 'payment_request.update';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_update =  async (req, res, next) => {
+    try{
+        param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_delete = async (req, res, next) => {
+    try{
+        req.context = 'payment_request.update';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_delete =  async (req, res, next) => {
+    try{
+        param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
