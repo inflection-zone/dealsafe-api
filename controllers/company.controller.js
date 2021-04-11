@@ -4,7 +4,7 @@ const response_handler = require('../common/response_handler');
 
 const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
-const activity_handler = require('../common/activity_handler');
+////////////////////////////////////////////////////////////////////////
 
 exports.create = async (req, res) => {
     try {
@@ -25,12 +25,10 @@ exports.create = async (req, res) => {
             return;
         }
         const entity = await company_service.create(req.body);
-        activity_handler.record_activity(req.user, 'company.create', req, res, 'Company');
         response_handler.set_success_response(res, req, 201, 'Company added successfully!', {
             entity: entity
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'company.create', req, res, 'Company', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -42,12 +40,10 @@ exports.search = async (req, res) => {
         }
         var filter = get_search_filters(req);
         const entities = await company_service.search(filter);
-        activity_handler.record_activity(req.user, 'company.search', req, res, 'Company');
         response_handler.set_success_response(res, req, 200, 'Companies retrieved successfully!', {
             entities: entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'company.search', req, res, 'Company', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -64,12 +60,10 @@ exports.get_by_id = async (req, res) => {
             return;
         }
         const entity = await company_service.get_by_id(id);
-        activity_handler.record_activity(req.user, 'company.get_by_id', req, res, 'Company');
         response_handler.set_success_response(res, req, 200, 'Company retrieved successfully!', {
             entity: entity
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'company.get_by_id', req, res, 'Company', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -87,7 +81,6 @@ exports.update = async (req, res) => {
         }
         var updated = await company_service.update(id, req.body);
         if (updated != null) {
-            activity_handler.record_activity(req.user, 'company.update', req, res, 'Company');
             response_handler.set_success_response(res, req, 200, 'Company updated successfully!', {
                 updated: updated
             });
@@ -95,7 +88,6 @@ exports.update = async (req, res) => {
         }
         throw new Error('Company cannot be updated!');
     } catch (error) {
-        activity_handler.record_activity(req.user, 'company.update', req, res, 'Company', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -112,10 +104,8 @@ exports.delete = async (req, res) => {
             return;
         }
         var result = await company_service.delete(id);
-        activity_handler.record_activity(req.user, 'company.delete', req, res, 'Company');
         response_handler.set_success_response(res, req, 200, 'Company deleted successfully!', result);
     } catch (error) {
-        activity_handler.record_activity(req.user, 'company.delete', req, res, 'Company', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -127,12 +117,10 @@ exports.get_deleted = async (req, res) => {
             return;
         }
         const deleted_entities = await company_service.get_deleted(req.user);
-        activity_handler.record_activity(req.user, 'company.get_deleted', req, res, 'Company');
         response_handler.set_success_response(res, req, 200, 'Deleted instances of Companies retrieved successfully!', {
             deleted_entities: deleted_entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'company.get_deleted', req, res, 'Company', error);
         response_handler.handle_error(error, res, req);
     }
 };

@@ -4,7 +4,7 @@ const response_handler = require('../common/response_handler');
 
 const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
-const activity_handler = require('../common/activity_handler');
+////////////////////////////////////////////////////////////////////////
 
 exports.create = async (req, res) => {
     try {
@@ -16,12 +16,10 @@ exports.create = async (req, res) => {
             return;
         }
         const entity = await contract_milestone_service.create(req.body);
-        activity_handler.record_activity(req.user, 'contract_milestone.create', req, res, 'ContractMilestone');
         response_handler.set_success_response(res, req, 201, 'ContractMilestone added successfully!', {
             entity: entity
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'contract_milestone.create', req, res, 'ContractMilestone', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -33,12 +31,10 @@ exports.search = async (req, res) => {
         }
         var filter = get_search_filters(req);
         const entities = await contract_milestone_service.search(filter);
-        activity_handler.record_activity(req.user, 'contract_milestone.search', req, res, 'ContractMilestone');
         response_handler.set_success_response(res, req, 200, 'Contract milestones retrieved successfully!', {
             entities: entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'contract_milestone.search', req, res, 'ContractMilestone', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -55,12 +51,10 @@ exports.get_by_id = async (req, res) => {
             return;
         }
         const entity = await contract_milestone_service.get_by_id(id);
-        activity_handler.record_activity(req.user, 'contract_milestone.get_by_id', req, res, 'ContractMilestone');
         response_handler.set_success_response(res, req, 200, 'ContractMilestone retrieved successfully!', {
             entity: entity
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'contract_milestone.get_by_id', req, res, 'ContractMilestone', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -78,7 +72,6 @@ exports.update = async (req, res) => {
         }
         var updated = await contract_milestone_service.update(id, req.body);
         if (updated != null) {
-            activity_handler.record_activity(req.user, 'contract_milestone.update', req, res, 'ContractMilestone');
             response_handler.set_success_response(res, req, 200, 'ContractMilestone updated successfully!', {
                 updated: updated
             });
@@ -86,7 +79,6 @@ exports.update = async (req, res) => {
         }
         throw new Error('ContractMilestone cannot be updated!');
     } catch (error) {
-        activity_handler.record_activity(req.user, 'contract_milestone.update', req, res, 'ContractMilestone', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -103,10 +95,8 @@ exports.delete = async (req, res) => {
             return;
         }
         var result = await contract_milestone_service.delete(id);
-        activity_handler.record_activity(req.user, 'contract_milestone.delete', req, res, 'ContractMilestone');
         response_handler.set_success_response(res, req, 200, 'ContractMilestone deleted successfully!', result);
     } catch (error) {
-        activity_handler.record_activity(req.user, 'contract_milestone.delete', req, res, 'ContractMilestone', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -118,12 +108,10 @@ exports.get_deleted = async (req, res) => {
             return;
         }
         const deleted_entities = await contract_milestone_service.get_deleted(req.user);
-        activity_handler.record_activity(req.user, 'contract_milestone.get_deleted', req, res, 'ContractMilestone');
-        response_handler.set_success_response(res, req, 200, 'Deleted instances of Contract milestones retrieved successfully!', {
+       response_handler.set_success_response(res, req, 200, 'Deleted instances of Contract milestones retrieved successfully!', {
             deleted_entities: deleted_entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'contract_milestone.get_deleted', req, res, 'ContractMilestone', error);
         response_handler.handle_error(error, res, req);
     }
 };

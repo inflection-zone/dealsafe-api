@@ -29,12 +29,10 @@ exports.search = async (req, res) => {
         }
         var filter = get_search_filters(req);
         const entities = await address_service.search(filter);
-        activity_handler.record_activity(req.user, 'address.search', req, res, 'Address');
         response_handler.set_success_response(res, req, 200, 'Addresses retrieved successfully!', {
             entities: entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'address.search', req, res, 'Address', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -51,12 +49,10 @@ exports.get_by_id = async (req, res) => {
             return;
         }
         const entity = await address_service.get_by_id(id);
-        activity_handler.record_activity(req.user, 'address.get_by_id', req, res, 'Address');
         response_handler.set_success_response(res, req, 200, 'Address retrieved successfully!', {
             entity: entity
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'address.get_by_id', req, res, 'Address', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -74,7 +70,6 @@ exports.update = async (req, res) => {
         }
         var updated = await address_service.update(id, req.body);
         if (updated != null) {
-            activity_handler.record_activity(req.user, 'address.update', req, res, 'Address');
             response_handler.set_success_response(res, req, 200, 'Address updated successfully!', {
                 updated: updated
             });
@@ -82,7 +77,6 @@ exports.update = async (req, res) => {
         }
         throw new Error('Address cannot be updated!');
     } catch (error) {
-        activity_handler.record_activity(req.user, 'address.update', req, res, 'Address', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -99,10 +93,8 @@ exports.delete = async (req, res) => {
             return;
         }
         var result = await address_service.delete(id);
-        activity_handler.record_activity(req.user, 'address.delete', req, res, 'Address');
         response_handler.set_success_response(res, req, 200, 'Address deleted successfully!', result);
     } catch (error) {
-        activity_handler.record_activity(req.user, 'address.delete', req, res, 'Address', error);
         response_handler.handle_error(error, res, req);
     }
 };
@@ -114,12 +106,10 @@ exports.get_deleted = async (req, res) => {
             return;
         }
         const deleted_entities = await address_service.get_deleted(req.user);
-        activity_handler.record_activity(req.user, 'address.get_deleted', req, res, 'Address');
         response_handler.set_success_response(res, req, 200, 'Deleted instances of Addresses retrieved successfully!', {
             deleted_entities: deleted_entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'address.get_deleted', req, res, 'Address', error);
         response_handler.handle_error(error, res, req);
     }
 };

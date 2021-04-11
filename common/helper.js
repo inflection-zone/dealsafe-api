@@ -14,10 +14,10 @@ const NEARNESS_SEARCH_DISTANCE = 15.0; //In kilometers
 
 module.exports.generate_display_id = (prefix = null) => {
     var timestamp = new Date().getTime().toString();
-    var display_id = timestamp.substr(4, 8);
+    var display_id = timestamp.substr(4);
     var identifier = display_id;
     if(prefix != null){
-        identifier = prefix + '-' + identifier;
+        identifier = prefix + '#' + identifier;
     }
     return identifier;
 }

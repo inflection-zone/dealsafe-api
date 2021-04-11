@@ -26,3 +26,23 @@ module.exports.ContractType = {
                 code: 2
         },
 };
+
+module.exports.ContractStatusTypes = {
+        Created: {
+                name: "Created",
+                code: 1
+        },
+        InProgress: {
+                name: "In-Progress",
+                code: 2
+        },
+        Closed: {
+                name: "Completed",
+                code: 3
+        },
+        Cancelled: {
+                name: "Cancelled",
+                code: 4
+        }
+};
+
