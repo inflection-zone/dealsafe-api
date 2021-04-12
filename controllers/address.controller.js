@@ -22,7 +22,6 @@ exports.create = async (req, res) => {
 
 exports.search = async (req, res) => {
     try {
-        
         var filter = get_search_filters(req);
         const entities = await address_service.search(filter);
         response_handler.set_success_response(res, req, 200, 'Addresses retrieved successfully!', {
@@ -183,15 +182,13 @@ exports.authorize_delete = async (req, res, next) => {
 
 exports.sanitize_create = async (req, res, next) => {
     try{
-
         await body('company_id',).exists().isUUID().run(req);
         await body('address', 'Address field should be atleast 5 char long.').isLength({ min: 5 }).trim().escape().run(req);
         await body('city').exists().isAlpha().trim().escape().run(req);
         await body('state').exists().isAlpha().trim().escape().run(req);
         await body('country').isAlpha().trim().escape().run(req);
         await body('pincode').isAlphanumeric().trim().escape().run(req);
-        await body('address_type').isAlphs().trim().escape().run(req);
-
+        await body('address_type').isAlpha().trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -219,7 +216,7 @@ exports.sanitize_search = async (req, res, next) => {
 
 exports.sanitize_get_by_id =  async (req, res, next) => {
     try{
-        param('id').exists().isUUID().run(req);
+        await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -233,16 +230,14 @@ exports.sanitize_get_by_id =  async (req, res, next) => {
 
 exports.sanitize_update =  async (req, res, next) => {
     try{
-        param('id').exists().isUUID().run(req);
-
+        await param('id').exists().isUUID().run(req);
         await body('company_id',).isUUID().run(req);
         await body('address', 'Address field should be atleast 5 char long.').isLength({ min: 5 }).trim().escape().run(req);
         await body('city').isAlpha().trim().escape().run(req);
         await body('state').isAlpha().trim().escape().run(req);
         await body('country').isAlpha().trim().escape().run(req);
         await body('pincode').isAlphanumeric().trim().escape().run(req);
-        await body('address_type').isAlphs().trim().escape().run(req);
-
+        await body('address_type').isAlpha().trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -256,7 +251,7 @@ exports.sanitize_update =  async (req, res, next) => {
 
 exports.sanitize_delete =  async (req, res, next) => {
     try{
-        param('id').exists().isUUID().run(req);
+        await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();

@@ -142,7 +142,7 @@ module.exports.exists = async (id) => {
     }
 }
 
-module.exports.company_exists_with = async (phone, email, gstn, tan, name = null) => {
+module.exports.company_exists_with = async (phone, email, gstn, pan, tan, name = null) => {
     try {
         var search = {
             where: {

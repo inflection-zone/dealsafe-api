@@ -1,16 +1,16 @@
 const agreement_clause_service = require('../services/agreement_clause.service');
-const helper = require('../common/helper');
 const response_handler = require('../common/response_handler');
-
+const helper = require('../common/helper');
 const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
+const { ApiError } = require('../common/api_error');
+const _ = require('lodash');
+const { check, body, oneOf, validationResult, param } = require('express-validator');
+
 ////////////////////////////////////////////////////////////////////////
 
 exports.create = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('agreement_clause.create', req, res)) {
-            return;
-        }
         if (!req.body.contract_id || !req.body.text) {
             response_handler.set_failure_response(res, 200, 'Missing required parameters.', req);
             return;
@@ -26,9 +26,6 @@ exports.create = async (req, res) => {
 
 exports.search = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('agreement_clause.search', req, res)) {
-            return;
-        }
         var filter = get_search_filters(req);
         const entities = await agreement_clause_service.search(filter);
         response_handler.set_success_response(res, req, 200, 'Agreement clauses retrieved successfully!', {
@@ -41,9 +38,6 @@ exports.search = async (req, res) => {
 
 exports.get_by_id = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('agreement_clause.get_by_id', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await agreement_clause_service.exists(id);
         if (!exists) {
@@ -61,9 +55,6 @@ exports.get_by_id = async (req, res) => {
 
 exports.update = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('agreement_clause.update', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await agreement_clause_service.exists(id);
         if (!exists) {
@@ -85,9 +76,6 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('agreement_clause.delete', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await agreement_clause_service.exists(id);
         if (!exists) {
@@ -104,9 +92,6 @@ exports.delete = async (req, res) => {
 
 exports.get_deleted = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('agreement_clause.get_deleted', req, res)) {
-            return;
-        }
         const deleted_entities = await agreement_clause_service.get_deleted(req.user);
         response_handler.set_success_response(res, req, 200, 'Deleted instances of Agreement clauses retrieved successfully!', {
             deleted_entities: deleted_entities
@@ -116,11 +101,179 @@ exports.get_deleted = async (req, res) => {
     }
 };
 
+///////////////////////////////////////////////////////////////////////////////////
+//Authorization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.authorize_create = async (req, res, next) => {
+    try {
+        req.context = 'agreement_clause.create';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+
+        //Perform other authorization checks here...
+        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id);
+        if (!is_authorized) {
+            throw new ApiError('User has no permission to add the agreement_clause for others!', 403);
+        }
+        //Move on...
+        next();
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_search = async (req, res, next) => {
+    try {
+        req.context = 'agreement_clause.search';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('User has no permission to add the agreement_clause for others!', 403);
+        }
+        //Move on...
+        next();
+    } catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_get_by_id = async (req, res, next) => {
+    try {
+        req.context = 'agreement_clause.get_by_id';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_update = async (req, res, next) => {
+    try {
+        req.context = 'agreement_clause.update';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_delete = async (req, res, next) => {
+    try {
+        req.context = 'agreement_clause.delete';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        //Perform other authorization checks here...
+
+        //Move on...
+        next();
+    } catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+//Sanitization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.sanitize_create = async (req, res, next) => {
+    try {
+        await body('contract_id').exists().isUUID().run(req);
+        await body('milestone_id').isUUID().trim().escape().run(req);
+        await body('text').exists().isAlphanumeric().trim().escape().run(req);
+        await body('added_by').exists().isUUID().trim().escape().run(req);
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_search = async (req, res, next) => {
+    try {
+        await query('contract_id').isUUID().trim().escape().run(req);
+        await query('milestone_id').isUUID().trim().escape().run(req);
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_get_by_id = async (req, res, next) => {
+    try {
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_update = async (req, res, next) => {
+    try {
+        await param('id').exists().isUUID().run(req);
+        await body('contract_id').exists().isUUID().run(req);
+        await body('milestone_id').isUUID().trim().escape().run(req);
+        await body('text').exists().isAlphanumeric().trim().escape().run(req);
+        await body('added_by').exists().isUUID().trim().escape().run(req);
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_delete = async (req, res, next) => {
+    try {
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 function get_search_filters(req) {
     var filter = {};
-    //var name = req.query.name ? req.query.name : null;
-    // if (name != null) {
-    //     filter['name'] = name;
-    // }
+    var contract_id = req.query.contract_id ? req.query.contract_id : null;
+    if (contract_id != null) {
+        filter['contract_id'] = contract_id;
+    }
+    var milestone_id = req.query.milestone_id ? req.query.milestone_id : null;
+    if (milestone_id != null) {
+        filter['milestone_id'] = milestone_id;
+    }
     return filter;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////

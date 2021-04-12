@@ -93,97 +93,6 @@ exports.get_deleted = async (req, res) => {
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////////
-
-async function extract_contract_details(req) {
-
-    var current_user_id = req.user.user_id;
-    var created_by_user = await user_service.get_by_id(current_user_id);
-    if (!created_by_user) {
-        throw new ApiError('Invalid user id.', 404);
-    }
-    var creator_company_id = buyer_user.company_id;
-    if(creator_company_id != buyer_company_id && creator_company_id != seller_company_id) {
-        throw new ApiError('The user is not authorized to create contract for others!', 403);
-    }
-    var seller_company = await company_service.get_by_id(req.body.seller_company_id);
-    if(!seller_company){
-        throw new ApiError('Seller company record not found!', 404);
-    }
-    var seller_contact_user_id = seller_company.contact_person_id;
-    var buyer_company = await company_service.get_by_id(req.body.buyer_company_id);
-    if(!buyer_company){
-        throw new ApiError('Buyer company record not found!', 404);
-    }
-    var buyer_contact_user_id = buyer_company.contact_person_id;
-
-    var entity = {
-        name: req.body.name,
-        description: req.body.description ? req.body.description : '',
-        creator_role: req.body.creator_role,
-        created_by_user_id: current_user_id,
-        created_date: Date.now(),
-        seller_contact_user_id: seller_contact_user_id,
-        seller_company_id: seller_company_id,
-        buyer_contact_user_id: buyer_contact_user_id,
-        buyer_company_id: buyer_company_id,
-        is_full_payment_contract: req.body.is_full_payment_contract,
-        execution_planned_start_date: req.body.execution_planned_start_date,
-        execution_planned_end_date: req.body.execution_planned_end_date,
-        base_contract_amount: req.body.base_contract_amount,
-    };
-    return entity;
-}
-
-async function get_search_filters(req) {
-
-    var filter = {};
-
-    var current_user_id = req.user.user_id;
-    var current_user = await user_service.get_by_id(current_user_id);
-    var current_user_company_id = current_user.company_id;
-    filter['current_user_company_id'] = current_user_company_id;
-
-    var my_role = req.query.my_role ? req.query.my_role : null;
-    if (my_role != null) {
-        filter['my_role'] = req.query.my_role;
-    }
-
-    var name = req.query.name ? req.query.name : null;
-    if (name != null) {
-        filter['name'] = name;
-    }
-
-    var from_date = req.query.from ? req.query.from : null;
-    var to_date = req.query.to ? req.query.to : null;
-    if(from_date != null && to_date != null){
-        filter['from_date'] = from_date;
-        filter['to_date'] = to_date;
-    }
-
-    var state = req.query.state ? req.query.state : null;
-    if(state != null){
-        filter['state'] = state;
-    }
-
-    var company_name = req.query.company ? req.query.company : null;
-    if(company_name != null){
-        filter['company'] = company_name;
-    }
-
-    var sort_type = req.query.sort_type ? req.query.sort_type : 'descending';
-    var sort_by = req.query.sort_by ? req.query.sort_by : 'created_date';
-    filter['sort_type'] = sort_type;
-    filter['sort_by'] = sort_by;
-
-    var page_number = req.query.page_number ? req.query.page_number : 1;
-    var items_per_page = req.query.items_per_page ? req.query.items_per_page : 10;
-    filter['page_number'] = page_number;
-    filter['items_per_page'] = items_per_page;
-    
-    return filter;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////
 //Authorization middleware functions
 ///////////////////////////////////////////////////////////////////////////////////
@@ -319,7 +228,7 @@ exports.sanitize_search = async (req, res, next) => {
 
 exports.sanitize_get_by_id =  async (req, res, next) => {
     try{
-        param('id').exists().isUUID().run(req);
+        await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -333,7 +242,7 @@ exports.sanitize_get_by_id =  async (req, res, next) => {
 
 exports.sanitize_update =  async (req, res, next) => {
     try{
-        param('id').exists().isUUID().run(req);
+        await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -347,7 +256,7 @@ exports.sanitize_update =  async (req, res, next) => {
 
 exports.sanitize_delete =  async (req, res, next) => {
     try{
-        param('id').exists().isUUID().run(req);
+        await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -367,6 +276,97 @@ async function is_user_authorized_to_create_resource(user_id, request_body) {
 
 async function is_user_authorized_to_access_resource(user_id, resource_id) {
     return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+async function extract_contract_details(req) {
+
+    var current_user_id = req.user.user_id;
+    var created_by_user = await user_service.get_by_id(current_user_id);
+    if (!created_by_user) {
+        throw new ApiError('Invalid user id.', 404);
+    }
+    var creator_company_id = buyer_user.company_id;
+    if(creator_company_id != buyer_company_id && creator_company_id != seller_company_id) {
+        throw new ApiError('The user is not authorized to create contract for others!', 403);
+    }
+    var seller_company = await company_service.get_by_id(req.body.seller_company_id);
+    if(!seller_company){
+        throw new ApiError('Seller company record not found!', 404);
+    }
+    var seller_contact_user_id = seller_company.contact_person_id;
+    var buyer_company = await company_service.get_by_id(req.body.buyer_company_id);
+    if(!buyer_company){
+        throw new ApiError('Buyer company record not found!', 404);
+    }
+    var buyer_contact_user_id = buyer_company.contact_person_id;
+
+    var entity = {
+        name: req.body.name,
+        description: req.body.description ? req.body.description : '',
+        creator_role: req.body.creator_role,
+        created_by_user_id: current_user_id,
+        created_date: Date.now(),
+        seller_contact_user_id: seller_contact_user_id,
+        seller_company_id: seller_company_id,
+        buyer_contact_user_id: buyer_contact_user_id,
+        buyer_company_id: buyer_company_id,
+        is_full_payment_contract: req.body.is_full_payment_contract,
+        execution_planned_start_date: req.body.execution_planned_start_date,
+        execution_planned_end_date: req.body.execution_planned_end_date,
+        base_contract_amount: req.body.base_contract_amount,
+    };
+    return entity;
+}
+
+async function get_search_filters(req) {
+
+    var filter = {};
+
+    var current_user_id = req.user.user_id;
+    var current_user = await user_service.get_by_id(current_user_id);
+    var current_user_company_id = current_user.company_id;
+    filter['current_user_company_id'] = current_user_company_id;
+
+    var my_role = req.query.my_role ? req.query.my_role : null;
+    if (my_role != null) {
+        filter['my_role'] = req.query.my_role;
+    }
+
+    var name = req.query.name ? req.query.name : null;
+    if (name != null) {
+        filter['name'] = name;
+    }
+
+    var from_date = req.query.from ? req.query.from : null;
+    var to_date = req.query.to ? req.query.to : null;
+    if(from_date != null && to_date != null){
+        filter['from_date'] = from_date;
+        filter['to_date'] = to_date;
+    }
+
+    var state = req.query.state ? req.query.state : null;
+    if(state != null){
+        filter['state'] = state;
+    }
+
+    var company_name = req.query.company ? req.query.company : null;
+    if(company_name != null){
+        filter['company'] = company_name;
+    }
+
+    var sort_type = req.query.sort_type ? req.query.sort_type : 'descending';
+    var sort_by = req.query.sort_by ? req.query.sort_by : 'created_date';
+    filter['sort_type'] = sort_type;
+    filter['sort_by'] = sort_by;
+
+    var page_number = req.query.page_number ? req.query.page_number : 1;
+    var items_per_page = req.query.items_per_page ? req.query.items_per_page : 10;
+    filter['page_number'] = page_number;
+    filter['items_per_page'] = items_per_page;
+    
+    return filter;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
