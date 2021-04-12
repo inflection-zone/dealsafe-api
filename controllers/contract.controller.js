@@ -25,7 +25,7 @@ exports.create = async (req, res) => {
 
 exports.search = async (req, res) => {
     try {
-        var filter = get_search_filters(req);
+        var filter = await get_search_filters(req);
         const entities = await contract_service.search(filter);
         response_handler.set_success_response(res, req, 200, 'Contracts retrieved successfully!', { entities: entities });
     } catch (error) {
@@ -135,7 +135,7 @@ async function extract_contract_details(req) {
     return entity;
 }
 
-function get_search_filters(req) {
+async function get_search_filters(req) {
 
     var filter = {};
 
@@ -211,7 +211,6 @@ exports.authorize_search = async (req, res, next) => {
         req.context = 'contract.search';
         await authorization_handler.check_role_authorization(req.user, req.context);
         //Perform other authorization checks here...
-        var 
         var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
             throw new ApiError('User has no permission to add the contract for others!', 403);
@@ -301,11 +300,11 @@ exports.sanitize_create = async (req, res, next) => {
 
 exports.sanitize_search = async (req, res, next) => {
     try{
-        await param('name').trim().escape().run(req);
-        await param('buyer').trim().escape().run(req);
-        await param('seller').trim().escape().run(req);
-        await param('from').isDate().trim().escape().run(req);
-        await param('to').isDate().trim().escape().run(req);
+        await query('name').trim().escape().run(req);
+        await query('buyer').trim().escape().run(req);
+        await query('seller').trim().escape().run(req);
+        await query('from').isDate().trim().escape().run(req);
+        await query('to').isDate().trim().escape().run(req);
 
         const result = validationResult(req);
         if(!result.isEmpty()) {

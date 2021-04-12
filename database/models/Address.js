@@ -13,7 +13,10 @@ const schema = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true
     },
-
+    company_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+    },
     address: {
         type: Sequelize.STRING(256),
         allowNull: false

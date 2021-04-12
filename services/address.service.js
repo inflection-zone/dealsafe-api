@@ -3,8 +3,9 @@
 const db = require('../database/connection');
 const Address = require('../database/models/Address').Model;
 const helper = require('../common/helper');
-
 const logger = require('../common/logger');
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 module.exports.create = async (request_body) => {
     try {
@@ -99,6 +100,7 @@ module.exports.delete = async (id) => {
         throw(error);
     }
 }
+
 module.exports.get_deleted = async () => {
     try {
         var records = await Address.findAll({
@@ -114,6 +116,7 @@ module.exports.get_deleted = async () => {
         throw(error);
     }
 }
+
 module.exports.exists = async (id) => {
     try {
         var search = {
@@ -133,8 +136,11 @@ module.exports.exists = async (id) => {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 function get_entity_to_save(request_body) {
     return {
+        company_id: request_body.company_id ? request_body.company_id : null,
         address: request_body.address ? request_body.address : null,
         city: request_body.city ? request_body.city : null,
         state: request_body.state ? request_body.state : null,
@@ -146,6 +152,9 @@ function get_entity_to_save(request_body) {
 
 function get_updates(request_body) {
     let updates = {};
+    if (request_body.hasOwnProperty('company_id')) {
+        updates.company_id = request_body.company_id;
+    }    
     if (request_body.hasOwnProperty('address')) {
         updates.address = request_body.address;
     }
@@ -173,6 +182,7 @@ function get_object_to_send(record) {
     }
     return {
         id: record.id,
+        company_id: record.company_id,
         address: record.address,
         city: record.city,
         state: record.state,
