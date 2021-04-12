@@ -22,10 +22,6 @@ const schema = {
         type: Sequelize.UUID,
         allowNull: true
     },
-    is_company_account: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false
-    },
     account_number: {
         type: Sequelize.STRING(64),
         allowNull: false

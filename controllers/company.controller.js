@@ -5,8 +5,8 @@ const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
 const { ApiError } = require('../common/api_error');
 const _ = require('lodash');
-const { check, body, oneOf, validationResult, param } = require('express-validator');
-
+const { query, body, oneOf, validationResult, param } = require('express-validator');
+const standard_validators = require('../common/standard_validators');
 ////////////////////////////////////////////////////////////////////////
 
 exports.create = async (req, res) => {
@@ -114,9 +114,10 @@ exports.authorize_create = async (req, res, next) => {
     try{
         req.context = 'company.create';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
+        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
         next();
     }
     catch(error){
@@ -128,9 +129,6 @@ exports.authorize_search = async (req, res, next) => {
     try{
         req.context = 'company.search';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
         next();
     } catch(error){
         response_handler.handle_error(error, res, req, req.context);
@@ -141,9 +139,10 @@ exports.authorize_get_by_id = async (req, res, next) => {
     try{
         req.context = 'company.get_by_id';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
+        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
         next();
     } catch(error){
         response_handler.handle_error(error, res, req, req.context);
@@ -154,9 +153,10 @@ exports.authorize_update = async (req, res, next) => {
     try{
         req.context = 'company.update';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
+        var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
         next();
     } catch(error){
         response_handler.handle_error(error, res, req, req.context);
@@ -167,9 +167,10 @@ exports.authorize_delete = async (req, res, next) => {
     try{
         req.context = 'company.update';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
+        var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
         next();
     } catch(error){
         response_handler.handle_error(error, res, req, req.context);
@@ -185,9 +186,9 @@ exports.sanitize_create = async (req, res, next) => {
         await body('name', 'Company name should be atleast 3 character long.').exists().trim().isLength({ min: 3 }).trim().escape().run(req);
         await body('contact_number').exists().trim().isLength({ min: 10 }).trim().escape().run(req);
         await body('contact_email').exists().normalizeEmail().trim().isEmail().run(req);
-        await body('GSTN').exists().trim().isAlphanumeric().isLength({ min: 15, max:15 }).custom(validateGSTN).run(req);
-        await body('PAN').exists().trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(validatePAN).run(req);
-        await body('TAN').exists().trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(validateTAN).run(req);
+        await body('GSTN').exists().trim().isAlphanumeric().isLength({ min: 15, max:15 }).custom(standard_validators.validateGSTN).run(req);
+        await body('PAN').exists().trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validatePAN).run(req);
+        await body('TAN').exists().trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validateTAN).run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -233,9 +234,9 @@ exports.sanitize_update =  async (req, res, next) => {
         await body('name', 'Company name should be atleast 3 character long.').trim().isLength({ min: 3 }).trim().escape().run(req);
         await body('contact_number').trim().isLength({ min: 10 }).trim().escape().run(req);
         await body('contact_email').normalizeEmail().trim().isEmail().run(req);
-        await body('GSTN').trim().isAlphanumeric().isLength({ min: 15, max:15 }).custom(validateGSTN).run(req);
-        await body('PAN').trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(validatePAN).run(req);
-        await body('TAN').trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(validateTAN).run(req);
+        await body('GSTN').trim().isAlphanumeric().isLength({ min: 15, max:15 }).custom(standard_validators.validateGSTN).run(req);
+        await body('PAN').trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validatePAN).run(req);
+        await body('TAN').trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validateTAN).run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -286,36 +287,6 @@ function get_search_filters(req) {
         filter['gstn'] = gstn;
     }
     return filter;
-}
-
-function validateGSTN(value, { req, location, path  }){
-    var gstin_regx = new RegExp('^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
-    var is_valid = gstin_regx.test(value);
-    if (!is_valid) {
-        throw new Error('Invalid GST number.');
-    } else {
-        return true;
-    }
-}
-
-function validatePAN(value, { req, location, path  }){
-    var gstin_regx = new RegExp('[A-Z]{5}[0-9]{4}[A-Z]{1}');
-    var is_valid = gstin_regx.test(value);
-    if (!is_valid) {
-        throw new Error('Invalid PAN number.');
-    } else {
-        return true;
-    }
-}
-
-function validateTAN(value, { req, location, path  }){
-    var gstin_regx = new RegExp('[A-Z]{4}[0-9]{5}[A-Z]{1}');
-    var is_valid = gstin_regx.test(value);
-    if (!is_valid) {
-        throw new Error('Invalid TAN number.');
-    } else {
-        return true;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////

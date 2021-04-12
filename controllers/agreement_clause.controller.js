@@ -5,18 +5,14 @@ const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
 const { ApiError } = require('../common/api_error');
 const _ = require('lodash');
-const { check, body, oneOf, validationResult, param } = require('express-validator');
+const { query, body, oneOf, validationResult, param } = require('express-validator');
 
 ////////////////////////////////////////////////////////////////////////
 
 exports.create = async (req, res) => {
     try {
-        if (!req.body.contract_id || !req.body.text) {
-            response_handler.set_failure_response(res, 200, 'Missing required parameters.', req);
-            return;
-        }
         const entity = await agreement_clause_service.create(req.body);
-        response_handler.set_success_response(res, req, 201, 'AgreementClause added successfully!', {
+        response_handler.set_success_response(res, req, 201, 'Agreement clause added successfully!', {
             entity: entity
         });
     } catch (error) {
@@ -41,11 +37,11 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await agreement_clause_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'AgreementClause with id ' + id.toString() + ' cannot be found!', req);
+            response_handler.set_failure_response(res, 404, 'Agreement clause with id ' + id.toString() + ' cannot be found!', req);
             return;
         }
         const entity = await agreement_clause_service.get_by_id(id);
-        response_handler.set_success_response(res, req, 200, 'AgreementClause retrieved successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Agreement clause retrieved successfully!', {
             entity: entity
         });
     } catch (error) {
@@ -58,17 +54,17 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await agreement_clause_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'AgreementClause with id ' + id.toString() + ' cannot be found!', req);
+            response_handler.set_failure_response(res, 404, 'Agreement clause with id ' + id.toString() + ' cannot be found!', req);
             return;
         }
         var updated = await agreement_clause_service.update(id, req.body);
         if (updated != null) {
-            response_handler.set_success_response(res, req, 200, 'AgreementClause updated successfully!', {
+            response_handler.set_success_response(res, req, 200, 'Agreement clause updated successfully!', {
                 updated: updated
             });
             return;
         }
-        throw new Error('AgreementClause cannot be updated!');
+        throw new Error('Agreement clause cannot be updated!');
     } catch (error) {
         response_handler.handle_error(error, res, req);
     }
@@ -79,11 +75,11 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await agreement_clause_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'AgreementClause with id ' + id.toString() + ' cannot be found!', req);
+            response_handler.set_failure_response(res, 404, 'Agreement clause with id ' + id.toString() + ' cannot be found!', req);
             return;
         }
         var result = await agreement_clause_service.delete(id);
-        response_handler.set_success_response(res, req, 200, 'AgreementClause deleted successfully!', result);
+        response_handler.set_success_response(res, req, 200, 'Agreement clause deleted successfully!', result);
     } catch (error) {
         response_handler.handle_error(error, res, req);
     }
@@ -109,13 +105,10 @@ exports.authorize_create = async (req, res, next) => {
     try {
         req.context = 'agreement_clause.create';
         await authorization_handler.check_role_authorization(req.user, req.context);
-
-        //Perform other authorization checks here...
-        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id);
+        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
         if (!is_authorized) {
-            throw new ApiError('User has no permission to add the agreement_clause for others!', 403);
+            throw new ApiError('Permission denied!', 403);
         }
-        //Move on...
         next();
     }
     catch (error) {
@@ -127,13 +120,6 @@ exports.authorize_search = async (req, res, next) => {
     try {
         req.context = 'agreement_clause.search';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
-        if (!is_authorized) {
-            throw new ApiError('User has no permission to add the agreement_clause for others!', 403);
-        }
-        //Move on...
         next();
     } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
@@ -144,9 +130,10 @@ exports.authorize_get_by_id = async (req, res, next) => {
     try {
         req.context = 'agreement_clause.get_by_id';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
+        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
         next();
     } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
@@ -157,9 +144,10 @@ exports.authorize_update = async (req, res, next) => {
     try {
         req.context = 'agreement_clause.update';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
+        var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
         next();
     } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
@@ -170,9 +158,10 @@ exports.authorize_delete = async (req, res, next) => {
     try {
         req.context = 'agreement_clause.delete';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
+        var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
         next();
     } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
@@ -274,6 +263,25 @@ function get_search_filters(req) {
         filter['milestone_id'] = milestone_id;
     }
     return filter;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+async function is_user_authorized_to_create_resource(user_id, request_body) {
+    return true;
+}
+
+async function is_user_authorized_to_access_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_update_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_delete_resource(user_id, resource_id) {
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

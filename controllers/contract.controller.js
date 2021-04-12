@@ -7,7 +7,7 @@ const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
 const { ApiError } = require('../common/api_error');
 const _ = require('lodash');
-const { check, body, oneOf, validationResult, param } = require('express-validator');
+const { query, body, oneOf, validationResult, param } = require('express-validator');
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -101,13 +101,10 @@ exports.authorize_create = async (req, res, next) => {
     try{
         req.context = 'contract.create';
         await authorization_handler.check_role_authorization(req.user, req.context);
-
-        //Perform other authorization checks here...
-        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id);
+        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
         if (!is_authorized) {
-            throw new ApiError('User has no permission to add the contract for others!', 403);
+            throw new ApiError('Permission denied!', 403);
         }
-        //Move on...
         next();
     }
     catch(error){
@@ -119,12 +116,6 @@ exports.authorize_search = async (req, res, next) => {
     try{
         req.context = 'contract.search';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
-        if (!is_authorized) {
-            throw new ApiError('User has no permission to add the contract for others!', 403);
-        }
-        //Move on...
         next();
     } catch(error){
         response_handler.handle_error(error, res, req, req.context);
@@ -135,22 +126,24 @@ exports.authorize_get_by_id = async (req, res, next) => {
     try{
         req.context = 'contract.get_by_id';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
+        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
         next();
     } catch(error){
         response_handler.handle_error(error, res, req, req.context);
     }
 }
- 
+
 exports.authorize_update = async (req, res, next) => {
     try{
         req.context = 'contract.update';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
+        var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
         next();
     } catch(error){
         response_handler.handle_error(error, res, req, req.context);
@@ -161,9 +154,10 @@ exports.authorize_delete = async (req, res, next) => {
     try{
         req.context = 'contract.delete';
         await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
+        var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
         next();
     } catch(error){
         response_handler.handle_error(error, res, req, req.context);
@@ -270,16 +264,6 @@ exports.sanitize_delete =  async (req, res, next) => {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-async function is_user_authorized_to_create_resource(user_id, request_body) {
-    return true;
-}
-
-async function is_user_authorized_to_access_resource(user_id, resource_id) {
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 async function extract_contract_details(req) {
 
     var current_user_id = req.user.user_id;
@@ -367,6 +351,25 @@ async function get_search_filters(req) {
     filter['items_per_page'] = items_per_page;
     
     return filter;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+async function is_user_authorized_to_create_resource(user_id, request_body) {
+    return true;
+}
+
+async function is_user_authorized_to_access_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_update_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_delete_resource(user_id, resource_id) {
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

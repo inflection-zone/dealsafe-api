@@ -4,7 +4,7 @@ const logger = require('../common/logger');
 const response_handler = require('../common/response_handler');
 const { ApiError } = require('../common/api_error');
 const _ = require('lodash');
-const { check, body, oneOf, validationResult, param } = require('express-validator');
+const { query, body, oneOf, validationResult, param } = require('express-validator');
 
 ////////////////////////////////////////////////////////////////////////
 

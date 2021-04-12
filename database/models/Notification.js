@@ -30,9 +30,14 @@ const schema = {
         type: Sequelize.STRING(1024),
         allowNull: false
     },
-    generated_on: {
+    created_date: {
         type: Sequelize.DATE,
         allowNull: false
+    },
+    is_read: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     },
     read_date: {
         type: Sequelize.DATE,

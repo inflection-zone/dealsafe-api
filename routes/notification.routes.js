@@ -5,14 +5,9 @@ module.exports = app => {
 
     const router = require('express').Router();
 
-    router.post('', authenticate, controller.create);
     router.get('/search', authenticate, controller.search);
     router.get('/:id', authenticate, controller.get_by_id);
-    router.put('/:id', authenticate, controller.update);
-    router.delete('/:id', authenticate, controller.delete);
-
-
-    router.get('/deleted', authenticate, controller.get_deleted);
+    router.put('/:id', authenticate, controller.mark_as_read);
 
     app.use('/api/v1/notification', router);
 };
