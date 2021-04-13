@@ -13,8 +13,9 @@ module.exports = app => {
     router.delete('/:id', authenticate, controller.delete);
 
     router.post('/generate-otp', controller.generate_otp);
+    
     router.post('/login-otp', controller.login_with_otp);
-    router.post('/login', controller.login);
+    router.post('/login', controller.login_with_password);
     router.post("/change-password", authenticate, controller.change_password);
     
     router.get('/deleted', authenticate, controller.get_deleted);

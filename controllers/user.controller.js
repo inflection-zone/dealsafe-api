@@ -12,14 +12,6 @@ const { query, body, oneOf, validationResult, param } = require('express-validat
 
 exports.create = async (req, res) => {
     try {
-        if (
-            !req.body.first_name || 
-            !req.body.last_name || 
-            !req.body.prefix ||
-            !req.body.password) {
-            response_handler.set_failure_response(res, 200, 'Missing required parameters.', req);
-            return;
-        }
         const entity = await user_service.create(req.body, [Roles.BasicUser]);
         response_handler.set_success_response(res, req, 201, 'User added successfully!', {
             entity: entity
@@ -31,9 +23,6 @@ exports.create = async (req, res) => {
 
 exports.search = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('user.search', req, res)) {
-            return;
-        }
         var filter = get_search_filters(req);
         const entities = await user_service.search(filter);
         response_handler.set_success_response(res, req, 200, 'Users retrieved successfully!', {
@@ -46,9 +35,6 @@ exports.search = async (req, res) => {
 
 exports.get_by_id = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('user.get_by_id', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await user_service.exists(id);
         if (!exists) {
@@ -66,9 +52,6 @@ exports.get_by_id = async (req, res) => {
 
 exports.get_by_display_id = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('user.get_by_display_id', req, res)) {
-            return;
-        }
         var displayId = req.params.displayId;
         const entity = await user_service.get_by_display_id(displayId);
         if (entity == null) {
@@ -84,9 +67,6 @@ exports.get_by_display_id = async (req, res) => {
 
 exports.update = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('user.update', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await user_service.exists(id);
         if (!exists) {
@@ -108,9 +88,6 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('user.delete', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await user_service.exists(id);
         if (!exists) {
@@ -127,9 +104,6 @@ exports.delete = async (req, res) => {
 
 exports.get_deleted = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('user.get_deleted', req, res)) {
-            return;
-        }
         const deleted_entities = await user_service.get_deleted(req.user);
         response_handler.set_success_response(res, req, 200, 'Deleted instances of Users retrieved successfully!', {
             deleted_entities: deleted_entities
@@ -190,7 +164,7 @@ exports.login_with_otp = async (req,res) => {
     }
 }
 
-exports.login = async (req, res) => {
+exports.login_with_password = async (req, res) => {
     try {
         const phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const email = (typeof req.body.email != 'undefined') ? req.body.email : null;
@@ -240,6 +214,171 @@ exports.change_password = async (req, res) => {
     }
 };
 
+
+
+
+///////////////////////////////////////////////////////////////////////////////////
+//Authorization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.authorize_create = async (req, res, next) => {
+    try{
+        req.context = 'user.create';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_search = async (req, res, next) => {
+    try{
+        req.context = 'user.search';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_get_by_id = async (req, res, next) => {
+    try{
+        req.context = 'user.get_by_id';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_update = async (req, res, next) => {
+    try{
+        req.context = 'user.update';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_delete = async (req, res, next) => {
+    try{
+        req.context = 'user.delete';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+//Sanitization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.sanitize_create = async (req, res, next) => {
+    try{
+        await body('prefix').exists().isLength({ min: 1 }).trim().escape().run(req);
+        await body('first_name').exists().isAlpha().isLength({ min: 1 }).trim().escape().run(req);
+        await body('last_name').exists().isAlpha().isLength({ min: 1 }).trim().escape().run(req);
+        await body('phone').isAlpha().isLength({ min: 10 }).trim().escape().run(req);
+        await body('email').normalizeEmail().isEmail().trim().escape().run(req);
+        await body('password').trim().run(req);
+        await body('company_id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_search = async (req, res, next) => {
+    try{
+        await query('company_id').isUUID().trim().escape().run(req);
+        await query('name').isAlpha().trim().escape().run(req);
+        await query('phone').trim().escape().run(req);
+        await query('email').trim().escape().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_get_by_id =  async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_update =  async (req, res, next) => {
+    try{
+        await param('id').isUUID().run(req);
+        await body('prefix').isLength({ min: 1 }).trim().escape().run(req);
+        await body('first_name').isAlpha().isLength({ min: 1 }).trim().escape().run(req);
+        await body('last_name').isAlpha().isLength({ min: 1 }).trim().escape().run(req);
+        await body('phone').isAlpha().isLength({ min: 10 }).trim().escape().run(req);
+        await body('email').normalizeEmail().isEmail().trim().escape().run(req);
+        await body('company_id').isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_delete =  async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 function get_search_filters(req) {
     var filter = {};
     var name = req.query.name ? req.query.name : null;
@@ -260,3 +399,24 @@ function get_search_filters(req) {
     }
     return filter;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+async function is_user_authorized_to_create_resource(user_id, request_body) {
+    return true;
+}
+
+async function is_user_authorized_to_access_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_update_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_delete_resource(user_id, resource_id) {
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
