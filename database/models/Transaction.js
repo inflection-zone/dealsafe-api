@@ -34,11 +34,11 @@ const schema = {
         type: Sequelize.UUID,
         allowNull: true
     },
-    paid_by_id: {
+    paid_by_company_id: {
         type: Sequelize.UUID,
         allowNull: false
     },
-    paid_to_id: {
+    paid_to_company_id: {
         type: Sequelize.UUID,
         allowNull: false
     },

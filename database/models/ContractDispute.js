@@ -43,10 +43,6 @@ const schema = {
         allowNull: false,
         defaultValue: false
     },
-    resolution_dates: {
-        type: Sequelize.STRING(256),
-        allowNull: true
-    },
     is_blocking: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

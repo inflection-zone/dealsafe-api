@@ -288,6 +288,20 @@ exports.authorize_delete = async (req, res, next) => {
     }
 }
 
+exports.authorize_change_password = async (req, res, next) => {
+    try {
+        req.context = 'user.change_password';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
+        next();
+    } catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 //Sanitization middleware functions
 ///////////////////////////////////////////////////////////////////////////////////
@@ -363,9 +377,25 @@ exports.sanitize_update =  async (req, res, next) => {
     }
 }
 
-exports.sanitize_delete =  async (req, res, next) => {
+exports.sanitize_delete = async (req, res, next) => {
     try{
         await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_change_password = async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        await body('current_password').exists().trim().run(req);
+        await body('new_password').exists().trim().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();

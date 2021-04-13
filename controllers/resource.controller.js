@@ -9,6 +9,8 @@ var fs = require('fs');
 const admzip = require('adm-zip');
 const authorization_handler = require('../common/authorization_handler');
 
+///////////////////////////////////////////////////////////////////////////////////
+
 exports.upload = async (req, res) => {
     try {
         var user_id = null;
@@ -161,3 +163,244 @@ exports.update_resource_reference = async (req, res) => {
         response_handler.handle_error(error, res, req);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////
+//Authorization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.authorize_upload = async (req, res, next) => {
+    try{
+        req.context = 'resource.upload';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_upload_resource(req.user.user_id, req.body);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_download = async (req, res, next) => {
+    try{
+        req.context = 'resource.download';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_download_resource(req.user.user_id, req.params.resource_id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_download_by_reference = async (req, res, next) => {
+    try{
+        req.context = 'resource.download_by_reference';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_download_by_reference(req.user.user_id, req.params.reference_item_id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_delete = async (req, res, next) => {
+    try{
+        req.context = 'resource.delete';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.resource_id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_get_by_reference = async (req, res, next) => {
+    try{
+        req.context = 'resource.get_by_reference';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_get_by_reference(req.user.user_id, req.params.reference_item_id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_delete_by_reference = async (req, res, next) => {
+    try{
+        req.context = 'resource.delete_by_reference';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_delete_by_reference(req.user.user_id, req.params.reference_item_id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_update_reference = async (req, res, next) => {
+    try{
+        req.context = 'resource.update_reference';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_update_reference(req.user.user_id, req.params.resource_id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+//Sanitization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.sanitize_upload = async (req, res, next) => {
+    try{
+        await check('files').exists().run(req);
+        await body('reference_item_id').isUUID().run(req);
+        await body('is_public').isBoolean().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_download = async (req, res, next) => {
+    try{
+        await param('resource_id').isUUID().trim().escape().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_download_by_reference =  async (req, res, next) => {
+    try{
+        await param('reference_item_id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_delete =  async (req, res, next) => {
+    try{
+        await param('resource_id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_get_by_reference =  async (req, res, next) => {
+    try{
+        await param('reference_item_id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_delete_by_reference =  async (req, res, next) => {
+    try{
+        await param('reference_item_id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_update_reference =  async (req, res, next) => {
+    try{
+        await param('resource_id').exists().isUUID().run(req);
+        await body('reference_item_id').exists().isUUID().run(req);
+        await body('reference_item_keyword').isLength({min:1}).run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+async function is_user_authorized_to_upload_resource(user_id, request_body) {
+    return true;
+}
+
+async function is_user_authorized_to_download_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_download_by_reference(user_id, reference_item_id) {
+    return true;
+}
+
+async function is_user_authorized_to_delete_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_get_by_reference(user_id, reference_item_id) {
+    return true;
+}
+
+async function is_user_authorized_to_delete_by_reference(user_id, reference_item_id) {
+    return true;
+}
+
+async function is_user_authorized_to_update_reference(user_id, resource_id) {
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////

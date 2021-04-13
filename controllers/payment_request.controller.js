@@ -172,20 +172,19 @@ exports.authorize_delete = async (req, res, next) => {
 ///////////////////////////////////////////////////////////////////////////////////
 
 exports.sanitize_create = async (req, res, next) => {
-    try{
-        await body('contract_id').exists().isUUID().trim().escape().run(req);
-        await body('milestone_id').exists().isUUID().trim().escape().run(req);
-        await body('requested_by_user_id').exists().isUUID().trim().escape().run(req);
-        await body('requested_to_company_id').exists().isUUID().trim().escape().run(req);
-        await body('amount').exists().isDecimal().trim().escape().run(req);
-        await body('remarks').trim().isLength({ max: 255 }).run(req);
+    try {
+        await query('contract_id').exists().isUUID().trim().escape().run(req);
+        await query('milestone_id').exists().isUUID().trim().escape().run(req);
+        await query('raised_by').exists().isUUID().trim().escape().run(req);
+        await query('reason').exists().isAlphanumeric().isLength({ max: 255 }).trim().escape().run(req);
+        await query('is_blocking').exists().isBoolean().trim().escape().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             result.throw();
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
@@ -194,11 +193,15 @@ exports.sanitize_search = async (req, res, next) => {
     try{
         await query('contract_id').isUUID().trim().escape().run(req);
         await query('milestone_id').isUUID().trim().escape().run(req);
-        await query('requested_by').isUUID().trim().escape().run(req);
-        await query('from_amount').isDecimal().trim().escape().run(req);
-        await query('to_amount').isDecimal().trim().escape().run(req);
-        await query('from_date').isDate().trim().escape().run(req);
-        await query('to_date').isDate().trim().escape().run(req);
+        await query('raised_by').isUUID().trim().escape().run(req);
+        await query('reason').isAlphanumeric().isLength({max:255}).trim().escape().run(req);
+        await query('is_blocking').isBoolean().trim().escape().run(req);
+        await query('from_raised_date').isDate().trim().escape().run(req);
+        await query('to_raised_date').isDate().trim().escape().run(req);
+        await query('from_resolution_date').isDate().trim().escape().run(req);
+        await query('to_resolution_date').isDate().trim().escape().run(req);
+        await query('is_resolved').isBoolean().trim().escape().run(req);
+        await query('arbitrator_user_id').isUUID().trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -228,12 +231,10 @@ exports.sanitize_update =  async (req, res, next) => {
     try{
         await param('id').exists().isUUID().run(req);
         await body('milestone_id').isUUID().trim().escape().run(req);
-        await body('requested_by_user_id').isUUID().trim().escape().run(req);
-        await body('requested_to_company_id').isUUID().trim().escape().run(req);
-        await body('amount').isDecimal().trim().escape().run(req);
-        await body('transaction_reference_id').trim().run(req);
-        await body('escrow_bank_reference_id').trim().run(req);
-        await body('remarks').trim().isLength({ max: 255 }).run(req);
+        await body('reason').isAlphanumeric().isLength({ max: 255 }).trim().escape().run(req);
+        await body('is_blocking').isBoolean().trim().escape().run(req);
+        await body('is_resolved').isBoolean().trim().escape().run(req);
+        await body('arbitrator_user_id').isUUID().trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -273,21 +274,29 @@ function get_search_filters(req) {
     if (milestone_id != null) {
         filter['milestone_id'] = milestone_id;
     }
-    var requested_by = req.query.requested_by ? req.query.requested_by : null;
-    if (requested_by != null) {
-        filter['requested_by'] = requested_by;
+    var raised_by = req.query.raised_by ? req.query.raised_by : null;
+    if (raised_by != null) {
+        filter['raised_by'] = raised_by;
     }
-    var from_amount = req.query.from_amount ? req.query.from_amount : null;
-    var to_amount = req.query.to_amount ? req.query.to_amount : null;
-    if (from_amount != null && to_amount != null) {
-        filter['from_amount'] = from_amount;
-        filter['to_amount'] = to_amount;
+    var is_resolved = req.query.is_resolved ? req.query.is_resolved : null;
+    if (is_resolved != null) {
+        filter['is_resolved'] = is_resolved;
     }
-    var from_date = req.query.from_date ? req.query.from_date : null;
-    var to_date = req.query.to_date ? req.query.to_date : null;
-    if (from_amount != null && to_amount != null) {
-        filter['from_date'] = from_date;
-        filter['to_date'] = to_date;
+    var is_blocking = req.query.is_blocking ? req.query.is_blocking : null;
+    if (is_blocking != null) {
+        filter['is_blocking'] = is_blocking;
+    }
+    var from_raised_date = req.query.from_raised_date ? req.query.from_raised_date : null;
+    var to_raised_date = req.query.to_raised_date ? req.query.to_raised_date : null;
+    if (from_raised_date != null && to_raised_date != null) {
+        filter['from_raised_date'] = from_raised_date;
+        filter['to_raised_date'] = to_raised_date;
+    }
+    var from_resolution_date = req.query.from_resolution_date ? req.query.from_resolution_date : null;
+    var to_resolution_date = req.query.to_resolution_date ? req.query.to_resolution_date : null;
+    if (from_resolution_date != null && to_resolution_date != null) {
+        filter['from_resolution_date'] = from_resolution_date;
+        filter['to_resolution_date'] = to_resolution_date;
     }
     return filter;
 }
