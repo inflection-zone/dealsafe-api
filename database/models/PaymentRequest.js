@@ -30,10 +30,6 @@ const schema = {
         type: Sequelize.UUID,
         allowNull: false
     },
-    requested_to_user_id: {
-        type: Sequelize.UUID,
-        allowNull: true
-    },
     requested_to_company_id: {
         type: Sequelize.UUID,
         allowNull: true

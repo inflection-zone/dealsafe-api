@@ -3,7 +3,6 @@ const response_handler = require('../common/response_handler');
 const { ApiError } = require('../common/api_error');
 const _ = require('lodash');
 const { query, body, oneOf, validationResult, param } = require('express-validator');
-////////////////////////////////////////////////////////////////////////
 var path = require('path');
 var mime = require('mime');
 var fs = require('fs');
@@ -12,9 +11,6 @@ const authorization_handler = require('../common/authorization_handler');
 
 exports.upload = async (req, res) => {
     try {
-        if (! await authorization_handler.check_role_authorization('resource.upload', req, res)) {
-            return;
-        }
         var user_id = null;
         if (req.user != null) {
             user_id = req.user.user_id;
@@ -35,9 +31,6 @@ exports.upload = async (req, res) => {
 
 exports.download = async (req, res) => {
     try {
-        if (! await authorization_handler.check_role_authorization('resource.download', req, res)) {
-            return;
-        }
         const resource_id = req.params.resource_id;
         var resource = await resource_service.get_resource_by_id(resource_id);
         if (resource == null) {
@@ -91,9 +84,6 @@ exports.download_public = async (req, res) => {
 
 exports.download_by_reference = async (req, res) => {
     try {
-        if (! await authorization_handler.check_role_authorization('resource.download_by_reference', req, res)) {
-            return;
-        }
         const reference_item_id = req.params.reference_item_id;
         const reference_item_keyword = req.query.reference_item_keyword ? req.query.reference_item_keyword : null;
         var o = await resource_service.download_by_reference(reference_item_id, reference_item_keyword);
@@ -121,9 +111,6 @@ exports.download_by_reference = async (req, res) => {
 
 exports.delete = async (req, res) => {
     try {
-        if (! await authorization_handler.check_role_authorization('resource.delete', req, res)) {
-            return;
-        }
         const resource_id = req.params.resource_id;
         await resource_service.delete(resource_id);
         response_handler.set_success_response(res, req, 200, 'Resource deleted successfully!', null);
@@ -135,9 +122,6 @@ exports.delete = async (req, res) => {
 
 exports.delete_by_reference = async (req, res) => {
     try {
-        if (! await authorization_handler.check_role_authorization('resource.delete_by_reference', req, res)) {
-            return;
-        }
         const reference_item_id = req.params.reference_item_id;
         const reference_item_keyword = req.query.reference_item_keyword ? req.query.reference_item_keyword : null;
         var resources = await resource_service.get_resources_by_reference(reference_item_id, reference_item_keyword);
@@ -153,9 +137,6 @@ exports.delete_by_reference = async (req, res) => {
 
 exports.get_resources_by_reference = async (req, res) => {
     try {
-        if (! await authorization_handler.check_role_authorization('resource.get_resources_by_reference', req, res)) {
-            return;
-        }
         const reference_item_id = req.params.reference_item_id;
         const reference_item_keyword = req.query.reference_item_keyword ? req.query.reference_item_keyword : null;
         var resources = await resource_service.get_resources_by_reference(reference_item_id, reference_item_keyword);
@@ -168,9 +149,6 @@ exports.get_resources_by_reference = async (req, res) => {
 
 exports.update_resource_reference = async (req, res) => {
     try {
-        if (! await authorization_handler.check_role_authorization('resource.update_resource_reference', req, res)) {
-            return;
-        }
         if(!req.body.reference_item_id){
             throw new Error('Missing required parameters: req.body.reference_item_id is missing!');
         }
