@@ -190,7 +190,7 @@ exports.sanitize_create = async (req, res, next) => {
         
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -204,7 +204,7 @@ exports.sanitize_search = async (req, res, next) => {
         await query('company_id').isUUID().trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -218,7 +218,7 @@ exports.sanitize_get_by_id =  async (req, res, next) => {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -246,7 +246,7 @@ exports.sanitize_update =  async (req, res, next) => {
         await body('remarks').isAlphanumeric().trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -260,7 +260,7 @@ exports.sanitize_delete =  async (req, res, next) => {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }

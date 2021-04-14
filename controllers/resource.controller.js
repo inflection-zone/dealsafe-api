@@ -278,7 +278,7 @@ exports.sanitize_upload = async (req, res, next) => {
         await body('is_public').isBoolean().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -292,7 +292,7 @@ exports.sanitize_download = async (req, res, next) => {
         await param('resource_id').isUUID().trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -306,7 +306,7 @@ exports.sanitize_download_by_reference =  async (req, res, next) => {
         await param('reference_item_id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -320,7 +320,7 @@ exports.sanitize_delete =  async (req, res, next) => {
         await param('resource_id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -334,7 +334,7 @@ exports.sanitize_get_by_reference =  async (req, res, next) => {
         await param('reference_item_id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -348,7 +348,7 @@ exports.sanitize_delete_by_reference =  async (req, res, next) => {
         await param('reference_item_id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -364,7 +364,7 @@ exports.sanitize_update_reference =  async (req, res, next) => {
         await body('reference_item_keyword').isLength({min:1}).run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }

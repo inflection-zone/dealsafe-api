@@ -302,7 +302,7 @@ exports.sanitize_create = async (req, res, next) => {
         // await body('company_id').isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -319,7 +319,7 @@ exports.sanitize_search = async (req, res, next) => {
         await query('email').trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -333,7 +333,7 @@ exports.sanitize_get_by_id =  async (req, res, next) => {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -353,7 +353,7 @@ exports.sanitize_update =  async (req, res, next) => {
         await body('company_id').isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -367,7 +367,7 @@ exports.sanitize_delete = async (req, res, next) => {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -383,7 +383,7 @@ exports.sanitize_change_password = async (req, res, next) => {
         await body('new_password').exists().trim().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }

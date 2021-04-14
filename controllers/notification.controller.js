@@ -109,7 +109,7 @@ exports.sanitize_search = async (req, res, next) => {
         await query('is_read').isBoolean().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -123,7 +123,7 @@ exports.sanitize_get_by_id =  async (req, res, next) => {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }
@@ -137,7 +137,7 @@ exports.sanitize_mark_as_read =  async (req, res, next) => {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
-            result.throw();
+            helper.handle_validation_error(result);
         }
         next();
     }

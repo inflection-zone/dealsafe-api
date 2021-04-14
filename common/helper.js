@@ -1,7 +1,12 @@
 const genpass = require('generate-password');
 const logger = require('./logger');
+const { ApiError } = require('./api_error');
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 const NEARNESS_SEARCH_DISTANCE = 15.0; //In kilometers
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 // function create_unique_user_display_id(prefix) {
 //     var id = uuidv4();
@@ -266,3 +271,12 @@ module.exports.is_empty = (obj) => {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
 
+exports.handle_validation_error = (result) => {
+    var index = 1;
+    var error_messages = "";
+    for (var er of result.errors) {
+        error_messages += ` ${index}. ${er.msg} - <${er.value}> for <${er.param}> in ${er.location}`;
+        index++;
+    }
+    throw new ApiError('Validation errors: ' + error_messages, 422);
+}
