@@ -7,7 +7,7 @@ const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
 const { ApiError } = require('../common/api_error');
 const _ = require('lodash');
-const { check, body, oneOf, validationResult, param } = require('express-validator');
+const { query, body, oneOf, validationResult, param } = require('express-validator');
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -93,7 +93,176 @@ exports.get_deleted = async (req, res) => {
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+//Authorization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.authorize_create = async (req, res, next) => {
+    try{
+        req.context = 'contract.create';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_search = async (req, res, next) => {
+    try{
+        req.context = 'contract.search';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_get_by_id = async (req, res, next) => {
+    try{
+        req.context = 'contract.get_by_id';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_update = async (req, res, next) => {
+    try{
+        req.context = 'contract.update';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_delete = async (req, res, next) => {
+    try{
+        req.context = 'contract.delete';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+//Sanitization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.sanitize_create = async (req, res, next) => {
+    try{
+
+        await body('name', 'Contract name should be atleast 3 character long.').exists().isLength({ min: 3 }).trim().escape().run(req);
+        await body('description', 'Contract description is too short. Min. 5 characters are needed.').isLength({ min: 5 }).trim().escape().run(req);
+        await body('creator_role').exists().isAlpha().escape().run(req);
+        await body('is_full_payment_contract', 'Please mention whether the contract payment is one-time or part-by-part').exists().isBoolean().run(req);
+        // await oneOf([
+        //     body('buyer_company_id').exists().isUUID(),
+        //     body('buyer_contact_user_id').exists().isUUID(),
+        // ]).run(req);
+        // await oneOf([
+        //     body('seller_company_id').exists().isUUID(),
+        //     body('seller_contact_user_id').exists().isUUID(),
+        // ]).run(req);
+        await body('buyer_company_id').exists().isUUID().run(req);
+        await body('seller_company_id').exists().isUUID().run(req);
+
+        await body('execution_planned_start_date').exists().isDate().run(req);
+        await body('execution_planned_end_date').exists().isDate().run(req);
+        await body('base_contract_amount').exists().isDecimal().run(req);
+        
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_search = async (req, res, next) => {
+    try{
+        await query('name').trim().escape().run(req);
+        await query('buyer').trim().escape().run(req);
+        await query('seller').trim().escape().run(req);
+        await query('from').isDate().trim().escape().run(req);
+        await query('to').isDate().trim().escape().run(req);
+
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_get_by_id =  async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_update =  async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_delete =  async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 async function extract_contract_details(req) {
 
@@ -184,188 +353,22 @@ async function get_search_filters(req) {
     return filter;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-//Authorization middleware functions
-///////////////////////////////////////////////////////////////////////////////////
-
-exports.authorize_create = async (req, res, next) => {
-    try{
-        req.context = 'contract.create';
-        await authorization_handler.check_role_authorization(req.user, req.context);
-
-        //Perform other authorization checks here...
-        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id);
-        if (!is_authorized) {
-            throw new ApiError('User has no permission to add the contract for others!', 403);
-        }
-        //Move on...
-        next();
-    }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
-
-exports.authorize_search = async (req, res, next) => {
-    try{
-        req.context = 'contract.search';
-        await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
-        if (!is_authorized) {
-            throw new ApiError('User has no permission to add the contract for others!', 403);
-        }
-        //Move on...
-        next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
-
-exports.authorize_get_by_id = async (req, res, next) => {
-    try{
-        req.context = 'contract.get_by_id';
-        await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
-        next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
- 
-exports.authorize_update = async (req, res, next) => {
-    try{
-        req.context = 'contract.update';
-        await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
-        next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
-
-exports.authorize_delete = async (req, res, next) => {
-    try{
-        req.context = 'contract.delete';
-        await authorization_handler.check_role_authorization(req.user, req.context);
-        //Perform other authorization checks here...
-
-        //Move on...
-        next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-//Sanitization middleware functions
-///////////////////////////////////////////////////////////////////////////////////
-
-exports.sanitize_create = async (req, res, next) => {
-    try{
-
-        await body('name', 'Contract name should be atleast 3 character long.').exists().isLength({ min: 3 }).trim().escape().run(req);
-        await body('description', 'Contract description is too short. Min. 5 characters are needed.').isLength({ min: 5 }).trim().escape().run(req);
-        await body('creator_role').exists().isAlpha().escape().run(req);
-        await body('is_full_payment_contract', 'Please mention whether the contract payment is one-time or part-by-part').exists().isBoolean().run(req);
-        // await oneOf([
-        //     body('buyer_company_id').exists().isUUID(),
-        //     body('buyer_contact_user_id').exists().isUUID(),
-        // ]).run(req);
-        // await oneOf([
-        //     body('seller_company_id').exists().isUUID(),
-        //     body('seller_contact_user_id').exists().isUUID(),
-        // ]).run(req);
-        await body('buyer_company_id').exists().isUUID().run(req);
-        await body('seller_company_id').exists().isUUID().run(req);
-
-        await body('execution_planned_start_date').exists().isDate().run(req);
-        await body('execution_planned_end_date').exists().isDate().run(req);
-        await body('base_contract_amount').exists().isDecimal().run(req);
-        
-        const result = validationResult(req);
-        if(!result.isEmpty()) {
-            result.throw();
-        }
-        next();
-    }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
-
-exports.sanitize_search = async (req, res, next) => {
-    try{
-        await query('name').trim().escape().run(req);
-        await query('buyer').trim().escape().run(req);
-        await query('seller').trim().escape().run(req);
-        await query('from').isDate().trim().escape().run(req);
-        await query('to').isDate().trim().escape().run(req);
-
-        const result = validationResult(req);
-        if(!result.isEmpty()) {
-            result.throw();
-        }
-        next();
-    }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
-
-exports.sanitize_get_by_id =  async (req, res, next) => {
-    try{
-        param('id').exists().isUUID().run(req);
-        const result = validationResult(req);
-        if(!result.isEmpty()) {
-            result.throw();
-        }
-        next();
-    }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
-
-exports.sanitize_update =  async (req, res, next) => {
-    try{
-        param('id').exists().isUUID().run(req);
-        const result = validationResult(req);
-        if(!result.isEmpty()) {
-            result.throw();
-        }
-        next();
-    }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
-
-exports.sanitize_delete =  async (req, res, next) => {
-    try{
-        param('id').exists().isUUID().run(req);
-        const result = validationResult(req);
-        if(!result.isEmpty()) {
-            result.throw();
-        }
-        next();
-    }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////
+
 
 async function is_user_authorized_to_create_resource(user_id, request_body) {
     return true;
 }
 
 async function is_user_authorized_to_access_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_update_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_delete_resource(user_id, resource_id) {
     return true;
 }
 

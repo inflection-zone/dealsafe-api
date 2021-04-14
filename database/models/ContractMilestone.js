@@ -78,8 +78,6 @@ const schema = {
         type: Sequelize.UUID,
         allowNull: true
     },
-
-
     is_active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

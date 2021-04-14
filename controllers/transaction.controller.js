@@ -1,16 +1,16 @@
 const transaction_service = require('../services/transaction.service');
 const helper = require('../common/helper');
 const response_handler = require('../common/response_handler');
-
 const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
+const { ApiError } = require('../common/api_error');
+const _ = require('lodash');
+const { query, body, oneOf, validationResult, param } = require('express-validator');
+
 ////////////////////////////////////////////////////////////////////////
 
 exports.create = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('transaction.create', req, res)) {
-            return;
-        }
         if (!req.body.display_id || !req.body.transaction_reference_id || !req.body.contract_id || !req.body.paid_by_id || !req.body.paid_to_id || !req.body.transaction_amount || !req.body.transaction_date || !req.body.currency || !req.body.transaction_status) {
             response_handler.set_failure_response(res, 200, 'Missing required parameters.', req);
             return;
@@ -26,9 +26,6 @@ exports.create = async (req, res) => {
 
 exports.search = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('transaction.search', req, res)) {
-            return;
-        }
         var filter = await get_search_filters(req);
         const entities = await transaction_service.search(filter);
         response_handler.set_success_response(res, req, 200, 'Transactions retrieved successfully!', {
@@ -41,9 +38,6 @@ exports.search = async (req, res) => {
 
 exports.get_by_id = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('transaction.get_by_id', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await transaction_service.exists(id);
         if (!exists) {
@@ -61,9 +55,6 @@ exports.get_by_id = async (req, res) => {
 
 exports.update = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('transaction.update', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await transaction_service.exists(id);
         if (!exists) {
@@ -85,9 +76,6 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('transaction.delete', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await transaction_service.exists(id);
         if (!exists) {
@@ -101,12 +89,8 @@ exports.delete = async (req, res) => {
     }
 };
 
-
 exports.get_deleted = async (req, res) => {
     try {
-        if (!await authorization_handler.check_role_authorization('transaction.get_deleted', req, res)) {
-            return;
-        }
         const deleted_entities = await transaction_service.get_deleted(req.user);
         response_handler.set_success_response(res, req, 200, 'Deleted instances of Transactions retrieved successfully!', {
             deleted_entities: deleted_entities
@@ -116,63 +100,217 @@ exports.get_deleted = async (req, res) => {
     }
 };
 
-async function get_search_filters(req) {
+///////////////////////////////////////////////////////////////////////////////////
+//Authorization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.authorize_create = async (req, res, next) => {
+    try{
+        req.context = 'transaction.create';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_search = async (req, res, next) => {
+    try{
+        req.context = 'transaction.search';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_get_by_id = async (req, res, next) => {
+    try{
+        req.context = 'transaction.get_by_id';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_update = async (req, res, next) => {
+    try{
+        req.context = 'transaction.update';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_delete = async (req, res, next) => {
+    try{
+        req.context = 'transaction.delete';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+//Sanitization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.sanitize_create = async (req, res, next) => {
+    try{
+        await body('transaction_reference_id').exists().isAlphanumeric().trim().escape().run(req);
+        await body('escrow_bank_reference_id').exists().isAlphanumeric().trim().escape().run(req);
+        await body('contract_id').exists().isUUID().trim().escape().run(req);
+        await body('milestone_id').isUUID().trim().escape().run(req);
+        await body('paid_by_company_id').exists().isUUID().trim().escape().run(req);
+        await body('paid_to_company_id').exists().isUUID().trim().escape().run(req);
+        await body('pay_from_account_number').isAlphanumeric().trim().escape().run(req);
+        await body('pay_to_account_number').isAlphanumeric().trim().escape().run(req);
+        await body('transaction_amount').exists().isDecimal().trim().escape().run(req);
+        await body('transaction_date').exists().toDate().isDate().trim().escape().run(req);
+        await body('payment_request_id').isUUID().trim().escape().run(req);
+        await body('transaction_initiated_by').exists().isUUID().trim().escape().run(req);
+        await body('currency').isAlpha().trim().escape().run(req);
+        await body('remarks').isAlphanumeric().trim().escape().run(req);
+        
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_search = async (req, res, next) => {
+    try{
+        await query('company_id').isUUID().trim().escape().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_get_by_id =  async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_update =  async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        await body('transaction_reference_id').isAlphanumeric().trim().escape().run(req);
+        await body('escrow_bank_reference_id').isAlphanumeric().trim().escape().run(req);
+        await body('contract_id').isUUID().trim().escape().run(req);
+        await body('milestone_id').isUUID().trim().escape().run(req);
+        await body('paid_by_company_id').isUUID().trim().escape().run(req);
+        await body('paid_to_company_id').isUUID().trim().escape().run(req);
+        await body('pay_from_account_number').isAlphanumeric().trim().escape().run(req);
+        await body('pay_to_account_number').isAlphanumeric().trim().escape().run(req);
+        await body('transaction_amount').isDecimal().trim().escape().run(req);
+        await body('transaction_date').toDate().isDate().trim().escape().run(req);
+        await body('payment_request_id').isUUID().trim().escape().run(req);
+        await body('transaction_initiated_by').isUUID().trim().escape().run(req);
+        await body('currency').isAlpha().trim().escape().run(req);
+        await body('remarks').isAlphanumeric().trim().escape().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_delete =  async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            result.throw();
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+function get_search_filters(req) {
+
     var filter = {};
-    var display_id = req.query.display_id ? req.query.display_id : null;
-    if (display_id != null) {
-        filter['display_id'] = display_id;
-    }
-
-    var transaction_reference_id = req.query.transaction_reference_id ? req.query.transaction_reference_id : null;
-    if (transaction_reference_id != null) {
-        filter['transaction_reference_id'] = transaction_reference_id;
-    }
-
-    var escrow_bank_reference_id = req.query.escrow_bank_reference_id ? req.query.escrow_bank_reference_id : null;
-    if (escrow_bank_reference_id != null) {
-        filter['escrow_bank_reference_id'] = escrow_bank_reference_id;
-    }
 
     var contract_id = req.query.contract_id ? req.query.contract_id : null;
     if (contract_id != null) {
         filter['contract_id'] = contract_id;
     }
-
     var milestone_id = req.query.milestone_id ? req.query.milestone_id : null;
     if (milestone_id != null) {
         filter['milestone_id'] = milestone_id;
     }
-
-    var paid_by_id = req.query.paid_by_id ? req.query.paid_by_id : null;
-    if (paid_by_id != null) {
-        filter['paid_by_id'] = paid_by_id;
+    var paid_by_company_id = req.query.paid_by_company_id ? req.query.paid_by_company_id : null;
+    if (paid_by_company_id != null) {
+        filter['paid_by_company_id'] = paid_by_company_id;
     }
-
-    var paid_to_id = req.query.paid_to_id ? req.query.paid_to_id : null;
-    if (paid_to_id != null) {
-        filter['paid_to_id'] = paid_to_id;
+    var paid_to_company_id = req.query.paid_to_company_id ? req.query.paid_to_company_id : null;
+    if (paid_to_company_id != null) {
+        filter['paid_to_company_id'] = paid_to_company_id;
     }
-
-    var pay_from_account_number = req.query.pay_from_account_number ? req.query.pay_from_account_number : null;
-    if (pay_from_account_number != null) {
-        filter['pay_from_account_number'] = pay_from_account_number;
+    var transaction_initiated_by = req.query.transaction_initiated_by ? req.query.transaction_initiated_by : null;
+    if (transaction_initiated_by != null) {
+        filter['transaction_initiated_by'] = transaction_initiated_by;
     }
-
-    var pay_to_account_number = req.query.pay_to_account_number ? req.query.pay_to_account_number : null;
-    if (pay_to_account_number != null) {
-        filter['pay_to_account_number'] = pay_to_account_number;
-    }
-
-    var transaction_date = req.query.transaction_date ? req.query.transaction_date : null;
-    if (transaction_date != null) {
-        filter['transaction_date'] = transaction_date;
+    var from_transaction_date = req.query.from_transaction_date ? req.query.from_transaction_date : null;
+    var to_transaction_date = req.query.to_transaction_date ? req.query.to_transaction_date : null;
+    if (from_transaction_date != null && to_transaction_date != null) {
+        filter['from_transaction_date'] = from_transaction_date;
+        filter['to_transaction_date'] = to_transaction_date;
     }
 
     var transaction_status = req.query.transaction_status ? req.query.transaction_status : null;
     if (transaction_status != null) {
         filter['transaction_status'] = transaction_date;
     }
-    
+
     var sort_type = req.query.sort_type ? req.query.sort_type : 'descending';
     var sort_by = req.query.sort_by ? req.query.sort_by : 'transaction_date';
     filter['sort_type'] = sort_type;
@@ -185,3 +323,23 @@ async function get_search_filters(req) {
 
     return filter;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+async function is_user_authorized_to_create_resource(user_id, request_body) {
+    return true;
+}
+
+async function is_user_authorized_to_access_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_update_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_delete_resource(user_id, resource_id) {
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
