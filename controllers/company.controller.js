@@ -32,7 +32,7 @@ exports.create = async (req, res) => {
 
 exports.search = async (req, res) => {
     try {
-        var filter = get_search_filters(req);
+        var filter = await get_search_filters(req);
         const entities = await company_service.search(filter);
         response_handler.set_success_response(res, req, 200, 'Companies retrieved successfully!', {
             entities: entities
@@ -264,28 +264,54 @@ exports.sanitize_delete =  async (req, res, next) => {
 
 ////////////////////////////////////////////////////////////////////////
 
-function get_search_filters(req) {
+async function get_search_filters(req) {
     var filter = {};
+
     var name = req.query.name ? req.query.name : null;
     if (name != null) {
         filter['name'] = name;
     }
-    var user_id = req.query.user_id ? req.query.user_id : null;
-    if (user_id != null) {
-        filter['user_id'] = user_id;
-    }
+
     var contact_email = req.query.contact_email ? req.query.contact_email : null;
     if (contact_email != null) {
         filter['contact_email'] = contact_email;
     }
+
     var contact_number = req.query.contact_number ? req.query.contact_number : null;
     if (contact_number != null) {
         filter['contact_number'] = contact_number;
     }
-    var gstn = req.query.gstn ? req.query.gstn : null;
-    if (gstn != null) {
-        filter['gstn'] = gstn;
+
+    var GSTN = req.query.GSTN ? req.query.GSTN : null;
+    if (GSTN != null) {
+        filter['GSTN'] = GSTN;
     }
+
+    var PAN = req.query.PAN ? req.query.PAN : null;
+    if (PAN != null) {
+        filter['PAN'] = PAN;
+    }
+
+    var TAN = req.query.TAN ? req.query.TAN : null;
+    if (TAN != null) {
+        filter['TAN'] = TAN;
+    }
+
+    var subscription_type = req.query.subscription_type ? req.query.subscription_type : null;
+    if (subscription_type != null) {
+        filter['subscription_type'] = subscription_type;
+    }
+
+    var sort_type = req.query.sort_type ? req.query.sort_type : 'descending';
+    var sort_by = req.query.sort_by ? req.query.sort_by : 'created_at';
+    filter['sort_type'] = sort_type;
+    filter['sort_by'] = sort_by;
+
+    var page_number = req.query.page_number ? req.query.page_number : 1;
+    var items_per_page = req.query.items_per_page ? req.query.items_per_page : 10;
+    filter['page_number'] = page_number;
+    filter['items_per_page'] = items_per_page;
+
     return filter;
 }
 

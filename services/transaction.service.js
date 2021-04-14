@@ -12,7 +12,7 @@ module.exports.create = async (request_body) => {
         var record = await Transaction.create(entity);
         return get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -24,18 +24,65 @@ module.exports.search = async (filter) => {
                 is_active: true
             }
         };
-        // if (filter.hasOwnProperty('name')) {
-        //     search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
-        // }
+
+        if (filter.hasOwnProperty('display_id')) {
+            search.where.display_id = filter.display_id;
+        }
+
+        if (filter.hasOwnProperty('transaction_reference_id')) {
+            search.where.transaction_reference_id = filter.transaction_reference_id;
+        }
+
+        if (filter.hasOwnProperty('escrow_bank_reference_id')) {
+            filter.where.escrow_bank_reference_id = filter.escrow_bank_reference_id;
+        }
+
+        if (filter.hasOwnProperty('contract_id')) {
+            filter.where.contract_id = filter.contract_id;
+        }
+
+        if (filter.hasOwnProperty('milestone_id')) {
+            filter.where.milestone_id = filter.milestone_id;
+        }
+
+        if (filter.hasOwnProperty('paid_by_id')) {
+            filter.where.paid_by_id = filter.paid_by_id;
+        }
+
+        if (filter.hasOwnProperty('paid_to_id')) {
+            filter.where.paid_to_id = filter.paid_to_id;
+        }
+
+        if (filter.hasOwnProperty('pay_from_account_number')) {
+            filter.where.pay_from_account_number = filter.pay_from_account_number;
+        }
+
+        if (filter.hasOwnProperty('pay_to_account_number')) {
+            filter.where.pay_to_account_number = filter.pay_to_account_number;
+        }
+
+        if (filter.hasOwnProperty('transaction_date')) {
+            filter.where.transaction_date = filter.transaction_date;
+        }
+
+        if (filter.hasOwnProperty('transaction_status')) {
+            filter.where.transaction_status = filter.transaction_status;
+        }
+
         var records = await Transaction.findAll(search);
         for (var record of records) {
             objects.push(get_object_to_send(record));
         }
+
+        sort_transactions(filter, objects);
+        paginate_transactions(filter, objects);
         return objects;
+
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
+
 
 module.exports.get_by_id = async (id) => {
     try {
@@ -52,7 +99,7 @@ module.exports.get_by_id = async (id) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -81,7 +128,7 @@ module.exports.update = async (id, request_body) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -96,7 +143,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 module.exports.get_deleted = async () => {
@@ -111,7 +158,7 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 module.exports.exists = async (id) => {
@@ -129,7 +176,7 @@ module.exports.exists = async (id) => {
 
         return record != null;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -154,7 +201,9 @@ function get_entity_to_save(request_body) {
         currency: request_body.currency ? request_body.currency : 'INR',
         payment_request_id: request_body.payment_request_id ? request_body.payment_request_id : null,
         transaction_status: request_body.transaction_status ? request_body.transaction_status : 1,
-        remarks: request_body.remarks ? request_body.remarks : null
+        remarks: request_body.remarks ? request_body.remarks : null,
+        is_active: request_body.is_active ? request_body.is_active : null,
+        created_at: request_body.created_at ? request_body.created_at : null
     };
 }
 
@@ -220,6 +269,7 @@ function get_updates(request_body) {
     if (request_body.hasOwnProperty('remarks')) {
         updates.remarks = request_body.remarks;
     }
+
     return updates;
 }
 
@@ -249,5 +299,55 @@ function get_object_to_send(record) {
         payment_request_id: record.payment_request_id,
         transaction_status: record.transaction_status,
         remarks: record.remarks
+    };
+}
+
+function sort_transactions(filter, array) {
+
+    //default sorting by date - recent first
+    array.sort((a, b) => { return new Date(b.transaction_date) - new Date(a.transaction_date) });
+    
+    if (!filter.hasOwnProperty('sort_by')) {
+        return array;
+    }
+
+    if (filter.sort_by == "transaction_date") {
+        if (filter.sort_type == "ascending") {
+            array.sort((a, b) => { return new Date(a.created_at) - new Date(b.created_at) });
+        }
+        else {
+            array.sort((a, b) => { return new Date(b.created_at) - new Date(alert.created_at) });
+        }
+    }
+
+    if (filter.sort_by == "transaction_status") {
+        array.sort((a, b) => {
+            if (a.transaction_status < b.transaction_status) {
+                return -1;
+            }
+            if (a.transaction_status > b.transaction_status) {
+                return 1;
+            }
+            return 0;
+        });
+        if (filter.sort_type != "ascending") {
+            array.reverse();
+        }
+    }
+}
+
+function paginate_transactions(filter, array) {
+    if (filter.hasOwnProperty("page_number") && filter.hasOwnProperty("items_per_page")) {
+        var start_offset = (filter.page_number - 1) * filter.items_per_page;
+        var end_offset = filter.page_number * filter.items_per_page;
+        var current_page = filter.page_number ? +filter.page_number : 1;
+        var total_pages = Math.ceil(array.length / parseInt(filter.items_per_page));
+        array = array.slice(start_offset, end_offset);
+    }
+    return {
+        current_page: current_page,
+        total_pages: total_pages,
+        items_per_page: filter.items_per_page,
+        transactions: array
     };
 }

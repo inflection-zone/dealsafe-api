@@ -26,7 +26,7 @@ exports.create = async (req, res) => {
 
 exports.search = async (req, res) => {
     try {
-        var filter = get_search_filters(req);
+        var filter = await get_search_filters(req);
         const entities = await transaction_service.search(filter);
         response_handler.set_success_response(res, req, 200, 'Transactions retrieved successfully!', {
             entities: entities
@@ -305,6 +305,22 @@ function get_search_filters(req) {
         filter['from_transaction_date'] = from_transaction_date;
         filter['to_transaction_date'] = to_transaction_date;
     }
+
+    var transaction_status = req.query.transaction_status ? req.query.transaction_status : null;
+    if (transaction_status != null) {
+        filter['transaction_status'] = transaction_date;
+    }
+
+    var sort_type = req.query.sort_type ? req.query.sort_type : 'descending';
+    var sort_by = req.query.sort_by ? req.query.sort_by : 'transaction_date';
+    filter['sort_type'] = sort_type;
+    filter['sort_by'] = sort_by;
+
+    var page_number = req.query.page_number ? req.query.page_number : 1;
+    var items_per_page = req.query.items_per_page ? req.query.items_per_page : 10;
+    filter['page_number'] = page_number;
+    filter['items_per_page'] = items_per_page;
+
     return filter;
 }
 
