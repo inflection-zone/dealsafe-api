@@ -3,7 +3,7 @@ const response_handler = require('../common/response_handler');
 const authorization_handler = require('../common/authorization_handler');
 const { ApiError } = require('../common/api_error');
 const { body, validationResult, param } = require('express-validator');
-
+const helper = require('../common/helper');
 ///////////////////////////////////////////////////////////////////////////////////////
 
 exports.create = async (req, res) => {
@@ -175,9 +175,10 @@ exports.sanitize_create = async (req, res, next) => {
         await body('address', 'Address field should be atleast 5 char long.').isLength({ min: 5 }).trim().escape().run(req);
         await body('city').exists().isAlpha().trim().escape().run(req);
         await body('state').exists().isAlpha().trim().escape().run(req);
-        await body('country').isAlpha().trim().escape().run(req);
+        await body('country').isAscii().trim().escape().run(req);
         await body('pincode').isAlphanumeric().trim().escape().run(req);
-        await body('is_company_address').isBoolean().trim().escape().run(req);
+        await body('company_id').isUUID().trim().escape().run(req);
+        await body('is_company_address').optional().isBoolean().trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             helper.handle_validation_error(result);

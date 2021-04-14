@@ -231,8 +231,8 @@ exports.sanitize_update =  async (req, res, next) => {
         await body('user_id').isUUID().trim().escape().run(req);
         await body('account_number').isAlphanumeric().trim().escape().run(req);
         await body('account_name').isAscii().trim().escape().run(req);
-        await body('bank_name').isAlpha().trim().escape().run(req);
-        await body('bank_branch').isAlpha().trim().escape().run(req);
+        await body('bank_name').isAscii().trim().escape().run(req);
+        await body('bank_branch').isAscii().trim().escape().run(req);
         await body('bank_ifsc_code').trim().escape().isLength({ min: 11, max: 11}).custom(standard_validators.validateBankIFSC).run(req);
         await body('PAN').trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validatePAN).run(req);
         await body('account_type').trim().escape().isInt().run(req);

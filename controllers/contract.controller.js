@@ -172,7 +172,7 @@ exports.sanitize_create = async (req, res, next) => {
     try{
 
         await body('name', 'Contract name should be atleast 3 character long.').exists().isLength({ min: 3 }).trim().escape().run(req);
-        await body('description', 'Contract description is too short. Min. 5 characters are needed.').isLength({ min: 5 }).trim().escape().run(req);
+        await body('description').optional().isLength({ min: 5 }).trim().escape().run(req);
         await body('creator_role').exists().isAlpha().escape().run(req);
         await body('is_full_payment_contract', 'Please mention whether the contract payment is one-time or part-by-part').exists().isBoolean().run(req);
         // await oneOf([
@@ -271,8 +271,8 @@ async function extract_contract_details(req) {
     if (!created_by_user) {
         throw new ApiError('Invalid user id.', 404);
     }
-    var creator_company_id = buyer_user.company_id;
-    if(creator_company_id != buyer_company_id && creator_company_id != seller_company_id) {
+    var creator_company_id = created_by_user.company_id;
+    if(creator_company_id != req.body.buyer_company_id && creator_company_id != req.body.seller_company_id) {
         throw new ApiError('The user is not authorized to create contract for others!', 403);
     }
     var seller_company = await company_service.get_by_id(req.body.seller_company_id);
@@ -293,9 +293,9 @@ async function extract_contract_details(req) {
         created_by_user_id: current_user_id,
         created_date: Date.now(),
         seller_contact_user_id: seller_contact_user_id,
-        seller_company_id: seller_company_id,
+        seller_company_id: buyer_company.id,
         buyer_contact_user_id: buyer_contact_user_id,
-        buyer_company_id: buyer_company_id,
+        buyer_company_id: buyer_company.id,
         is_full_payment_contract: req.body.is_full_payment_contract,
         execution_planned_start_date: req.body.execution_planned_start_date,
         execution_planned_end_date: req.body.execution_planned_end_date,

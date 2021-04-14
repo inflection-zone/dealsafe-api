@@ -8,6 +8,7 @@ var mime = require('mime');
 var fs = require('fs');
 const admzip = require('adm-zip');
 const authorization_handler = require('../common/authorization_handler');
+const helper = require('../common/helper');
 
 ///////////////////////////////////////////////////////////////////////////////////
 

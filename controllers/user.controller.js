@@ -313,10 +313,10 @@ exports.sanitize_create = async (req, res, next) => {
 
 exports.sanitize_search = async (req, res, next) => {
     try{
-        await query('company_id').isUUID().trim().escape().run(req);
-        await query('name').isAlpha().trim().escape().run(req);
-        await query('phone').trim().escape().run(req);
-        await query('email').trim().escape().run(req);
+        await query('company_id').optional().isUUID().trim().escape().run(req);
+        await query('name').optional().isAscii().trim().escape().run(req);
+        await query('phone').optional().trim().escape().run(req);
+        await query('email').optional().trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             helper.handle_validation_error(result);
@@ -345,12 +345,12 @@ exports.sanitize_get_by_id =  async (req, res, next) => {
 exports.sanitize_update =  async (req, res, next) => {
     try{
         await param('id').isUUID().run(req);
-        await body('prefix').isLength({ min: 1 }).trim().escape().run(req);
-        await body('first_name').isAlpha().isLength({ min: 1 }).trim().escape().run(req);
-        await body('last_name').isAlpha().isLength({ min: 1 }).trim().escape().run(req);
-        await body('phone').isAlpha().isLength({ min: 10 }).trim().escape().run(req);
-        await body('email').normalizeEmail().isEmail().trim().escape().run(req);
-        await body('company_id').isUUID().run(req);
+        await body('prefix').optional().isLength({ min: 1 }).trim().escape().run(req);
+        await body('first_name').optional().isAscii().isLength({ min: 1 }).trim().escape().run(req);
+        await body('last_name').optional().isAscii().isLength({ min: 1 }).trim().escape().run(req);
+        await body('phone').optional().isAscii().isLength({ min: 10 }).trim().escape().run(req);
+        await body('email').optional().normalizeEmail().isEmail().trim().escape().run(req);
+        await body('company_id').optional().isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             helper.handle_validation_error(result);

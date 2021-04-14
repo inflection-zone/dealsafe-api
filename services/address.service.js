@@ -144,7 +144,7 @@ module.exports.exists = async (id) => {
 function get_entity_to_save(request_body) {
     return {
         company_id: request_body.company_id ? request_body.company_id : null,
-        address: request_body.address ? request_body.address : null,
+        address: request_body.address ? unescape(request_body.address) : null,
         city: request_body.city ? request_body.city : null,
         state: request_body.state ? request_body.state : null,
         country: request_body.country ? request_body.country : null,

@@ -10,10 +10,23 @@ const logger = require('../common/logger');
 const _ = require('lodash');
 const Op = require('sequelize').Op;
 
+//////////////////////////////////////////////////////////////////////////////////////
+
 module.exports.create = async (request_body) => {
     try {
+        var contact_person = null;
+        if (request_body.contact_person_id) {
+            contact_person = await User.findByPk(request_body.contact_person_id);
+            if (contact_person == null) {
+                throw new ApiError('Contact person not found!', 404);
+            }
+        }
         var entity = get_entity_to_save(request_body)
         var record = await Company.create(entity);
+        if (contact_person != null) {
+            contact_person.company_id = record.id;
+            await contact_person.save();
+        }
         return get_object_to_send(record);
     } catch (error) {
         throw (error);
@@ -180,16 +193,16 @@ module.exports.company_exists_with = async (phone, email, gstn, pan, tan, name =
             }
         };
         if (phone) {
-            search.contact_number = { [Op.iLike]: '%' + phone + '%' };
+            search.where.contact_number = { [Op.iLike]: '%' + phone + '%' };
         }
         if (email) {
-            search.contact_email = { [Op.iLike]: '%' + email + '%' };
+            search.where.contact_email = { [Op.iLike]: '%' + email + '%' };
         }
         if (gstn) {
-            search.GSTN = { [Op.iLike]: '%' + gstn + '%' };
+            search.where.GSTN = { [Op.iLike]: '%' + gstn + '%' };
         }
         if (tan) {
-            search.TAN = { [Op.iLike]: '%' + email + '%' };
+            search.where.TAN = { [Op.iLike]: '%' + email + '%' };
         }
         var records = await Company.findAll(search);
         return records.length > 0;

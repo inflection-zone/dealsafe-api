@@ -5,7 +5,7 @@ const Contract = require('../database/models/Contract').Model;
 const ContractChecklist = require('../database/models/ContractChecklist').Model;
 const Company = require('../database/models/Company').Model;
 const ContractStatusTypes = require('../common/constants').ContractStatusTypes;
-const Roles = require('../common/constants').Roles;
+const ContractRoles = require('../common/constants').ContractRoles;
 const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
@@ -223,6 +223,13 @@ module.exports.exists = async (id) => {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function get_entity_to_save(entity) {
+
+    var role_type_id = ContractRoles.Buyer.type_id;
+    if(entity.creator_role){
+        if(entity.creator_role.toLowerCase() === ContractRoles.Seller.name.toLowerCase()) {
+            role_type_id = ContractRoles.Seller.type_id;
+        }
+    }
     return {
         display_id: helper.generate_display_id(),
 
@@ -236,8 +243,8 @@ function get_entity_to_save(entity) {
         seller_company_id: entity.seller_company_id,
         seller_contact_user_id: entity.seller_contact_user_id ? entity.seller_contact_user_id : null,
 
-        created_date: entity.created_date,
-        creator_role: entity.creator_role,
+        created_date: Date.now(),
+        creator_role: role_type_id,
         created_by_user_id: entity.created_by_user_id,
 
         execution_planned_start_date: entity.execution_planned_start_date ? entity.execution_planned_start_date : null,
@@ -245,7 +252,7 @@ function get_entity_to_save(entity) {
 
         base_contract_amount: entity.base_contract_amount ? entity.base_contract_amount : null,
 
-        current_status: ContractStatusTypes.Created.code,
+        current_status: ContractStatusTypes.Created.type_id,
     };
 }
 

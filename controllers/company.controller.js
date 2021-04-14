@@ -22,6 +22,7 @@ exports.create = async (req, res) => {
             return;
         }
         const entity = await company_service.create(req.body);
+        
         response_handler.set_success_response(res, req, 201, 'Company added successfully!', {
             entity: entity
         });
