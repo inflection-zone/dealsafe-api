@@ -5,6 +5,9 @@ const Transaction = require('../database/models/Transaction').Model;
 const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
+const Op = require('sequelize').Op;
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 module.exports.create = async (request_body) => {
     try {
@@ -45,24 +48,24 @@ module.exports.search = async (filter) => {
             filter.where.milestone_id = filter.milestone_id;
         }
 
-        if (filter.hasOwnProperty('paid_by_id')) {
-            filter.where.paid_by_id = filter.paid_by_id;
+        if (filter.hasOwnProperty('paid_by_company_id')) {
+            filter.where.paid_by_company_id = filter.paid_by_company_id;
         }
 
-        if (filter.hasOwnProperty('paid_to_id')) {
-            filter.where.paid_to_id = filter.paid_to_id;
+        if (filter.hasOwnProperty('paid_to_company_id')) {
+            filter.where.paid_to_company_id = filter.paid_to_company_id;
         }
 
-        if (filter.hasOwnProperty('pay_from_account_number')) {
-            filter.where.pay_from_account_number = filter.pay_from_account_number;
+        if (filter.hasOwnProperty('transaction_initiated_by')) {
+            filter.where.transaction_initiated_by = filter.transaction_initiated_by;
         }
 
-        if (filter.hasOwnProperty('pay_to_account_number')) {
-            filter.where.pay_to_account_number = filter.pay_to_account_number;
-        }
-
-        if (filter.hasOwnProperty('transaction_date')) {
-            filter.where.transaction_date = filter.transaction_date;
+        if (filter.hasOwnProperty('from_transaction_date') && 
+            filter.hasOwnProperty('to_transaction_date')) {
+            filter.where.transaction_date = {
+                [Op.gte] : filter.from_transaction_date,
+                [Op.lte] : filter.to_transaction_date
+            };
         }
 
         if (filter.hasOwnProperty('transaction_status')) {
@@ -146,6 +149,7 @@ module.exports.delete = async (id) => {
         throw (error);
     }
 }
+
 module.exports.get_deleted = async () => {
     try {
         var records = await Transaction.findAll({
@@ -161,6 +165,7 @@ module.exports.get_deleted = async () => {
         throw (error);
     }
 }
+
 module.exports.exists = async (id) => {
     try {
         var search = {
@@ -180,38 +185,36 @@ module.exports.exists = async (id) => {
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
+
 function get_entity_to_save(request_body) {
     return {
-        display_id: request_body.display_id ? request_body.display_id : null,
+        display_id: helper.generate_display_id(),
         transaction_reference_id: request_body.transaction_reference_id ? request_body.transaction_reference_id : null,
         escrow_bank_reference_id: request_body.escrow_bank_reference_id ? request_body.escrow_bank_reference_id : null,
-        contract_id: request_body.contract_id ? request_body.contract_id : null,
+        contract_id: request_body.contract_id,
         milestone_id: request_body.milestone_id ? request_body.milestone_id : null,
-        paid_by_id: request_body.paid_by_id ? request_body.paid_by_id : null,
-        paid_to_id: request_body.paid_to_id ? request_body.paid_to_id : null,
+        paid_by_company_id: request_body.paid_by_company_id ? request_body.paid_by_company_id : null,
+        paid_to_company_id: request_body.paid_to_company_id ? request_body.paid_to_company_id : null,
         payee_account_type_id: request_body.payee_account_type_id ? request_body.payee_account_type_id : null,
         payer_account_type_id: request_body.payer_account_type_id ? request_body.payer_account_type_id : null,
         pay_from_account_number: request_body.pay_from_account_number ? request_body.pay_from_account_number : null,
         pay_to_account_number: request_body.pay_to_account_number ? request_body.pay_to_account_number : null,
-        transaction_amount: request_body.transaction_amount ? request_body.transaction_amount : null,
+        transaction_amount: request_body.transaction_amount,
         transaction_date: request_body.transaction_date ? request_body.transaction_date : null,
         transaction_initiated_by: request_body.transaction_initiated_by ? request_body.transaction_initiated_by : null,
         transaction_approved_by: request_body.transaction_approved_by ? request_body.transaction_approved_by : null,
         transaction_type: request_body.transaction_type ? request_body.transaction_type : null,
         currency: request_body.currency ? request_body.currency : 'INR',
         payment_request_id: request_body.payment_request_id ? request_body.payment_request_id : null,
-        transaction_status: request_body.transaction_status ? request_body.transaction_status : 1,
-        remarks: request_body.remarks ? request_body.remarks : null,
-        is_active: request_body.is_active ? request_body.is_active : null,
-        created_at: request_body.created_at ? request_body.created_at : null
+        transaction_status: 1,
+        remarks: request_body.remarks ? request_body.remarks : null
     };
 }
 
 function get_updates(request_body) {
     let updates = {};
-    if (request_body.hasOwnProperty('display_id')) {
-        updates.display_id = request_body.display_id;
-    }
+
     if (request_body.hasOwnProperty('transaction_reference_id')) {
         updates.transaction_reference_id = request_body.transaction_reference_id;
     }
@@ -224,11 +227,11 @@ function get_updates(request_body) {
     if (request_body.hasOwnProperty('milestone_id')) {
         updates.milestone_id = request_body.milestone_id;
     }
-    if (request_body.hasOwnProperty('paid_by_id')) {
-        updates.paid_by_id = request_body.paid_by_id;
+    if (request_body.hasOwnProperty('paid_by_company_id')) {
+        updates.paid_by_company_id = request_body.paid_by_company_id;
     }
-    if (request_body.hasOwnProperty('paid_to_id')) {
-        updates.paid_to_id = request_body.paid_to_id;
+    if (request_body.hasOwnProperty('paid_to_company_id')) {
+        updates.paid_to_company_id = request_body.paid_to_company_id;
     }
     if (request_body.hasOwnProperty('payee_account_type_id')) {
         updates.payee_account_type_id = request_body.payee_account_type_id;
@@ -263,9 +266,6 @@ function get_updates(request_body) {
     if (request_body.hasOwnProperty('payment_request_id')) {
         updates.payment_request_id = request_body.payment_request_id;
     }
-    if (request_body.hasOwnProperty('transaction_status')) {
-        updates.transaction_status = request_body.transaction_status;
-    }
     if (request_body.hasOwnProperty('remarks')) {
         updates.remarks = request_body.remarks;
     }
@@ -284,8 +284,8 @@ function get_object_to_send(record) {
         escrow_bank_reference_id: record.escrow_bank_reference_id,
         contract_id: record.contract_id,
         milestone_id: record.milestone_id,
-        paid_by_id: record.paid_by_id,
-        paid_to_id: record.paid_to_id,
+        paid_by_company_id: record.paid_by_company_id,
+        paid_to_company_id: record.paid_to_company_id,
         payee_account_type_id: record.payee_account_type_id,
         payer_account_type_id: record.payer_account_type_id,
         pay_from_account_number: record.pay_from_account_number,
@@ -351,3 +351,5 @@ function paginate_transactions(filter, array) {
         transactions: array
     };
 }
+
+//////////////////////////////////////////////////////////////////////////////////////

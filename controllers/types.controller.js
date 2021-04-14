@@ -8,15 +8,77 @@ const { query, body, oneOf, validationResult, param } = require('express-validat
 
 ////////////////////////////////////////////////////////////////////////
 
-exports.get_role_types = async (req, res) => {
+exports.get_user_roles = async (req, res) => {
     try {
-        const types = await types_service.get_role_types();
-        response_handler.set_success_response(res, req, 200, 'Role types retrieved successfully!', { types: types });
+        const types = await types_service.get_user_roles();
+        response_handler.set_success_response(res, req, 200, 'User role types retrieved successfully!', { types: types });
     }
     catch (error) {
         response_handler.handle_error(error, res, req);
     }
 };
+
+exports.get_contract_roles = async (req, res) => {
+    try {
+        const types = await types_service.get_contract_roles();
+        response_handler.set_success_response(res, req, 200, 'Contract role types retrieved successfully!', { types: types });
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+};
+
+exports.get_bank_account_types = async (req, res) => {
+    try {
+        const types = await types_service.get_bank_account_types();
+        response_handler.set_success_response(res, req, 200, 'Bank account types retrieved successfully!', { types: types });
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+};
+
+exports.get_contract_payment_modes = async (req, res) => {
+    try {
+        const types = await types_service.get_contract_payment_modes();
+        response_handler.set_success_response(res, req, 200, 'Contract payment modes retrieved successfully!', { types: types });
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+};
+
+exports.get_contract_status_types = async (req, res) => {
+    try {
+        const types = await types_service.get_contract_status_types();
+        response_handler.set_success_response(res, req, 200, 'Contract status types retrieved successfully!', { types: types });
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+};
+
+exports.get_transaction_types = async (req, res) => {
+    try {
+        const types = await types_service.get_transaction_types();
+        response_handler.set_success_response(res, req, 200, 'Transaction types retrieved successfully!', { types: types });
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+};
+
+exports.get_transaction_status_types = async (req, res) => {
+    try {
+        const types = await types_service.get_transaction_status_types();
+        response_handler.set_success_response(res, req, 200, 'Transaction status types retrieved successfully!', { types: types });
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+};
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 exports.get_city_by_pincode = async (req, res) => {
     try {
@@ -60,3 +122,5 @@ exports.get_states = async (req, res) => {
         response_handler.handle_error(error, res, req);
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////////////

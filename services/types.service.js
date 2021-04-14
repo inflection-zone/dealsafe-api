@@ -7,8 +7,11 @@ const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
 const Op = require('sequelize').Op;
+const Constants = require('../common/Constants');
 
-module.exports.get_role_types = async () => {
+//////////////////////////////////////////////////////////////////////////////////////
+
+module.exports.get_user_roles = async () => {
     try {
         return await Role.findAll();
     }
@@ -16,6 +19,74 @@ module.exports.get_role_types = async () => {
         throw(error);
     }
 }
+
+module.exports.get_contract_roles = () => {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Constants.ContractRoles);
+        }
+        catch (error) {
+            reject(error);
+        }
+    });
+}
+
+module.exports.get_bank_account_types = () => {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Constants.BankAccountTypes);
+        }
+        catch (error) {
+            reject(error);
+        }
+    });
+}
+
+module.exports.get_contract_payment_modes = () => {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Constants.ContractPaymentModes);
+        }
+        catch (error) {
+            reject(error);
+        }
+    });
+}
+
+module.exports.get_contract_status_types = () => {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Constants.ContractStatusTypes);
+        }
+        catch (error) {
+            reject(error);
+        }
+    });
+}
+
+module.exports.get_transaction_types = () => {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Constants.TransactionTypes);
+        }
+        catch (error) {
+            reject(error);
+        }
+    });
+}
+
+module.exports.get_transaction_status_types = () => {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Constants.TransactionStatusTypes);
+        }
+        catch (error) {
+            reject(error);
+        }
+    });
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 module.exports.get_city_by_pincode = async (pincode) => {
     try {

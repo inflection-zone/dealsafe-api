@@ -179,9 +179,6 @@ module.exports.company_exists_with = async (phone, email, gstn, pan, tan, name =
                 is_active: true
             }
         };
-        // if(name){
-        //     search.name = {[Op.iLike]: '%' + name + '%' };
-        // }
         if (phone) {
             search.contact_number = { [Op.iLike]: '%' + phone + '%' };
         }

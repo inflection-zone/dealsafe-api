@@ -11,10 +11,6 @@ const { query, body, oneOf, validationResult, param } = require('express-validat
 
 exports.create = async (req, res) => {
     try {
-        if (!req.body.display_id || !req.body.transaction_reference_id || !req.body.contract_id || !req.body.paid_by_id || !req.body.paid_to_id || !req.body.transaction_amount || !req.body.transaction_date || !req.body.currency || !req.body.transaction_status) {
-            response_handler.set_failure_response(res, 200, 'Missing required parameters.', req);
-            return;
-        }
         const entity = await transaction_service.create(req.body);
         response_handler.set_success_response(res, req, 201, 'Transaction added successfully!', {
             entity: entity

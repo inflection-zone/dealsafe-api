@@ -2475,7 +2475,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"display_id\": \"\",\r\n\"transaction_reference_id\": \"\",\r\n\"escrow_bank_reference_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"paid_by_id\": \"\",\r\n\"paid_to_id\": \"\",\r\n\"payee_account_type_id\": \"\",\r\n\"payer_account_type_id\": \"\",\r\n\"pay_from_account_number\": \"\",\r\n\"pay_to_account_number\": \"\",\r\n\"transaction_amount\": \"\",\r\n\"transaction_date\": \"\",\r\n\"transaction_initiated_by\": \"\",\r\n\"transaction_approved_by\": \"\",\r\n\"transaction_type\": \"\",\r\n\"currency\": \"\",\r\n\"payment_request_id\": \"\",\r\n\"transaction_status\": \"\",\r\n\"remarks\": \"\"\r\n\r\n}\r\n"
+							"raw": "{\r\n\"display_id\": \"\",\r\n\"transaction_reference_id\": \"\",\r\n\"escrow_bank_reference_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"paid_by_company_id\": \"\",\r\n\"paid_to_company_id\": \"\",\r\n\"payee_account_type_id\": \"\",\r\n\"payer_account_type_id\": \"\",\r\n\"pay_from_account_number\": \"\",\r\n\"pay_to_account_number\": \"\",\r\n\"transaction_amount\": \"\",\r\n\"transaction_date\": \"\",\r\n\"transaction_initiated_by\": \"\",\r\n\"transaction_approved_by\": \"\",\r\n\"transaction_type\": \"\",\r\n\"currency\": \"\",\r\n\"payment_request_id\": \"\",\r\n\"transaction_status\": \"\",\r\n\"remarks\": \"\"\r\n\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/transaction",
@@ -2535,7 +2535,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{BASE_URL}}/transaction/search?display_id=xyz&transaction_reference_id=xyz&escrow_bank_reference_id=xyz&contract_id=xyz&milestone_id=xyz&paid_by_id=xyz&paid_to_id=xyz&payee_account_type_id=xyz&payer_account_type_id=xyz&pay_from_account_number=xyz&pay_to_account_number=xyz&transaction_amount=xyz&transaction_date=xyz&transaction_initiated_by=xyz&transaction_approved_by=xyz&transaction_type=xyz&currency=xyz&payment_request_id=xyz&transaction_status=xyz&remarks=xyz",
+							"raw": "{{BASE_URL}}/transaction/search?display_id=xyz&transaction_reference_id=xyz&escrow_bank_reference_id=xyz&contract_id=xyz&milestone_id=xyz&paid_by_company_id=xyz&paid_to_company_id=xyz&payee_account_type_id=xyz&payer_account_type_id=xyz&pay_from_account_number=xyz&pay_to_account_number=xyz&transaction_amount=xyz&transaction_date=xyz&transaction_initiated_by=xyz&transaction_approved_by=xyz&transaction_type=xyz&currency=xyz&payment_request_id=xyz&transaction_status=xyz&remarks=xyz",
 							"host": [
 								"{{BASE_URL}}"
 							],
@@ -2565,11 +2565,11 @@
 									"value": "xyz"
 								},
 								{
-									"key": "paid_by_id",
+									"key": "paid_by_company_id",
 									"value": "xyz"
 								},
 								{
-									"key": "paid_to_id",
+									"key": "paid_to_company_id",
 									"value": "xyz"
 								},
 								{
@@ -2665,7 +2665,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"display_id\": \"\",\r\n\"transaction_reference_id\": \"\",\r\n\"escrow_bank_reference_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"paid_by_id\": \"\",\r\n\"paid_to_id\": \"\",\r\n\"payee_account_type_id\": \"\",\r\n\"payer_account_type_id\": \"\",\r\n\"pay_from_account_number\": \"\",\r\n\"pay_to_account_number\": \"\",\r\n\"transaction_amount\": \"\",\r\n\"transaction_date\": \"\",\r\n\"transaction_initiated_by\": \"\",\r\n\"transaction_approved_by\": \"\",\r\n\"transaction_type\": \"\",\r\n\"currency\": \"\",\r\n\"payment_request_id\": \"\",\r\n\"transaction_status\": \"\",\r\n\"remarks\": \"\"\r\n\r\n}\r\n"
+							"raw": "{\r\n\"display_id\": \"\",\r\n\"transaction_reference_id\": \"\",\r\n\"escrow_bank_reference_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_id\": \"\",\r\n\"paid_by_company_id\": \"\",\r\n\"paid_to_company_id\": \"\",\r\n\"payee_account_type_id\": \"\",\r\n\"payer_account_type_id\": \"\",\r\n\"pay_from_account_number\": \"\",\r\n\"pay_to_account_number\": \"\",\r\n\"transaction_amount\": \"\",\r\n\"transaction_date\": \"\",\r\n\"transaction_initiated_by\": \"\",\r\n\"transaction_approved_by\": \"\",\r\n\"transaction_type\": \"\",\r\n\"currency\": \"\",\r\n\"payment_request_id\": \"\",\r\n\"transaction_status\": \"\",\r\n\"remarks\": \"\"\r\n\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/transaction/{{TRANSACTION_ID}}",
