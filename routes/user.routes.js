@@ -5,7 +5,7 @@ module.exports = app => {
 
     const router = require('express').Router();
 
-    router.post('', controller.create);
+    router.post('', controller.sanitize_create, controller.create);
     router.get('/search', authenticate, controller.authorize_search, controller.sanitize_search, controller.search);
     router.get('/:id', authenticate, controller.authorize_get_by_id, controller.sanitize_get_by_id, controller.get_by_id);
     router.get('/display-id/:displayId', authenticate, controller.authorize_get_by_id, controller.sanitize_get_by_id, controller.get_by_display_id);

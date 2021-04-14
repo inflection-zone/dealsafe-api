@@ -221,21 +221,6 @@ exports.change_password = async (req, res) => {
 //Authorization middleware functions
 ///////////////////////////////////////////////////////////////////////////////////
 
-exports.authorize_create = async (req, res, next) => {
-    try{
-        req.context = 'user.create';
-        await authorization_handler.check_role_authorization(req.user, req.context);
-        var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
-        if (!is_authorized) {
-            throw new ApiError('Permission denied', 403);
-        }
-        next();
-    }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
-    }
-}
-
 exports.authorize_search = async (req, res, next) => {
     try{
         req.context = 'user.search';
@@ -311,10 +296,10 @@ exports.sanitize_create = async (req, res, next) => {
         await body('prefix').exists().isLength({ min: 1 }).trim().escape().run(req);
         await body('first_name').exists().isAlpha().isLength({ min: 1 }).trim().escape().run(req);
         await body('last_name').exists().isAlpha().isLength({ min: 1 }).trim().escape().run(req);
-        await body('phone').isAlpha().isLength({ min: 10 }).trim().escape().run(req);
+        await body('phone').isMobilePhone().isLength({ min: 10 }).trim().escape().run(req);
         await body('email').normalizeEmail().isEmail().trim().escape().run(req);
         await body('password').trim().run(req);
-        await body('company_id').exists().isUUID().run(req);
+        // await body('company_id').isUUID().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();

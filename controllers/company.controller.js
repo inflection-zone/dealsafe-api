@@ -184,7 +184,7 @@ exports.authorize_delete = async (req, res, next) => {
 exports.sanitize_create = async (req, res, next) => {
     try{
         await body('name', 'Company name should be atleast 3 character long.').exists().trim().isLength({ min: 3 }).trim().escape().run(req);
-        await body('contact_number').exists().trim().isLength({ min: 10 }).trim().escape().run(req);
+        await body('contact_number').exists().isMobilePhone().trim().isLength({ min: 10 }).trim().escape().run(req);
         await body('contact_email').exists().normalizeEmail().trim().isEmail().run(req);
         await body('GSTN').exists().trim().isAlphanumeric().isLength({ min: 15, max:15 }).custom(standard_validators.validateGSTN).run(req);
         await body('PAN').exists().trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validatePAN).run(req);
@@ -290,3 +290,21 @@ function get_search_filters(req) {
 }
 
 ////////////////////////////////////////////////////////////////////////
+
+async function is_user_authorized_to_create_resource(user_id, request_body) {
+    return true;
+}
+
+async function is_user_authorized_to_access_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_update_resource(user_id, resource_id) {
+    return true;
+}
+
+async function is_user_authorized_to_delete_resource(user_id, resource_id) {
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////

@@ -66,35 +66,6 @@
 							"response": []
 						},
 						{
-							"name": "Get user by id",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "Bearer {{USER_JWT}}"
-									}
-								],
-								"url": {
-									"raw": "{{BASE_URL}}/user/{{USER_ID}}",
-									"host": [
-										"{{BASE_URL}}"
-									],
-									"path": [
-										"user",
-										"{{USER_ID}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "Login",
 							"event": [
 								{
@@ -135,13 +106,150 @@
 									"raw": "{\r\n    \"user_name\": \"{{USER_NAME}}\",\r\n    \"password\": \"Test@123\"\r\n}"
 								},
 								"url": {
-									"raw": "{{BASE_URL}}/user/login",
+									"raw": "{{BASE_URL}}/user/login-password",
 									"host": [
 										"{{BASE_URL}}"
 									],
 									"path": [
 										"user",
-										"login"
+										"login-password"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user by id",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/user/{{USER_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"{{USER_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create company",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"COMPANY_ID\", resp_data.data.entity.id);\r",
+											"    pm.environment.set(\"BUYER_COMPANY_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Inflection Zone Private Limited\",\r\n    \"description\": \"Solution providers\",\r\n    \"contact_email\": \"{{EMAIL}}\",\r\n    \"contact_number\": \"{{PHONE}}\",\r\n    \"GSTN\": \"07AAACC4175D1Z0\",\r\n    \"PAN\": \"XXXXX1234Y\",\r\n    \"TAN\": \"XXXX01234Y\",\r\n    \"contact_person_id\": \"{{USER_ID}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/company",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"company"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get company by id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    // pm.environment.set(\"COMPANY_ID\", resp_data.data.entity.id);\r",
+											"    // pm.environment.set(\"BUYER_COMPANY_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/company/{{COMPANY_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"company",
+										"{{COMPANY_ID}}"
 									]
 								}
 							},
@@ -184,23 +292,22 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"user_phone\": \"9932323234\",\r\n    \"user_email\": \"kk@gmail.com\",\r\n    \"contract_name\": \"Sale of building materials\"\r\n}"
+									"raw": "{\r\n    \"address\": \"No 209/214 & 26, Kailash Building, KG Marg, Connaught Place\",\r\n    \"city\": \"Pune\",\r\n    \"state\": \"Maharashtra\",\r\n    \"country\": \"India\",\r\n    \"pincode\": \"411001\",\r\n    \"is_company_address\": true,\r\n    \"company_id\": \"{{COMPANY_ID}}\"\r\n}\r\n"
 								},
 								"url": {
-									"raw": "{{BASE_URL}}/agreement/invite-user",
+									"raw": "{{BASE_URL}}/address",
 									"host": [
 										"{{BASE_URL}}"
 									],
 									"path": [
-										"agreement",
-										"invite-user"
+										"address"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Create company",
+							"name": "Get address by id",
 							"event": [
 								{
 									"listen": "test",
@@ -208,7 +315,7 @@
 										"exec": [
 											"try {\r",
 											"    var resp_data = pm.response.json();\r",
-											"    pm.environment.set(\"COMPANY_ID\", resp_data.data.entity.id);\r",
+											"    // pm.environment.set(\"ADDRESS_ID\", resp_data.data.entity.id);\r",
 											"}\r",
 											"catch (error) {\r",
 											"    console.log(error.message);\r",
@@ -220,8 +327,11 @@
 									}
 								}
 							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
 							"request": {
-								"method": "POST",
+								"method": "GET",
 								"header": [
 									{
 										"key": "Content-Type",
@@ -236,15 +346,16 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Inflection Zone Private Limited\",\r\n    \"description\": \"Solution providers\",\r\n    \"default_address_id\": \"{{ADDRESS_ID}}\",\r\n    \"contact_email\": \"{{EMAIL}}\",\r\n    \"contact_number\": \"{{PHONE}}\",\r\n    \"GSTN\": \"gfhgfhgh-fgjfkjdkfjdjs\",\r\n    \"PAN\": \"XXXXX1234Y\",\r\n    \"TAN\": \"XXXXX1234Y\",\r\n    \"contact_person_id\": \"{{USER_ID}}\"\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "{{BASE_URL}}/company",
+									"raw": "{{BASE_URL}}/address/{{ADDRESS_ID}}",
 									"host": [
 										"{{BASE_URL}}"
 									],
 									"path": [
-										"company"
+										"address",
+										"{{ADDRESS_ID}}"
 									]
 								}
 							},
@@ -287,7 +398,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"company_id\": \"{{COMPANY_ID}}\",\r\n    \"user_id\": \"{{USER_ID}}\",\r\n    \"is_company_account\": true,\r\n    \"account_number\": \"434325355767\",\r\n    \"account_name\": \"{{FIRST_NAME}} {{LAST_NAME}}\",\r\n    \"account_type\": 1,\r\n    \"bank_name\": \"ICICI Bank\",\r\n    \"bank_branch\": \"Shivajinagar, Pune\",\r\n    \"bank_ifsc_code\": \"ICIC0000039\",\r\n    \"PAN\": \"MNBVC1234A\"\r\n}"
+									"raw": "{\r\n    \"company_id\": \"{{COMPANY_ID}}\",\r\n    \"user_id\": \"{{USER_ID}}\",\r\n    \"account_number\": \"434325355767\",\r\n    \"account_name\": \"{{FIRST_NAME}} {{LAST_NAME}}\",\r\n    \"account_type\": 1,\r\n    \"bank_name\": \"ICICI Bank\",\r\n    \"bank_branch\": \"Shivajinagar, Pune\",\r\n    \"bank_ifsc_code\": \"ICIC0000039\",\r\n    \"PAN\": \"MNBVC1234A\"\r\n}"
 								},
 								"url": {
 									"raw": "{{BASE_URL}}/bank-account-details",
@@ -296,6 +407,61 @@
 									],
 									"path": [
 										"bank-account-details"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get bank details by id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    //pm.environment.set(\"BANK_ACCOUNT_DETAILS_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/bank-account-details/{{BANK_ACCOUNT_DETAILS_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"bank-account-details",
+										"{{BANK_ACCOUNT_DETAILS_ID}}"
 									]
 								}
 							},
@@ -669,16 +835,15 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"user_phone\": \"9932323234\",\r\n    \"user_email\": \"kk@gmail.com\",\r\n    \"contract_name\": \"Sale of building materials\"\r\n}"
+									"raw": "{\r\n    \"address\": \"No 209/214 & 26, Kailash Building, KG Marg, Connaught Place\",\r\n    \"city\": \"Pune\",\r\n    \"state\": \"Maharashtra\",\r\n    \"country\": \"India\",\r\n    \"pincode\": \"411001\",\r\n    \"address_type\": \"Company address\"\r\n}"
 								},
 								"url": {
-									"raw": "{{BASE_URL}}/agreement/invite-user",
+									"raw": "{{BASE_URL}}/address",
 									"host": [
 										"{{BASE_URL}}"
 									],
 									"path": [
-										"agreement",
-										"invite-user"
+										"address"
 									]
 								}
 							},
@@ -694,6 +859,7 @@
 											"try {\r",
 											"    var resp_data = pm.response.json();\r",
 											"    pm.environment.set(\"COMPANY_ID\", resp_data.data.entity.id);\r",
+											"    pm.environment.set(\"SELLER_COMPANY_ID\", resp_data.data.entity.id);\r",
 											"}\r",
 											"catch (error) {\r",
 											"    console.log(error.message);\r",
@@ -1043,7 +1209,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"address\": \"No 209/214 & 26, Kailash Building, KG Marg, Connaught Place\",\r\n    \"city\": \"Pune\",\r\n    \"state\": \"Maharashtra\",\r\n    \"country\": \"India\",\r\n    \"pincode\": \"411001\",\r\n    \"address_type\": \"Company address\"\r\n}"
+									"raw": "{\r\n    \"user_phone\": \"9932323234\",\r\n    \"user_email\": \"kk@gmail.com\",\r\n    \"contract_name\": \"Sale of building materials\"\r\n}"
 								},
 								"url": {
 									"raw": "{{BASE_URL}}/address",
@@ -1093,7 +1259,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Purchase of building supplies\",\r\n    \"is_full_payment_contract\": true,\r\n    \"buyer_company_id\": \"\",\r\n    \"buyer_contact_user_id\": \"\",\r\n    \"seller_company_id\": \"\",\r\n    \"seller_contact_user_id\": \"\",\r\n    \"created_date\": \"2021-03-25\",\r\n    \"execution_planned_start_date\": \"2021-03-28\",\r\n    \"execution_planned_end_date\": \"2021-04-25\",\r\n    \"base_contract_amount\": \"3213132\",\r\n    \"tax_amount\": \"21211\",\r\n    \"buyer_brokerage_amount\": \"1223\",\r\n    \"seller_brokerage_amount\": \"1323\"\r\n}"
+									"raw": "{\r\n    \"name\": \"Pu\",\r\n    \"creator_role\": \"Buyer\",\r\n    \"is_full_payment_contract\": true,\r\n    \"buyer_company_id\": \"\",\r\n    \"buyer_contact_user_id\": \"\",\r\n    \"seller_company_id\": \"\",\r\n    \"seller_contact_user_id\": \"\",\r\n    \"execution_planned_start_date\": \"2021-03-28\",\r\n    \"execution_planned_end_date\": \"2021-04-25\",\r\n    \"base_contract_amount\": \"3213132\"\r\n}"
 								},
 								"url": {
 									"raw": "{{BASE_URL}}/contract",

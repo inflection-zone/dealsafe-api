@@ -32,7 +32,8 @@ const schema = {
     },
     account_type: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 1
     },
     bank_name: {
         type: Sequelize.STRING(64),

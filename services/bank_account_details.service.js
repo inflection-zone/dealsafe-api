@@ -135,10 +135,9 @@ function get_entity_to_save(request_body) {
     return {
         company_id: request_body.company_id ? request_body.company_id : null,
         user_id: request_body.user_id ? request_body.user_id : null,
-        is_company_account: request_body.is_company_account ? request_body.is_company_account : null,
         account_number: request_body.account_number ? request_body.account_number : null,
         account_name: request_body.account_name ? request_body.account_name : null,
-        account_type: request_body.account_type ? request_body.account_type : null,
+        account_type: request_body.account_type ? request_body.account_type : 1,
         bank_name: request_body.bank_name ? request_body.bank_name : null,
         bank_branch: request_body.bank_branch ? request_body.bank_branch : null,
         bank_ifsc_code: request_body.bank_ifsc_code ? request_body.bank_ifsc_code : null,
@@ -153,9 +152,6 @@ function get_updates(request_body) {
     }
     if (request_body.hasOwnProperty('user_id')) {
         updates.user_id = request_body.user_id;
-    }
-    if (request_body.hasOwnProperty('is_company_account')) {
-        updates.is_company_account = request_body.is_company_account;
     }
     if (request_body.hasOwnProperty('account_number')) {
         updates.account_number = request_body.account_number;
@@ -189,7 +185,6 @@ function get_object_to_send(record) {
         id: record.id,
         company_id: record.company_id,
         user_id: record.user_id,
-        is_company_account: record.is_company_account,
         account_number: record.account_number,
         account_name: record.account_name,
         account_type: record.account_type,

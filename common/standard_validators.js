@@ -32,3 +32,14 @@ exports.validateTAN = (value, { req, location, path  }) => {
         return true;
     }
 }
+
+exports.validateBankIFSC = (value, { req, location, path  }) => {
+    var regx = new RegExp('^[A-Z]{4}0[A-Z0-9]{6}$');
+    var is_valid = regx.test(value);
+    if (!is_valid) {
+        throw new ApiError('Invalid Bank IFSC code.', 422);
+    } else {
+        return true;
+    }
+}
+

@@ -179,12 +179,12 @@ exports.sanitize_create = async (req, res, next) => {
         await body('company_id').exists().isUUID().run(req);
         await body('user_id').isUUID().trim().escape().run(req);
         await body('account_number').exists().isAlphanumeric().trim().escape().run(req);
-        await body('account_name').exists().isAlpha().trim().escape().run(req);
-        await body('bank_name').exists().isAlpha().trim().escape().run(req);
-        await body('bank_branch').exists().isAlpha().trim().escape().run(req);
-        await body('bank_ifsc_code').exists().isAlphanumeric().trim().escape().run(req);
+        await body('account_name').exists().isAscii().trim().escape().run(req);
+        await body('bank_name').exists().isAscii().trim().escape().run(req);
+        await body('bank_branch').exists().isAscii().trim().escape().run(req);
+        await body('bank_ifsc_code').exists().trim().escape().isLength({ min: 11, max: 11}).custom(standard_validators.validateBankIFSC).run(req);
         await body('PAN').exists().trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validatePAN).run(req);
-        await body('account_type').exists().isAlpha().trim().escape().run(req);
+        await body('account_type').exists().trim().escape().isInt().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -235,7 +235,7 @@ exports.sanitize_update =  async (req, res, next) => {
         await body('bank_branch').isAlpha().trim().escape().run(req);
         await body('bank_ifsc_code').isAlphanumeric().trim().escape().run(req);
         await body('PAN').trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validatePAN).run(req);
-        await body('account_type').isAlpha().trim().escape().run(req);
+        await body('account_type').isInt().trim().escape().run(req);
         const result = validationResult(req);
         if(!result.isEmpty()) {
             result.throw();
@@ -268,10 +268,6 @@ function get_search_filters(req) {
     var company_id = req.query.company_id ? req.query.company_id : null;
     if (company_id != null) {
         filter['company_id'] = company_id;
-    }
-    var city = req.query.city ? req.query.city : null;
-    if (city != null) {
-        filter['city'] = city;
     }
     return filter;
 }
