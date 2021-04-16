@@ -8,7 +8,7 @@ const logger = require('../common/logger');
 
 module.exports.create = async (request_body) => {
     try {
-        var entity = get_entity_to_save(request_body)
+        var entity = await get_entity_to_save(request_body)
         var record = await ContractMilestone.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -133,23 +133,21 @@ module.exports.exists = async (id) => {
     }
 }
 
-function get_entity_to_save(request_body) {
+async function get_entity_to_save(request_body) {
+    var existing_milestones = await ContractMilestone.findAll({where: { contract_id: request_body.contract_id }});
+    var milestone_index = existing_milestones.length + 1;
+
     return {
-        display_id: request_body.display_id ? request_body.display_id : null,
-        contract_id: request_body.contract_id ? request_body.contract_id : null,
-        milestone_index: request_body.milestone_index ? request_body.milestone_index : 1,
+        display_id: helper.generate_display_id(),
+        contract_id: request_body.contract_id,
+        milestone_index: milestone_index,
         name: request_body.name ? request_body.name : null,
         description: request_body.description ? request_body.description : null,
-        created_date: request_body.created_date ? request_body.created_date : null,
+        created_date: Date.now(),
         execution_planned_start_date: request_body.execution_planned_start_date ? request_body.execution_planned_start_date : null,
         execution_planned_end_date: request_body.execution_planned_end_date ? request_body.execution_planned_end_date : null,
-        execution_actual_start_date: request_body.execution_actual_start_date ? request_body.execution_actual_start_date : null,
-        execution_actual_end_date: request_body.execution_actual_end_date ? request_body.execution_actual_end_date : null,
         milestone_amount: request_body.milestone_amount ? request_body.milestone_amount : null,
         current_status: request_body.current_status ? request_body.current_status : 1,
-        is_cancelled: request_body.is_cancelled ? request_body.is_cancelled : false,
-        is_closed: request_body.is_closed ? request_body.is_closed : false,
-        transaction_id: request_body.transaction_id ? request_body.transaction_id : null
     };
 }
 

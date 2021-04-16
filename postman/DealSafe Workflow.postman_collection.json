@@ -535,7 +535,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{BASE_URL}}/user/search?company_id={{COMPANY_ID}}",
+									"raw": "{{BASE_URL}}/user/search",
 									"host": [
 										"{{BASE_URL}}"
 									],
@@ -561,7 +561,8 @@
 										},
 										{
 											"key": "company_id",
-											"value": "{{COMPANY_ID}}"
+											"value": "{{COMPANY_ID}}",
+											"disabled": true
 										}
 									]
 								}
@@ -1021,7 +1022,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{BASE_URL}}/user/search?phone=1231231231&company_id={{COMPANY_ID}}",
+									"raw": "{{BASE_URL}}/user/search?company_id={{COMPANY_ID}}",
 									"host": [
 										"{{BASE_URL}}"
 									],
@@ -1037,7 +1038,8 @@
 										},
 										{
 											"key": "phone",
-											"value": "1231231231"
+											"value": "1231231231",
+											"disabled": true
 										},
 										{
 											"key": "email",
@@ -1182,12 +1184,13 @@
 										"exec": [
 											"try {\r",
 											"    var resp_data = pm.response.json();\r",
-											"    pm.environment.set(\"{{CONTRACT_ID}}\", resp_data.data.entity.id);\r",
+											"    pm.environment.set(\"CONTRACT_ID\", resp_data.data.entity.id);\r",
 											"}\r",
 											"catch (error) {\r",
 											"    console.log(error.message);\r",
 											"}\r",
-											"\r"
+											"\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1446,28 +1449,552 @@
 				},
 				{
 					"name": "Add milestones",
-					"item": []
+					"item": [
+						{
+							"name": "Add milestone to contract",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"CONTRACT_MILESTONE_ID\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"contract_id\": \"{{CONTRACT_ID}}\",\r\n    \"name\": \"Purchase of steal material for construction\",\r\n    \"description\": \"Supply of 50 tonnes of steal\",\r\n    \"execution_planned_start_date\": \"2021-04-20\",\r\n    \"execution_planned_end_date\": \"2021-06-25\",\r\n    \"milestone_amount\": \"444455\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get milestone by id",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update milestone by id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"description\": \"Supply of 70 tonnes of steal\",\r\n    \"execution_planned_start_date\": \"\",\r\n    \"execution_planned_end_date\": \"2021-7-21\",\r\n    \"execution_actual_start_date\": \"2021-04-17\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				},
 				{
-					"name": "Update contract",
-					"item": []
-				}
-			]
-		},
-		{
-			"name": "Accept contract",
-			"item": [
-				{
-					"name": "Buyer deposits amount",
-					"item": []
-				},
-				{
-					"name": "Seller deposits brokerage",
-					"item": []
-				},
-				{
-					"name": "Accept contract",
-					"item": []
+					"name": "Contract update actions",
+					"item": [
+						{
+							"name": "Buyer agrees",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Seller agrees",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Seller agrees Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Seller rejects the contract terms",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Buyer rejects the contract terms",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Freeze contract details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Buyer deposits escrow amount",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Seller deposits brokerage",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
@@ -1475,30 +2002,480 @@
 			"name": "Contract execution",
 			"item": [
 				{
-					"name": "Start milestone",
-					"item": []
+					"name": "Start contract execution",
+					"item": [
+						{
+							"name": "Contract execution starts - Milestone 1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				},
 				{
-					"name": "End milestone",
-					"item": []
-				},
-				{
-					"name": "Send payment request",
-					"item": []
-				},
-				{
-					"name": "Confirm payment receipt",
-					"item": []
-				},
-				{
-					"name": "Close milestone",
-					"item": []
+					"name": "Milestone update actions",
+					"item": [
+						{
+							"name": "Seller starts milestone",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Seller ends milestone",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Seller sends payment request",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Buyer accepts milestone delivery",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Buyer releases milestone payment",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Seller/buyer closes milestone",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract-milestone",
+										"{{CONTRACT_MILESTONE_ID}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
 		{
-			"name": "Close contract",
-			"item": []
+			"name": "Contract closure",
+			"item": [
+				{
+					"name": "Seller sends contract closure request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"try {\r",
+									"    var resp_data = pm.response.json();\r",
+									"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+									"}\r",
+									"catch (error) {\r",
+									"    console.log(error.message);\r",
+									"}\r",
+									"\r"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{USER_JWT}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"contract-milestone",
+								"{{CONTRACT_MILESTONE_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buyer closes contract",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"try {\r",
+									"    var resp_data = pm.response.json();\r",
+									"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+									"}\r",
+									"catch (error) {\r",
+									"    console.log(error.message);\r",
+									"}\r",
+									"\r"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{USER_JWT}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_id\": \"\",\r\n\"milestone_index\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"created_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"milestone_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"transaction_id\": \"\"\r\n\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"contract-milestone",
+								"{{CONTRACT_MILESTONE_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
 			"name": "Raise dispute",

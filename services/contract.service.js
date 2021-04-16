@@ -220,6 +220,70 @@ module.exports.exists = async (id) => {
     }
 }
 
+module.exports.buyer_agrees = async (id, user) => {
+    try {
+        return null;
+    } catch (error) {
+        throw(error);
+    }
+}
+
+module.exports.seller_agrees = async (id, user) => {
+    try {
+        return null;
+    } catch (error) {
+        throw(error);
+    }
+}
+
+module.exports.buyer_rejects = async (id, user) => {
+    try {
+        return null;
+    } catch (error) {
+        throw(error);
+    }
+}
+
+module.exports.seller_rejects = async (id, user) => {
+    try {
+        return null;
+    } catch (error) {
+        throw(error);
+    }
+}
+
+module.exports.freeze_contract_details = async (id, user) => {
+    try {
+        return null;
+    } catch (error) {
+        throw(error);
+    }
+}
+
+module.exports.buyer_deposits_escrow = async (id, user) => {
+    try {
+        return null;
+    } catch (error) {
+        throw(error);
+    }
+}
+
+module.exports.start_execution = async (id, user) => {
+    try {
+        return null;
+    } catch (error) {
+        throw(error);
+    }
+}
+
+module.exports.close_contract = async (id, user) => {
+    try {
+        return null;
+    } catch (error) {
+        throw(error);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 function get_entity_to_save(entity) {
@@ -453,3 +517,5 @@ function paginate_contracts(filter, array) {
         contracts: array 
     };
 }
+
+//////////////////////////////////////////////////////////////////////////////////////
