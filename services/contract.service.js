@@ -17,6 +17,7 @@ module.exports.create = async (request_body) => {
     try {
         var entity = get_entity_to_save(request_body)
         var record = await Contract.create(entity);
+        //user this contract id to create checklist
         return await get_object_to_send(record);
     } catch (error) {
         throw(error);
@@ -393,7 +394,7 @@ async function get_object_to_send(record) {
     if (record == null) {
         return null;
     }
-    var checklist = await ContractChecklist.create({ contract_id: record.id });
+    var checklist = await ContractChecklist.findOne({where: { contract_id: record.id }});
     var buyer_company = await Company.findByPk(record.buyer_company_id);
     var seller_company = await Company.findByPk(record.seller_company_id);
     
