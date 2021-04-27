@@ -18,8 +18,8 @@ module.exports.create = async (request_body) => {
         var entity = get_entity_to_save(request_body)
         var record = await Contract.create(entity);
         //user this contract id to create checklist
-        var contract_checklist = get_contract_checklist(record);
-        await ContractChecklist.create(contract_checklist);
+        var contract_checklist = create_contract_checklist(record);
+        var checklist_record = await ContractChecklist.create(contract_checklist);
         return await get_object_to_send(record);
     } catch (error) {
         throw (error);
@@ -232,9 +232,11 @@ module.exports.buyer_agrees = async (id, user) => {
                 id: id
             }
         });
+
         if (res.length != 1) {
             throw new ApiError('Unable to update contract!');
         }
+
         var search = {
             where: {
                 id: id,
@@ -245,7 +247,19 @@ module.exports.buyer_agrees = async (id, user) => {
         if (record == null) {
             return null;
         }
-
+        
+        let updateContractChecklist = {};
+        updateContractChecklist.buyer_agreed = true;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract buyer_agreed!');
+        }
+        
         return await get_object_to_send(record);
     } catch (error) {
         throw (error);
@@ -264,6 +278,7 @@ module.exports.seller_agrees = async (id, user) => {
         if (res.length != 1) {
             throw new ApiError('Unable to update contract!');
         }
+
         var search = {
             where: {
                 id: id,
@@ -275,6 +290,18 @@ module.exports.seller_agrees = async (id, user) => {
             return null;
         }
 
+        let updateContractChecklist = {};
+        updateContractChecklist.seller_agreed = true;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract seller_agreed!');
+        }
+        
         return await get_object_to_send(record);
     } catch (error) {
         throw (error);
@@ -283,7 +310,30 @@ module.exports.seller_agrees = async (id, user) => {
 
 module.exports.buyer_rejects = async (id, user) => {
     try {
-        return null;
+        var search = {
+            where: {
+                id: id,
+                is_active: true
+            }
+        };
+        var record = await Contract.findOne(search);
+        if (record == null) {
+            return null;
+        }
+
+        let updateContractChecklist = {};
+        updateContractChecklist.buyer_agreed = false;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract buyer_rejects!');
+        }
+        
+        return await get_object_to_send(record);
     } catch (error) {
         throw (error);
     }
@@ -291,7 +341,30 @@ module.exports.buyer_rejects = async (id, user) => {
 
 module.exports.seller_rejects = async (id, user) => {
     try {
-        return null;
+        var search = {
+            where: {
+                id: id,
+                is_active: true
+            }
+        };
+        var record = await Contract.findOne(search);
+        if (record == null) {
+            return null;
+        }
+
+        let updateContractChecklist = {};
+        updateContractChecklist.seller_agreed = false;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract seller_rejects!');
+        }
+        
+        return await get_object_to_send(record);
     } catch (error) {
         throw (error);
     }
@@ -331,7 +404,7 @@ module.exports.close_contract = async (id, user) => {
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-function get_contract_checklist(contract_details) {
+function create_contract_checklist(contract_details) {
     var check_list = {};
     if (contract_details == null) {
         return null;
@@ -343,7 +416,7 @@ function get_contract_checklist(contract_details) {
     check_list.buyer_paid_escrow_amount = contract_details.base_contract_amount ? true : false;
     check_list.buyer_paid_brokerage = contract_details.buyer_brokerage_amount ? true : false;
     check_list.seller_paid_brokerage = contract_details.seller_brokerage_amount ? true : false;
-    check_list.execution_started = contract_details.execution_planned_start_date ? true : false;
+    check_list.execution_started = contract_details.execution_actual_start_date ? true : false;
     check_list.execution_ended = contract_details.execution_actual_end_date ? true : false;
     check_list.full_payment_released = contract_details.is_full_payment_contract ? true : false;
     check_list.Closed = contract_details.is_closed ? true : false;
