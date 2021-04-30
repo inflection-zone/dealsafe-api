@@ -29,39 +29,35 @@ module.exports.create = async (request_body) => {
 module.exports.search = async (filter) => {
 
     try {
+        var array = [];
+        var search = {
+            where: {
+                is_active: true
+            }
+        };
 
-        var search = {};
+
         if (filter.hasOwnProperty('my_role')) {
             if (filter.my_role === 'buyer') {
-                search = {
-                    where: {
-                        is_active: true,
-                        buyer_company_id: filter.current_user_company_id,
-                    }
-                };
+                search.where.buyer_company_id = filter.current_user_company_id;
             }
             else {
-                search = {
-                    where: {
-                        is_active: true,
-                        seller_company_id: filter.current_user_company_id,
-                    }
-                };
+                search.where.seller_company_id = filter.current_user_company_id;
             }
         }
-        else {
-            search = {
-                where: {
-                    is_active: true,
-                    [Op.or]: [
-                        {
-                            seller_company_id: filter.current_user_company_id,
-                            buyer_company_id: filter.current_user_company_id,
-                        }
-                    ]
-                }
-            };
-        }
+        // else {
+        //     search = {
+        //         where: {
+        //             is_active: true,
+        //             [Op.or]: [
+        //                 {
+        //                     seller_company_id: filter.current_user_company_id,
+        //                     buyer_company_id: filter.current_user_company_id,
+        //                 }
+        //             ]
+        //         }
+        //     };
+        // }
         if (filter.hasOwnProperty('name')) {
             search.where.name = { [Op.iLike]: "%" + filter.name + "%" }
         }
@@ -85,9 +81,8 @@ module.exports.search = async (filter) => {
                 search.where.current_status = ContractStatusTypes.Cancelled.code;
             }
         }
-
         var records = await Contract.findAll(search);
-
+        
         if (filter.hasOwnProperty('other_company_name')) {
             var companies = await Company.findAll({
                 where: {
@@ -245,9 +240,9 @@ module.exports.buyer_agrees = async (id, user) => {
         };
         var record = await Contract.findOne(search);
         if (record == null) {
-            return null;
+            throw new ApiError('Contract not found');
         }
-        
+
         let updateContractChecklist = {};
         updateContractChecklist.buyer_agreed = true;
         //update contract checklist
@@ -259,7 +254,7 @@ module.exports.buyer_agrees = async (id, user) => {
         if (result.length != 1) {
             throw new ApiError('Unable to update contract buyer_agreed!');
         }
-        
+
         return await get_object_to_send(record);
     } catch (error) {
         throw (error);
@@ -301,7 +296,7 @@ module.exports.seller_agrees = async (id, user) => {
         if (result.length != 1) {
             throw new ApiError('Unable to update contract seller_agreed!');
         }
-        
+
         return await get_object_to_send(record);
     } catch (error) {
         throw (error);
@@ -332,7 +327,7 @@ module.exports.buyer_rejects = async (id, user) => {
         if (result.length != 1) {
             throw new ApiError('Unable to update contract buyer_rejects!');
         }
-        
+
         return await get_object_to_send(record);
     } catch (error) {
         throw (error);
@@ -363,7 +358,7 @@ module.exports.seller_rejects = async (id, user) => {
         if (result.length != 1) {
             throw new ApiError('Unable to update contract seller_rejects!');
         }
-        
+
         return await get_object_to_send(record);
     } catch (error) {
         throw (error);
@@ -378,9 +373,43 @@ module.exports.freeze_contract_details = async (id, user) => {
     }
 }
 
-module.exports.buyer_deposits_escrow = async (id, user) => {
+module.exports.buyer_deposits_escrow = async (id, user, request_body) => {
     try {
-        return null;
+        let updates = {};
+        updates.base_contract_amount = request_body.amount;
+        var res = await Contract.update(updates, {
+            where: {
+                id: id
+            }
+        });
+        if (res.length != 1) {
+            throw new ApiError('Unable to update contract!');
+        }
+
+        var search = {
+            where: {
+                id: id,
+                is_active: true
+            }
+        };
+        var record = await Contract.findOne(search);
+        if (record == null) {
+            return null;
+        }
+
+        let updateContractChecklist = {};
+        updateContractChecklist.buyer_paid_escrow_amount = true;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract buyer_paid_escrow_amount!');
+        }
+
+        return await get_object_to_send(record);
     } catch (error) {
         throw (error);
     }
@@ -428,7 +457,10 @@ function get_entity_to_save(entity) {
 
     var role_type_id = ContractRoles.Buyer.type_id;
     if (entity.creator_role) {
-        if (entity.creator_role.toLowerCase() === ContractRoles.Seller.name.toLowerCase()) {
+        // if (entity.creator_role.toLowerCase() === ContractRoles.Seller.name.toLowerCase()) {
+        //     role_type_id = ContractRoles.Seller.type_id;
+        // }
+        if (entity.creator_role === 2) {
             role_type_id = ContractRoles.Seller.type_id;
         }
     }
@@ -593,7 +625,7 @@ function sort_contracts(filter, array) {
             array.sort((a, b) => { return new Date(a.created_at) - new Date(b.created_at) });
         }
         else {
-            array.sort((a, b) => { return new Date(b.created_at) - new Date(alert.created_at) });
+            array.sort((a, b) => { return new Date(b.created_at) - new Date(b.created_at) });
         }
     }
     if (filter.sort_by == "name") {

@@ -176,7 +176,7 @@ exports.sanitize_create = async (req, res, next) => {
     try {
         await body('contract_id').exists().isUUID().run(req);
         await body('name', 'Milestone name should be atleast 5 char long.').exists().isLength({ min: 5 }).trim().escape().run(req);
-        await body('description').optional().isAscii().isLength({ min: 5 }).trim().escape().run(req);
+        await body('description').optional({checkFalsy:true, nullable:true}).isAscii().isLength({ min: 5 }).trim().escape().run(req);
         await body('execution_planned_start_date').exists().toDate().run(req);
         await body('execution_planned_end_date').exists().toDate().run(req);
         await body('milestone_amount').isDecimal().trim().escape().run(req);
@@ -200,7 +200,7 @@ exports.sanitize_create = async (req, res, next) => {
 
 exports.sanitize_search = async (req, res, next) => {
     try {
-        await query('company_id').isUUID().trim().escape().run(req);
+        await query('contract_id').isUUID().trim().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
             helper.handle_validation_error(result);

@@ -96,6 +96,17 @@ exports.get_deleted = async (req, res) => {
     }
 };
 
+exports.get_summary = async (req, res) => {
+    try {
+        const transaction_entities = await transaction_service.get_summary(req.user);
+        response_handler.set_success_response(res, req, 200, 'Transaction summary retrieved successfully!', {
+            transaction_entities: transaction_entities
+        });
+    } catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+};
+
 ///////////////////////////////////////////////////////////////////////////////////
 //Authorization middleware functions
 ///////////////////////////////////////////////////////////////////////////////////

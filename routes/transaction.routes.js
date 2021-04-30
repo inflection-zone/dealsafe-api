@@ -12,6 +12,7 @@ module.exports = app => {
     router.delete('/:id', authenticate, controller.authorize_delete, controller.sanitize_delete, controller.delete);
 
     router.get('/deleted', authenticate, controller.get_deleted);
+    router.get('/summary', authenticate, controller.get_summary);
 
     app.use('/api/v1/transaction', router);
 };
