@@ -18,48 +18,46 @@ module.exports.create = async (request_body) => {
         var entity = get_entity_to_save(request_body)
         var record = await Contract.create(entity);
         //user this contract id to create checklist
+        var contract_checklist = create_contract_checklist(record);
+        var checklist_record = await ContractChecklist.create(contract_checklist);
         return await get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
 module.exports.search = async (filter) => {
 
     try {
+        var array = [];
+        var search = {
+            where: {
+                is_active: true
+            }
+        };
 
-        var search = {};
+
         if (filter.hasOwnProperty('my_role')) {
             if (filter.my_role === 'buyer') {
-                search = {
-                    where: {
-                        is_active: true,
-                        buyer_company_id: filter.current_user_company_id,
-                    }
-                };
+                search.where.buyer_company_id = filter.current_user_company_id;
             }
             else {
-                search = {
-                    where: {
-                        is_active: true,
-                        seller_company_id: filter.current_user_company_id,
-                    }
-                };
+                search.where.seller_company_id = filter.current_user_company_id;
             }
         }
-        else {
-            search = {
-                where: {
-                    is_active: true,
-                    [Op.or]: [
-                        {
-                            seller_company_id: filter.current_user_company_id,
-                            buyer_company_id: filter.current_user_company_id,
-                        }
-                    ]
-                }
-            };
-        }
+        // else {
+        //     search = {
+        //         where: {
+        //             is_active: true,
+        //             [Op.or]: [
+        //                 {
+        //                     seller_company_id: filter.current_user_company_id,
+        //                     buyer_company_id: filter.current_user_company_id,
+        //                 }
+        //             ]
+        //         }
+        //     };
+        // }
         if (filter.hasOwnProperty('name')) {
             search.where.name = { [Op.iLike]: "%" + filter.name + "%" }
         }
@@ -69,24 +67,23 @@ module.exports.search = async (filter) => {
                 [Op.lte]: filter.to_date
             }
         }
-        if(filter.hasOwnProperty('state')){
-            if(filter.state === 'created') {
+        if (filter.hasOwnProperty('state')) {
+            if (filter.state === 'created') {
                 search.where.current_status = ContractStatusTypes.Created.code;
             }
-            if(filter.state === 'in-progress') {
+            if (filter.state === 'in-progress') {
                 search.where.current_status = ContractStatusTypes.InProgress.code;
             }
-            if(filter.state === 'closed') {
+            if (filter.state === 'closed') {
                 search.where.current_status = ContractStatusTypes.Closed.code;
             }
-            if(filter.state === 'cancelled') {
+            if (filter.state === 'cancelled') {
                 search.where.current_status = ContractStatusTypes.Cancelled.code;
             }
         }
-
         var records = await Contract.findAll(search);
-
-        if(filter.hasOwnProperty('other_company_name')) {
+        
+        if (filter.hasOwnProperty('other_company_name')) {
             var companies = await Company.findAll({
                 where: {
                     is_active: true,
@@ -118,10 +115,10 @@ module.exports.search = async (filter) => {
         sort_contracts(filter, array);
         return paginate_contracts(filter, array);
 
-    } 
+    }
     catch (error) {
         logger.log(error.message);
-        throw(error);
+        throw (error);
     }
 }
 
@@ -139,7 +136,7 @@ module.exports.get_by_id = async (id) => {
         }
         return await get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -168,7 +165,7 @@ module.exports.update = async (id, request_body) => {
 
         return await get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -183,7 +180,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -199,7 +196,7 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -217,39 +214,154 @@ module.exports.exists = async (id) => {
         }
         return record != null;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
 module.exports.buyer_agrees = async (id, user) => {
     try {
-        return null;
+        let updates = {};
+        updates.buyer_agreed_date = Date.now();
+        var res = await Contract.update(updates, {
+            where: {
+                id: id
+            }
+        });
+
+        if (res.length != 1) {
+            throw new ApiError('Unable to update contract!');
+        }
+
+        var search = {
+            where: {
+                id: id,
+                is_active: true
+            }
+        };
+        var record = await Contract.findOne(search);
+        if (record == null) {
+            throw new ApiError('Contract not found');
+        }
+
+        let updateContractChecklist = {};
+        updateContractChecklist.buyer_agreed = true;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract buyer_agreed!');
+        }
+
+        return await get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
 module.exports.seller_agrees = async (id, user) => {
     try {
-        return null;
+        let updates = {};
+        updates.seller_agreed_date = Date.now();
+        var res = await Contract.update(updates, {
+            where: {
+                id: id
+            }
+        });
+        if (res.length != 1) {
+            throw new ApiError('Unable to update contract!');
+        }
+
+        var search = {
+            where: {
+                id: id,
+                is_active: true
+            }
+        };
+        var record = await Contract.findOne(search);
+        if (record == null) {
+            return null;
+        }
+
+        let updateContractChecklist = {};
+        updateContractChecklist.seller_agreed = true;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract seller_agreed!');
+        }
+
+        return await get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
 module.exports.buyer_rejects = async (id, user) => {
     try {
-        return null;
+        var search = {
+            where: {
+                id: id,
+                is_active: true
+            }
+        };
+        var record = await Contract.findOne(search);
+        if (record == null) {
+            return null;
+        }
+
+        let updateContractChecklist = {};
+        updateContractChecklist.buyer_agreed = false;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract buyer_rejects!');
+        }
+
+        return await get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
 module.exports.seller_rejects = async (id, user) => {
     try {
-        return null;
+        var search = {
+            where: {
+                id: id,
+                is_active: true
+            }
+        };
+        var record = await Contract.findOne(search);
+        if (record == null) {
+            return null;
+        }
+
+        let updateContractChecklist = {};
+        updateContractChecklist.seller_agreed = false;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract seller_rejects!');
+        }
+
+        return await get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -257,15 +369,49 @@ module.exports.freeze_contract_details = async (id, user) => {
     try {
         return null;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
-module.exports.buyer_deposits_escrow = async (id, user) => {
+module.exports.buyer_deposits_escrow = async (id, user, request_body) => {
     try {
-        return null;
+        let updates = {};
+        updates.base_contract_amount = request_body.amount;
+        var res = await Contract.update(updates, {
+            where: {
+                id: id
+            }
+        });
+        if (res.length != 1) {
+            throw new ApiError('Unable to update contract!');
+        }
+
+        var search = {
+            where: {
+                id: id,
+                is_active: true
+            }
+        };
+        var record = await Contract.findOne(search);
+        if (record == null) {
+            return null;
+        }
+
+        let updateContractChecklist = {};
+        updateContractChecklist.buyer_paid_escrow_amount = true;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract buyer_paid_escrow_amount!');
+        }
+
+        return await get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -273,7 +419,7 @@ module.exports.start_execution = async (id, user) => {
     try {
         return null;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -281,17 +427,40 @@ module.exports.close_contract = async (id, user) => {
     try {
         return null;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+function create_contract_checklist(contract_details) {
+    var check_list = {};
+    if (contract_details == null) {
+        return null;
+    }
+
+    check_list.contract_id = contract_details.id ? contract_details.id : null;
+    check_list.buyer_agreed = contract_details.buyer_agreed_date ? true : false;
+    check_list.seller_agreed = contract_details.seller_agreed_date ? true : false;
+    check_list.buyer_paid_escrow_amount = contract_details.base_contract_amount ? true : false;
+    check_list.buyer_paid_brokerage = contract_details.buyer_brokerage_amount ? true : false;
+    check_list.seller_paid_brokerage = contract_details.seller_brokerage_amount ? true : false;
+    check_list.execution_started = contract_details.execution_actual_start_date ? true : false;
+    check_list.execution_ended = contract_details.execution_actual_end_date ? true : false;
+    check_list.full_payment_released = contract_details.is_full_payment_contract ? true : false;
+    check_list.Closed = contract_details.is_closed ? true : false;
+
+    return check_list;
+}
+
 function get_entity_to_save(entity) {
 
     var role_type_id = ContractRoles.Buyer.type_id;
-    if(entity.creator_role){
-        if(entity.creator_role.toLowerCase() === ContractRoles.Seller.name.toLowerCase()) {
+    if (entity.creator_role) {
+        // if (entity.creator_role.toLowerCase() === ContractRoles.Seller.name.toLowerCase()) {
+        //     role_type_id = ContractRoles.Seller.type_id;
+        // }
+        if (entity.creator_role === 2) {
             role_type_id = ContractRoles.Seller.type_id;
         }
     }
@@ -394,10 +563,10 @@ async function get_object_to_send(record) {
     if (record == null) {
         return null;
     }
-    var checklist = await ContractChecklist.findOne({where: { contract_id: record.id }});
+    var checklist = await ContractChecklist.findOne({ where: { contract_id: record.id } });
     var buyer_company = await Company.findByPk(record.buyer_company_id);
     var seller_company = await Company.findByPk(record.seller_company_id);
-    
+
     return {
         id: record.id,
         display_id: record.display_id,
@@ -447,7 +616,7 @@ function sort_contracts(filter, array) {
 
     //default sorting by date - recent first
     array.sort((a, b) => { return new Date(b.created_date) - new Date(a.created_date) });
-    if (!filter.hasOwnProperty('sort_by')){
+    if (!filter.hasOwnProperty('sort_by')) {
         return array;
     }
 
@@ -456,46 +625,46 @@ function sort_contracts(filter, array) {
             array.sort((a, b) => { return new Date(a.created_at) - new Date(b.created_at) });
         }
         else {
-            array.sort((a, b) => { return new Date(b.created_at) - new Date(alert.created_at) });
+            array.sort((a, b) => { return new Date(b.created_at) - new Date(b.created_at) });
         }
     }
     if (filter.sort_by == "name") {
-        array.sort((a, b) => { 
-            if ( a.name < b.name ){
+        array.sort((a, b) => {
+            if (a.name < b.name) {
                 return -1;
-              }
-              if ( a.name > b.name ){
+            }
+            if (a.name > b.name) {
                 return 1;
-              }
-              return 0;
+            }
+            return 0;
         });
         if (filter.sort_type != "ascending") {
             array.reverse();
         }
     }
     if (filter.sort_by == "seller_company_name") {
-        array.sort((a, b) => { 
-            if ( a.seller_company_name < b.seller_company_name ){
+        array.sort((a, b) => {
+            if (a.seller_company_name < b.seller_company_name) {
                 return -1;
-              }
-              if ( a.seller_company_name > b.seller_company_name ){
+            }
+            if (a.seller_company_name > b.seller_company_name) {
                 return 1;
-              }
-              return 0;
+            }
+            return 0;
         });
         if (filter.sort_type != "ascending") {
             array.reverse();
         }
     }
     if (filter.sort_by == "buyer_company_name") {
-        array.sort((a, b) => { 
-            if ( a.buyer_company_name < b.buyer_company_name ){
+        array.sort((a, b) => {
+            if (a.buyer_company_name < b.buyer_company_name) {
                 return -1;
-              }
-              if ( a.buyer_company_name > b.buyer_company_name ){
+            }
+            if (a.buyer_company_name > b.buyer_company_name) {
                 return 1;
-              }
-              return 0;
+            }
+            return 0;
         });
         if (filter.sort_type != "ascending") {
             array.reverse();
@@ -511,11 +680,11 @@ function paginate_contracts(filter, array) {
         var total_pages = Math.ceil(array.length / parseInt(filter.items_per_page));
         array = array.slice(start_offset, end_offset);
     }
-    return { 
-        current_page: current_page, 
+    return {
+        current_page: current_page,
         total_pages: total_pages,
         items_per_page: filter.items_per_page,
-        contracts: array 
+        contracts: array
     };
 }
 

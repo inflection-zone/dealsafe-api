@@ -110,7 +110,7 @@ exports.seller_agrees = async (req, res) => {
         var id = req.params.id;
         const updated = await contract_service.seller_agrees(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            deleted_entities: deleted_entities
+            updated: updated
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -122,7 +122,7 @@ exports.buyer_rejects = async (req, res) => {
         var id = req.params.id;
         const updated = await contract_service.buyer_rejects(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            deleted_entities: deleted_entities
+            updated: updated
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -134,7 +134,7 @@ exports.seller_rejects = async (req, res) => {
         var id = req.params.id;
         const updated = await contract_service.seller_rejects(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            deleted_entities: deleted_entities
+            updated: updated
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -156,7 +156,7 @@ exports.freeze_contract_details = async (req, res) => {
 exports.buyer_deposits_escrow = async (req, res) => {
     try {
         var id = req.params.id;
-        const updated = await contract_service.buyer_deposits_escrow(id, req.user);
+        const updated = await contract_service.buyer_deposits_escrow(id, req.user, req.body);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
             deleted_entities: deleted_entities
         });
@@ -412,12 +412,19 @@ exports.sanitize_create = async (req, res, next) => {
 exports.sanitize_search = async (req, res, next) => {
     try{
         await query('name').trim().escape().run(req);
-        await query('buyer').trim().escape().run(req);
-        await query('seller').trim().escape().run(req);
-        await query('from').isDate().trim().escape().run(req);
-        await query('to').isDate().trim().escape().run(req);
-
+        await query('my_role').trim().escape().run(req);
+        await query('from').trim().escape().run(req);
+        await query('to').trim().escape().run(req);
+        if(req.query.from) {
+            await query('from').isDate().trim().escape().run(req);            
+        } 
+        
+        if(req.query.to) {
+            await query('to').isDate().trim().escape().run(req);
+        }
         const result = validationResult(req);
+        console.log(result);
+        console.log("----------->>");
         if(!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
@@ -542,7 +549,7 @@ async function extract_contract_details(req) {
         created_by_user_id: current_user_id,
         created_date: Date.now(),
         seller_contact_user_id: seller_contact_user_id,
-        seller_company_id: buyer_company.id,
+        seller_company_id: seller_company.id,
         buyer_contact_user_id: buyer_contact_user_id,
         buyer_company_id: buyer_company.id,
         is_full_payment_contract: req.body.is_full_payment_contract,

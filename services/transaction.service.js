@@ -166,6 +166,22 @@ module.exports.get_deleted = async () => {
     }
 }
 
+module.exports.get_summary = async () => {
+    try {
+        var records = await Transaction.findAll({
+            where: {
+                is_active: true
+            }
+        });
+        for (var record of records) {
+            objects.push(get_object_to_send(record))
+        }
+        return objects;
+    } catch (error) {
+        throw (error);
+    }
+}
+
 module.exports.exists = async (id) => {
     try {
         var search = {
