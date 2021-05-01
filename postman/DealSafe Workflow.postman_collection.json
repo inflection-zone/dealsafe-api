@@ -32,6 +32,33 @@
 										],
 										"type": "text/javascript"
 									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"var first_names = ['Jerry', 'Tom', 'Garfield', 'Jerome', 'Hobbes', 'Calvin', 'Nate', 'Peanuts', 'John', 'Abigale', 'Erin'];\r",
+											"\r",
+											"var last_names = ['Smith', 'Johnson',  'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall'];\r",
+											"\r",
+											"var first = first_names[Math.floor(Math.random() * first_names.length)];\r",
+											"var last = last_names[Math.floor(Math.random() * last_names.length)];\r",
+											"var phonenumber = (Math.floor(Math.random() * 9000000000) + 1000000000).toString();\r",
+											"var random_postfix = (Math.floor(Math.random() * 90000) + 10000).toString();\r",
+											"var email = first + \".\" + random_postfix + \".\" + last + \"@gmail.com\";\r",
+											"var password = \"Test@123\";\r",
+											"\r",
+											"pm.environment.set(\"FIRST_NAME\", first);\r",
+											"pm.environment.set(\"LAST_NAME\", last);\r",
+											"pm.environment.set(\"PREFIX\", \"Mr\");\r",
+											"pm.environment.set(\"PHONE\", '+919970155165');\r",
+											"pm.environment.set(\"EMAIL\", email);\r",
+											"pm.environment.set(\"PASSWORD\", password);\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
 								}
 							],
 							"request": {
@@ -113,6 +140,113 @@
 									"path": [
 										"user",
 										"login-password"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Generate login OTP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"USER_JWT\", resp_data.data.entity.access_token);\r",
+											"    pm.environment.set(\"BUYER_USER_JWT\", resp_data.data.entity.access_token);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"phone\": \"{{PHONE}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/generate-otp",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"generate-otp"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login with OTP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    var resp_data = pm.response.json();\r",
+											"    pm.environment.set(\"USER_JWT\", resp_data.data.entity.access_token);\r",
+											"    pm.environment.set(\"BUYER_USER_JWT\", resp_data.data.entity.access_token);\r",
+											"}\r",
+											"catch (error) {\r",
+											"    console.log(error.message);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"phone\": \"{{PHONE}}\",\r\n    \"otp\": \"636614\"\r\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/login-otp",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"login-otp"
 									]
 								}
 							},
@@ -628,24 +762,6 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"var first_names = ['Jerry', 'Tom', 'Garfield', 'Jerome', 'Hobbes', 'Calvin', 'Nate', 'Peanuts', 'John', 'Abigale', 'Erin'];",
-									"",
-									"var last_names = ['Smith', 'Johnson',  'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall'];",
-									"",
-									"var first = first_names[Math.floor(Math.random() * first_names.length)];",
-									"var last = last_names[Math.floor(Math.random() * last_names.length)];",
-									"var phonenumber = (Math.floor(Math.random() * 9000000000) + 1000000000).toString();",
-									"var random_postfix = (Math.floor(Math.random() * 90000) + 10000).toString();",
-									"var email = first + \".\" + random_postfix + \".\" + last + \"@gmail.com\";",
-									"var password = \"Test@123\";",
-									"",
-									"pm.environment.set(\"FIRST_NAME\", first);",
-									"pm.environment.set(\"LAST_NAME\", last);",
-									"pm.environment.set(\"PREFIX\", \"Mr\");",
-									"pm.environment.set(\"PHONE\", phonenumber);",
-									"pm.environment.set(\"EMAIL\", email);",
-									"pm.environment.set(\"PASSWORD\", password);",
-									"",
 									""
 								]
 							}
@@ -680,6 +796,33 @@
 											"catch (error) {\r",
 											"    console.log(error.message);\r",
 											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"var first_names = ['Jerry', 'Tom', 'Garfield', 'Jerome', 'Hobbes', 'Calvin', 'Nate', 'Peanuts', 'John', 'Abigale', 'Erin'];\r",
+											"\r",
+											"var last_names = ['Smith', 'Johnson',  'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall'];\r",
+											"\r",
+											"var first = first_names[Math.floor(Math.random() * first_names.length)];\r",
+											"var last = last_names[Math.floor(Math.random() * last_names.length)];\r",
+											"var phonenumber = (Math.floor(Math.random() * 9000000000) + 1000000000).toString();\r",
+											"var random_postfix = (Math.floor(Math.random() * 90000) + 10000).toString();\r",
+											"var email = first + \".\" + random_postfix + \".\" + last + \"@gmail.com\";\r",
+											"var password = \"Test@123\";\r",
+											"\r",
+											"pm.environment.set(\"FIRST_NAME\", first);\r",
+											"pm.environment.set(\"LAST_NAME\", last);\r",
+											"pm.environment.set(\"PREFIX\", \"Mr\");\r",
+											"pm.environment.set(\"PHONE\", phonenumber);\r",
+											"pm.environment.set(\"EMAIL\", email);\r",
+											"pm.environment.set(\"PASSWORD\", password);\r",
 											"\r",
 											""
 										],
@@ -1114,24 +1257,6 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"var first_names = ['Jerry', 'Tom', 'Garfield', 'Jerome', 'Hobbes', 'Calvin', 'Nate', 'Peanuts', 'John', 'Abigale', 'Erin'];",
-									"",
-									"var last_names = ['Smith', 'Johnson',  'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall'];",
-									"",
-									"var first = first_names[Math.floor(Math.random() * first_names.length)];",
-									"var last = last_names[Math.floor(Math.random() * last_names.length)];",
-									"var phonenumber = (Math.floor(Math.random() * 9000000000) + 1000000000).toString();",
-									"var random_postfix = (Math.floor(Math.random() * 90000) + 10000).toString();",
-									"var email = first + \".\" + random_postfix + \".\" + last + \"@gmail.com\";",
-									"var password = \"Test@123\";",
-									"",
-									"pm.environment.set(\"FIRST_NAME\", first);",
-									"pm.environment.set(\"LAST_NAME\", last);",
-									"pm.environment.set(\"PREFIX\", \"Mr\");",
-									"pm.environment.set(\"PHONE\", phonenumber);",
-									"pm.environment.set(\"EMAIL\", email);",
-									"pm.environment.set(\"PASSWORD\", password);",
-									"",
 									""
 								]
 							}

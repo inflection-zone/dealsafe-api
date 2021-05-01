@@ -101,7 +101,6 @@ exports.delete = async (req, res) => {
     }
 };
 
-
 exports.get_deleted = async (req, res) => {
     try {
         const deleted_entities = await user_service.get_deleted(req.user);
@@ -116,14 +115,15 @@ exports.get_deleted = async (req, res) => {
 exports.generate_otp = async (req,res) => {
     try{
         const phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
-        const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
-        const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
+        const email = (typeof req.body.email != 'undefined') ? req.body.email : null;
+        // const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
+        // const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
 
-        if (phone == null && user_id == null && user_name == null) {
-            response_handler.set_failure_response(res, 400, 'Phone, user_name or user_id must be provided!', req);
+        if (phone == null && email == null /*&& user_id == null && user_name == null*/) {
+            response_handler.set_failure_response(res, 400, 'Phone or email must be provided!', req);
             return;
         };
-        var u = await user_service.generate_otp(phone, user_name, user_id);
+        var u = await user_service.generate_otp(phone, email);
         response_handler.set_success_response(res, req, 200, "Your OTP", { entity: u });
     }
     catch (error){
@@ -134,11 +134,10 @@ exports.generate_otp = async (req,res) => {
 exports.login_with_otp = async (req,res) => {
     try{
         const phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
-        const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
-        const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
+        const email = (typeof req.body.email != 'undefined') ? req.body.email : null;
         const otp = (typeof req.body.otp != 'undefined') ? req.body.otp : null;
 
-        if (phone == null && user_id == null && user_name == null) {
+        if (phone == null && email == null) {
             response_handler.set_failure_response(res, 400, 'Phone, user_name or user_id must be provided!', req);
             return;
         };
@@ -146,7 +145,7 @@ exports.login_with_otp = async (req,res) => {
         if(otp == null){
             response_handler.set_failure_response(res, 400 , 'OTP is missing', req)
         }
-        var u = await user_service.login_with_otp(phone, user_name, user_id , otp);
+        var u = await user_service.login_with_otp(phone, email, otp);
         if (u == null) {
             response_handler.set_failure_response(res, 404, 'User not found!', req);
             return;

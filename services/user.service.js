@@ -3,12 +3,14 @@
 const db = require('../database/connection');
 const User = require('../database/models/User').Model;
 const UserRole = require('../database/models/UserRole').Model;
+const Otp = require('../database/models/Otp').Model;
 const Role = require('../database/models/Role').Model;
 const helper = require('../common/helper');
 const authorization_handler = require('../common/authorization_handler');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
 const { DateTime } = require('luxon');
+const moment = require('moment');
 const Op = require('sequelize').Op;
 const bcryptjs = require('bcryptjs');
 const Roles = require('../common/constants').Roles;
@@ -230,12 +232,12 @@ module.exports.exists = async (id) => {
     }
 }
 
-module.exports.generate_otp = async (phone, user_name, user_id) => {
+module.exports.generate_otp = async (phone, email) => {
     try {
-        var user = get_user(user_id, user_name, phone, null);
+        var user = await get_user(null, null, phone, email);
         var otp = (Math.floor(Math.random() * 900000) + 100000).toString();
-        var valid_to = DateTime.fromJSDate(Date.now()).plus({ seconds: 180 });
-
+        var valid_to = moment().add(180, 's').toDate();
+        
         var entity = await Otp.create({
             user_name: user.user_name,
             user_id: user.id,
@@ -244,7 +246,7 @@ module.exports.generate_otp = async (phone, user_name, user_id) => {
             valid_from: Date.now(),
             valid_to: valid_to
         });
-        var platform_phone_number = '+91 1234567890';
+        var platform_phone_number = '+17865743620';
         var otp_message = `Hello ${user.first_name}, ${otp} is login OTP for login on Deal-Safe platform. If you have not requested this OTP, please contact Deal-Safe support.`;
         await messaging_service.send_message_sms(user.phone, otp_message, platform_phone_number);
         return entity;
@@ -254,9 +256,9 @@ module.exports.generate_otp = async (phone, user_name, user_id) => {
     }
 }
 
-module.exports.login_with_otp = async (phone, user_name, user_id, otp) => {
+module.exports.login_with_otp = async (phone, email, otp) => {
     try {
-        var user = await get_user(user_id, user_name, phone, null);
+        var user = await get_user(null, null, phone, null);
         var otp_entity = await Otp.findOne({
             where: {
                 phone: user.phone,
