@@ -280,3 +280,14 @@ exports.handle_validation_error = (result) => {
     }
     throw new ApiError('Validation errors: ' + error_messages, 422);
 }
+
+module.exports.sanitize_phonenumber = (phone) => {
+    if(!phone){
+        return null;
+    }
+    var temp = phone;
+    temp = temp.replace(' ', '');
+    temp = temp.replace('-', '');
+    temp = temp.trim();
+    return temp;
+}

@@ -96,9 +96,9 @@ exports.get_deleted = async (req, res) => {
 exports.buyer_agrees = async (req, res) => {
     try {
         var id = req.params.id;
-        const updated = await contract_service.buyer_agrees(id, req.user);
+        const updated_entities = await contract_service.buyer_agrees(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            updated: updated
+            updated_entities: updated_entities
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -108,9 +108,9 @@ exports.buyer_agrees = async (req, res) => {
 exports.seller_agrees = async (req, res) => {
     try {
         var id = req.params.id;
-        const updated = await contract_service.seller_agrees(id, req.user);
+        const updated_entities = await contract_service.seller_agrees(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            updated: updated
+            updated_entities: updated_entities
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -120,9 +120,9 @@ exports.seller_agrees = async (req, res) => {
 exports.buyer_rejects = async (req, res) => {
     try {
         var id = req.params.id;
-        const updated = await contract_service.buyer_rejects(id, req.user);
+        const updated_entities = await contract_service.buyer_rejects(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            updated: updated
+            updated_entities: updated_entities
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -132,9 +132,9 @@ exports.buyer_rejects = async (req, res) => {
 exports.seller_rejects = async (req, res) => {
     try {
         var id = req.params.id;
-        const updated = await contract_service.seller_rejects(id, req.user);
+        const updated_entities = await contract_service.seller_rejects(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            updated: updated
+            updated_entities: updated_entities
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -144,9 +144,9 @@ exports.seller_rejects = async (req, res) => {
 exports.freeze_contract_details = async (req, res) => {
     try {
         var id = req.params.id;
-        const updated = await contract_service.freeze_contract_details(id, req.user);
+        const updated_entities = await contract_service.freeze_contract_details(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            deleted_entities: deleted_entities
+            updated_entities: updated_entities
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -156,9 +156,9 @@ exports.freeze_contract_details = async (req, res) => {
 exports.buyer_deposits_escrow = async (req, res) => {
     try {
         var id = req.params.id;
-        const updated = await contract_service.buyer_deposits_escrow(id, req.user, req.body);
+        const updated_entities = await contract_service.buyer_deposits_escrow(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            deleted_entities: deleted_entities
+            updated_entities: updated_entities
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -168,9 +168,9 @@ exports.buyer_deposits_escrow = async (req, res) => {
 exports.start_execution = async (req, res) => {
     try {
         var id = req.params.id;
-        const updated = await contract_service.start_execution(id, req.user);
+        const updated_entities = await contract_service.start_execution(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            deleted_entities: deleted_entities
+            updated_entities: updated_entities
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -180,9 +180,9 @@ exports.start_execution = async (req, res) => {
 exports.close_contract = async (req, res) => {
     try {
         var id = req.params.id;
-        const updated = await contract_service.close_contract(id, req.user);
+        const closed_entities = await contract_service.close_contract(id, req.user);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
-            deleted_entities: deleted_entities
+            closed_entities: closed_entities
         });
     } catch (error) {
         response_handler.handle_error(error, res, req);

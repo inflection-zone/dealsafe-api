@@ -118,7 +118,8 @@ exports.generate_otp = async (req,res) => {
         const phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
-
+        phone = helper.sanitize_phonenumber(phone);
+        
         if (phone == null && user_id == null && user_name == null) {
             response_handler.set_failure_response(res, 400, 'Phone, user_name or user_id must be provided!', req);
             return;
@@ -137,6 +138,8 @@ exports.login_with_otp = async (req,res) => {
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
         const otp = (typeof req.body.otp != 'undefined') ? req.body.otp : null;
+
+        phone = helper.sanitize_phonenumber(phone);
 
         if (phone == null && user_id == null && user_name == null) {
             response_handler.set_failure_response(res, 400, 'Phone, user_name or user_id must be provided!', req);
@@ -170,6 +173,8 @@ exports.login_with_password = async (req, res) => {
         const email = (typeof req.body.email != 'undefined') ? req.body.email : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const password = (typeof req.body.password != 'undefined') ? req.body.password : null;
+
+        phone = helper.sanitize_phonenumber(phone);
 
         if (phone == null && email == null && user_name == null) {
             response_handler.set_failure_response(res, 400, 'Phone, email or username must be provided!', req);

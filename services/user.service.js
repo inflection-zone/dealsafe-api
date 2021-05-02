@@ -380,7 +380,7 @@ async function get_entity_to_save(request_body) {
         first_name: request_body.first_name ? request_body.first_name : null,
         last_name: request_body.last_name ? request_body.last_name : null,
         prefix: request_body.prefix ? request_body.prefix : null,
-        phone: request_body.phone ? request_body.phone : null,
+        phone: helper.sanitize_phonenumber(request_body.phone) ? request_body.phone : null,
         email: request_body.email ? request_body.email : null,
         user_name: request_body.user_name ? request_body.user_name : user_name,
         password: request_body.password ? request_body.password : null,

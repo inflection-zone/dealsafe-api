@@ -373,15 +373,24 @@ module.exports.freeze_contract_details = async (id, user) => {
     }
 }
 
-module.exports.buyer_deposits_escrow = async (id, user, request_body) => {
+module.exports.buyer_deposits_escrow = async (id, user) => {
+    try {
+        return null;
+    } catch (error) {
+        throw (error);
+    }
+}
+
+module.exports.start_execution = async (id, user) => {
     try {
         let updates = {};
-        updates.base_contract_amount = request_body.amount;
+        updates.execution_actual_start_date = Date.now();
         var res = await Contract.update(updates, {
             where: {
                 id: id
             }
         });
+
         if (res.length != 1) {
             throw new ApiError('Unable to update contract!');
         }
@@ -394,11 +403,11 @@ module.exports.buyer_deposits_escrow = async (id, user, request_body) => {
         };
         var record = await Contract.findOne(search);
         if (record == null) {
-            return null;
+            throw new ApiError('Contract not found');
         }
 
         let updateContractChecklist = {};
-        updateContractChecklist.buyer_paid_escrow_amount = true;
+        updateContractChecklist.execution_started = true;
         //update contract checklist
         var result = await ContractChecklist.update(updateContractChecklist, {
             where: {
@@ -406,7 +415,7 @@ module.exports.buyer_deposits_escrow = async (id, user, request_body) => {
             }
         });
         if (result.length != 1) {
-            throw new ApiError('Unable to update contract buyer_paid_escrow_amount!');
+            throw new ApiError('Unable to update contract buyer_agreed!');
         }
 
         return await get_object_to_send(record);
@@ -415,17 +424,44 @@ module.exports.buyer_deposits_escrow = async (id, user, request_body) => {
     }
 }
 
-module.exports.start_execution = async (id, user) => {
-    try {
-        return null;
-    } catch (error) {
-        throw (error);
-    }
-}
-
 module.exports.close_contract = async (id, user) => {
     try {
-        return null;
+        let updates = {};
+        updates.execution_actual_end_date = Date.now();
+        var res = await Contract.update(updates, {
+            where: {
+                id: id
+            }
+        });
+
+        if (res.length != 1) {
+            throw new ApiError('Unable to update contract!');
+        }
+
+        var search = {
+            where: {
+                id: id,
+                is_active: true
+            }
+        };
+        var record = await Contract.findOne(search);
+        if (record == null) {
+            throw new ApiError('Contract not found');
+        }
+
+        let updateContractChecklist = {};
+        updateContractChecklist.execution_ended = true;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract buyer_agreed!');
+        }
+
+        return await get_object_to_send(record);
     } catch (error) {
         throw (error);
     }
