@@ -1301,410 +1301,585 @@
 					"name": "Create contract",
 					"item": [
 						{
-							"name": "Create contract",
-							"event": [
+							"name": "Add and update contract",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"try {\r",
-											"    var resp_data = pm.response.json();\r",
-											"    pm.environment.set(\"CONTRACT_ID\", resp_data.data.entity.id);\r",
-											"}\r",
-											"catch (error) {\r",
-											"    console.log(error.message);\r",
-											"}\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "Bearer {{USER_JWT}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Purchase of material\",\r\n    \"creator_role\": \"Buyer\",\r\n    \"is_full_payment_contract\": true,\r\n    \"buyer_company_id\": \"{{BUYER_COMPANY_ID}}\",\r\n    \"seller_company_id\": \"{{SELLER_COMPANY_ID}}\",\r\n    \"execution_planned_start_date\": \"2021-03-28\",\r\n    \"execution_planned_end_date\": \"2021-04-25\",\r\n    \"base_contract_amount\": \"3213132\"\r\n}"
-								},
-								"url": {
-									"raw": "{{BASE_URL}}/contract",
-									"host": [
-										"{{BASE_URL}}"
-									],
-									"path": [
-										"contract"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get contract by id",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "Bearer {{USER_JWT}}"
-									}
-								],
-								"url": {
-									"raw": "{{BASE_URL}}/contract/{{CONTRACT_ID}}",
-									"host": [
-										"{{BASE_URL}}"
-									],
-									"path": [
-										"contract",
-										"{{CONTRACT_ID}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Search contracts with filters",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "Bearer {{USER_JWT}}"
-									}
-								],
-								"url": {
-									"raw": "{{BASE_URL}}/contract/search?display_id=xyz&contract_type=xyz&name=xyz&description=xyz&is_full_payment_contract=xyz&buyer_id=xyz&buyer_contact_user_id=xyz&seller_id=xyz&seller_contact_user_id=xyz&created_date=xyz&buyer_agreed_date=xyz&seller_agreed_date=xyz&execution_planned_start_date=xyz&execution_planned_end_date=xyz&execution_actual_start_date=xyz&execution_actual_end_date=xyz&base_contract_amount=xyz&tax_amount=xyz&buyer_brokerage_amount=xyz&seller_brokerage_amount=xyz&has_buyer_deposited_amount=xyz&has_seller_deposited_amount=xyz&current_status=xyz&is_cancelled=xyz&is_closed=xyz&created_by=xyz&arbitrator_user_id=xyz",
-									"host": [
-										"{{BASE_URL}}"
-									],
-									"path": [
-										"contract",
-										"search"
-									],
-									"query": [
+									"name": "Create contract",
+									"event": [
 										{
-											"key": "display_id",
-											"value": "xyz"
-										},
-										{
-											"key": "contract_type",
-											"value": "xyz"
-										},
-										{
-											"key": "name",
-											"value": "xyz"
-										},
-										{
-											"key": "description",
-											"value": "xyz"
-										},
-										{
-											"key": "is_full_payment_contract",
-											"value": "xyz"
-										},
-										{
-											"key": "buyer_id",
-											"value": "xyz"
-										},
-										{
-											"key": "buyer_contact_user_id",
-											"value": "xyz"
-										},
-										{
-											"key": "seller_id",
-											"value": "xyz"
-										},
-										{
-											"key": "seller_contact_user_id",
-											"value": "xyz"
-										},
-										{
-											"key": "created_date",
-											"value": "xyz"
-										},
-										{
-											"key": "buyer_agreed_date",
-											"value": "xyz"
-										},
-										{
-											"key": "seller_agreed_date",
-											"value": "xyz"
-										},
-										{
-											"key": "execution_planned_start_date",
-											"value": "xyz"
-										},
-										{
-											"key": "execution_planned_end_date",
-											"value": "xyz"
-										},
-										{
-											"key": "execution_actual_start_date",
-											"value": "xyz"
-										},
-										{
-											"key": "execution_actual_end_date",
-											"value": "xyz"
-										},
-										{
-											"key": "base_contract_amount",
-											"value": "xyz"
-										},
-										{
-											"key": "tax_amount",
-											"value": "xyz"
-										},
-										{
-											"key": "buyer_brokerage_amount",
-											"value": "xyz"
-										},
-										{
-											"key": "seller_brokerage_amount",
-											"value": "xyz"
-										},
-										{
-											"key": "has_buyer_deposited_amount",
-											"value": "xyz"
-										},
-										{
-											"key": "has_seller_deposited_amount",
-											"value": "xyz"
-										},
-										{
-											"key": "current_status",
-											"value": "xyz"
-										},
-										{
-											"key": "is_cancelled",
-											"value": "xyz"
-										},
-										{
-											"key": "is_closed",
-											"value": "xyz"
-										},
-										{
-											"key": "created_by",
-											"value": "xyz"
-										},
-										{
-											"key": "arbitrator_user_id",
-											"value": "xyz"
+											"listen": "test",
+											"script": {
+												"exec": [
+													"try {\r",
+													"    var resp_data = pm.response.json();\r",
+													"    pm.environment.set(\"CONTRACT_ID\", resp_data.data.entity.id);\r",
+													"}\r",
+													"catch (error) {\r",
+													"    console.log(error.message);\r",
+													"}\r",
+													"\r",
+													""
+												],
+												"type": "text/javascript"
+											}
 										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Update contract",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"type": "text/javascript",
-										"exec": [
-											"try {\r",
-											"    var resp_data = pm.response.json();\r",
-											"    pm.environment.set(\"{{CONTRACT_ID}}\", resp_data.data.entity.id);\r",
-											"}\r",
-											"catch (error) {\r",
-											"    console.log(error.message);\r",
-											"}\r",
-											"\r"
-										]
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "Bearer {{USER_JWT}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_type\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"is_full_payment_contract\": \"\",\r\n\"buyer_id\": \"\",\r\n\"buyer_contact_user_id\": \"\",\r\n\"seller_id\": \"\",\r\n\"seller_contact_user_id\": \"\",\r\n\"created_date\": \"\",\r\n\"buyer_agreed_date\": \"\",\r\n\"seller_agreed_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"base_contract_amount\": \"\",\r\n\"tax_amount\": \"\",\r\n\"buyer_brokerage_amount\": \"\",\r\n\"seller_brokerage_amount\": \"\",\r\n\"has_buyer_deposited_amount\": \"\",\r\n\"has_seller_deposited_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"created_by\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
-								},
-								"url": {
-									"raw": "{{BASE_URL}}/contract/{{CONTRACT_ID}}",
-									"host": [
-										"{{BASE_URL}}"
 									],
-									"path": [
-										"contract",
-										"{{CONTRACT_ID}}"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Add milestones",
-					"item": [
-						{
-							"name": "Add milestone to contract",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"try {\r",
-											"    var resp_data = pm.response.json();\r",
-											"    pm.environment.set(\"CONTRACT_MILESTONE_ID\", resp_data.data.entity.id);\r",
-											"}\r",
-											"catch (error) {\r",
-											"    console.log(error.message);\r",
-											"}\r",
-											"\r",
-											""
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
 										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"Purchase of material\",\r\n    \"creator_role\": \"Buyer\",\r\n    \"is_full_payment_contract\": true,\r\n    \"buyer_company_id\": \"{{BUYER_COMPANY_ID}}\",\r\n    \"seller_company_id\": \"{{SELLER_COMPANY_ID}}\",\r\n    \"execution_planned_start_date\": \"2021-03-28\",\r\n    \"execution_planned_end_date\": \"2021-04-25\"\r\n}"
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/contract",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract"
+											]
+										}
 									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "Bearer {{USER_JWT}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"contract_id\": \"{{CONTRACT_ID}}\",\r\n    \"name\": \"Purchase of steal material for construction\",\r\n    \"description\": \"Supply of 50 tonnes of steal\",\r\n    \"execution_planned_start_date\": \"2021-04-20\",\r\n    \"execution_planned_end_date\": \"2021-06-25\",\r\n    \"milestone_amount\": \"444455\"\r\n}"
+									"response": []
 								},
-								"url": {
-									"raw": "{{BASE_URL}}/contract-milestone",
-									"host": [
-										"{{BASE_URL}}"
-									],
-									"path": [
-										"contract-milestone"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get milestone by id",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "Bearer {{USER_JWT}}"
-									}
-								],
-								"url": {
-									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
-									"host": [
-										"{{BASE_URL}}"
-									],
-									"path": [
-										"contract-milestone",
-										"{{CONTRACT_MILESTONE_ID}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Update milestone by id",
-							"event": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"try {\r",
-											"    var resp_data = pm.response.json();\r",
-											"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
-											"}\r",
-											"catch (error) {\r",
-											"    console.log(error.message);\r",
-											"}\r",
-											"\r"
+									"name": "Get contract by id",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
 										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "Content-Type",
-										"type": "text",
-										"value": "application/json"
+										"url": {
+											"raw": "{{BASE_URL}}/contract/{{CONTRACT_ID}}",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract",
+												"{{CONTRACT_ID}}"
+											]
+										}
 									},
-									{
-										"key": "Authorization",
-										"type": "text",
-										"value": "Bearer {{USER_JWT}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"description\": \"Supply of 70 tonnes of steal\",\r\n    \"execution_planned_start_date\": \"\",\r\n    \"execution_planned_end_date\": \"2021-7-21\",\r\n    \"execution_actual_start_date\": \"2021-04-17\"\r\n}"
+									"response": []
 								},
-								"url": {
-									"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
-									"host": [
-										"{{BASE_URL}}"
+								{
+									"name": "Search contracts with filters",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"url": {
+											"raw": "{{BASE_URL}}/contract/search?display_id=xyz&contract_type=xyz&name=xyz&description=xyz&is_full_payment_contract=xyz&buyer_id=xyz&buyer_contact_user_id=xyz&seller_id=xyz&seller_contact_user_id=xyz&created_date=xyz&buyer_agreed_date=xyz&seller_agreed_date=xyz&execution_planned_start_date=xyz&execution_planned_end_date=xyz&execution_actual_start_date=xyz&execution_actual_end_date=xyz&base_contract_amount=xyz&tax_amount=xyz&buyer_brokerage_amount=xyz&seller_brokerage_amount=xyz&has_buyer_deposited_amount=xyz&has_seller_deposited_amount=xyz&current_status=xyz&is_cancelled=xyz&is_closed=xyz&created_by=xyz&arbitrator_user_id=xyz",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract",
+												"search"
+											],
+											"query": [
+												{
+													"key": "display_id",
+													"value": "xyz"
+												},
+												{
+													"key": "contract_type",
+													"value": "xyz"
+												},
+												{
+													"key": "name",
+													"value": "xyz"
+												},
+												{
+													"key": "description",
+													"value": "xyz"
+												},
+												{
+													"key": "is_full_payment_contract",
+													"value": "xyz"
+												},
+												{
+													"key": "buyer_id",
+													"value": "xyz"
+												},
+												{
+													"key": "buyer_contact_user_id",
+													"value": "xyz"
+												},
+												{
+													"key": "seller_id",
+													"value": "xyz"
+												},
+												{
+													"key": "seller_contact_user_id",
+													"value": "xyz"
+												},
+												{
+													"key": "created_date",
+													"value": "xyz"
+												},
+												{
+													"key": "buyer_agreed_date",
+													"value": "xyz"
+												},
+												{
+													"key": "seller_agreed_date",
+													"value": "xyz"
+												},
+												{
+													"key": "execution_planned_start_date",
+													"value": "xyz"
+												},
+												{
+													"key": "execution_planned_end_date",
+													"value": "xyz"
+												},
+												{
+													"key": "execution_actual_start_date",
+													"value": "xyz"
+												},
+												{
+													"key": "execution_actual_end_date",
+													"value": "xyz"
+												},
+												{
+													"key": "base_contract_amount",
+													"value": "xyz"
+												},
+												{
+													"key": "tax_amount",
+													"value": "xyz"
+												},
+												{
+													"key": "buyer_brokerage_amount",
+													"value": "xyz"
+												},
+												{
+													"key": "seller_brokerage_amount",
+													"value": "xyz"
+												},
+												{
+													"key": "has_buyer_deposited_amount",
+													"value": "xyz"
+												},
+												{
+													"key": "has_seller_deposited_amount",
+													"value": "xyz"
+												},
+												{
+													"key": "current_status",
+													"value": "xyz"
+												},
+												{
+													"key": "is_cancelled",
+													"value": "xyz"
+												},
+												{
+													"key": "is_closed",
+													"value": "xyz"
+												},
+												{
+													"key": "created_by",
+													"value": "xyz"
+												},
+												{
+													"key": "arbitrator_user_id",
+													"value": "xyz"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update contract",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"try {\r",
+													"    var resp_data = pm.response.json();\r",
+													"    pm.environment.set(\"{{CONTRACT_ID}}\", resp_data.data.entity.id);\r",
+													"}\r",
+													"catch (error) {\r",
+													"    console.log(error.message);\r",
+													"}\r",
+													"\r"
+												]
+											}
+										}
 									],
-									"path": [
-										"contract-milestone",
-										"{{CONTRACT_MILESTONE_ID}}"
-									]
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n\"display_id\": \"\",\r\n\"contract_type\": \"\",\r\n\"name\": \"\",\r\n\"description\": \"\",\r\n\"is_full_payment_contract\": \"\",\r\n\"buyer_id\": \"\",\r\n\"buyer_contact_user_id\": \"\",\r\n\"seller_id\": \"\",\r\n\"seller_contact_user_id\": \"\",\r\n\"created_date\": \"\",\r\n\"buyer_agreed_date\": \"\",\r\n\"seller_agreed_date\": \"\",\r\n\"execution_planned_start_date\": \"\",\r\n\"execution_planned_end_date\": \"\",\r\n\"execution_actual_start_date\": \"\",\r\n\"execution_actual_end_date\": \"\",\r\n\"base_contract_amount\": \"\",\r\n\"tax_amount\": \"\",\r\n\"buyer_brokerage_amount\": \"\",\r\n\"seller_brokerage_amount\": \"\",\r\n\"has_buyer_deposited_amount\": \"\",\r\n\"has_seller_deposited_amount\": \"\",\r\n\"current_status\": \"\",\r\n\"is_cancelled\": \"\",\r\n\"is_closed\": \"\",\r\n\"created_by\": \"\",\r\n\"arbitrator_user_id\": \"\"\r\n\r\n}\r\n"
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/contract/{{CONTRACT_ID}}",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract",
+												"{{CONTRACT_ID}}"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
+						},
+						{
+							"name": "Add milestones",
+							"item": [
+								{
+									"name": "Add milestone to contract",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"try {\r",
+													"    var resp_data = pm.response.json();\r",
+													"    pm.environment.set(\"CONTRACT_MILESTONE_ID\", resp_data.data.entity.id);\r",
+													"}\r",
+													"catch (error) {\r",
+													"    console.log(error.message);\r",
+													"}\r",
+													"\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"contract_id\": \"{{CONTRACT_ID}}\",\r\n    \"name\": \"Purchase of steal material for construction\",\r\n    \"description\": \"Supply of 50 tonnes of steal\",\r\n    \"execution_planned_start_date\": \"2021-04-20\",\r\n    \"execution_planned_end_date\": \"2021-06-25\",\r\n    \"milestone_amount\": \"444455\"\r\n}"
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/contract-milestone",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract-milestone"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get milestone by id",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"url": {
+											"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract-milestone",
+												"{{CONTRACT_MILESTONE_ID}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update milestone by id",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"try {\r",
+													"    var resp_data = pm.response.json();\r",
+													"    pm.environment.set(\"{{CONTRACT_MILESTONE_ID}}\", resp_data.data.entity.id);\r",
+													"}\r",
+													"catch (error) {\r",
+													"    console.log(error.message);\r",
+													"}\r",
+													"\r"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"description\": \"Supply of 70 tonnes of steal\",\r\n    \"execution_planned_start_date\": \"\",\r\n    \"execution_planned_end_date\": \"2021-7-21\",\r\n    \"execution_actual_start_date\": \"2021-04-17\"\r\n}"
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/contract-milestone/{{CONTRACT_MILESTONE_ID}}",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract-milestone",
+												"{{CONTRACT_MILESTONE_ID}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Add agreement clauses",
+							"item": [
+								{
+									"name": "Add agreement clause",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"try {\r",
+													"    var resp_data = pm.response.json();\r",
+													"    pm.environment.set(\"{{AGREEMENT_CLAUSE_ID}}\", resp_data.data.entity.id);\r",
+													"}\r",
+													"catch (error) {\r",
+													"    console.log(error.message);\r",
+													"}\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer {{USER_JWT}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"contract_id\": \"{{CONTRACT_ID}}\",\r\n    \"milestone_id\": \"{{MILESTONE_ID}}\",\r\n    \"text\": \"My first agreement clause\",\r\n    \"added_by\": \"{{USER_ID}}\"\r\n}\r\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/agreement-clause",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"agreement-clause"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update agreement clause",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer {{USER_JWT}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"text\": \"My first agreement clause - modified\"\r\n}\r\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/agreement-clause/{{AGREEMENT_CLAUSE_ID}}",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"agreement-clause",
+												"{{AGREEMENT_CLAUSE_ID}}"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get agreement clause by id",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"url": {
+											"raw": "{{BASE_URL}}/agreement-clause/{{AGREEMENT_CLAUSE_ID}}",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"agreement-clause",
+												"{{AGREEMENT_CLAUSE_ID}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete",
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"url": {
+											"raw": "{{BASE_URL}}/agreement-clause/{{AGREEMENT_CLAUSE_ID}}",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"agreement-clause",
+												"{{AGREEMENT_CLAUSE_ID}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
 					]
 				},

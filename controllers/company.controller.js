@@ -18,8 +18,7 @@ exports.create = async (req, res) => {
             req.body.PAN,
             req.body.TAN);
         if (exists) {
-            response_handler.set_failure_response(res, 200, 'Company already exists with the given contact details.', req);
-            return;
+            throw new ApiError('Company already exists with the given contact details.', 200);
         }
         const entity = await company_service.create(req.body);
         
@@ -48,8 +47,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await company_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Company with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Company with id ' + id.toString() + ' cannot be found!', 404);
         }
         const entity = await company_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'Company retrieved successfully!', {
@@ -65,8 +63,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await company_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Company with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Company with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await company_service.update(id, req.body);
         if (updated != null) {
@@ -86,8 +83,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await company_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Company with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Company with id ' + id.toString() + ' cannot be found!', 404);
         }
         var result = await company_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'Company deleted successfully!', result);

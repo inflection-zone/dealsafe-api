@@ -34,8 +34,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await address_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Address with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Address with id ' + id.toString() + ' cannot be found!', 404);
         }
         const entity = await address_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'Address retrieved successfully!', {
@@ -51,8 +50,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await address_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Address with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Address with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await address_service.update(id, req.body);
         if (updated != null) {
@@ -72,8 +70,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await address_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Address with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Address with id ' + id.toString() + ' cannot be found!', 404);
         }
         var result = await address_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'Address deleted successfully!', result);

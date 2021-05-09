@@ -38,8 +38,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await bank_account_details_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Bank account details with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Bank account details clause with id ' + id.toString() + ' cannot be found!', 404);
         }
         const entity = await bank_account_details_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'Bank account details retrieved successfully!', {
@@ -55,8 +54,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await bank_account_details_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Bank account details with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Bank account details clause with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await bank_account_details_service.update(id, req.body);
         if (updated != null) {
@@ -76,8 +74,8 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await bank_account_details_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Bank account details with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Bank account details clause with id ' + id.toString() + ' cannot be found!', 404);
+
         }
         var result = await bank_account_details_service.delete(id);
        response_handler.set_success_response(res, req, 200, 'Bank account details deleted successfully!', result);

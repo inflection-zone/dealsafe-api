@@ -41,7 +41,7 @@ exports.set_failure_response = (response, request, error = null) => {
 
     var response_code = error ? error.http_error_code : 500;
 
-    var obj = {
+    var response_object = {
         status: 'failure',
         message: error? error.message : message,
         api_error_code: error ? error.api_error_code : null,
@@ -62,9 +62,9 @@ exports.set_failure_response = (response, request, error = null) => {
         service_version: process.env.SERVICE_VERSION
     };
     if(process.env.NODE_ENV != 'test'){
-        logger.log(JSON.stringify(obj, null, 2));
+        logger.log(JSON.stringify(response_object, null, 2));
     }
-    return response.status(response_code).send(obj);
+    return response.status(response_code).send(response_object);
 }
 
 exports.handle_error = (error, res, req) => {

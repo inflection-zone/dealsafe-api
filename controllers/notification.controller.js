@@ -25,8 +25,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await notification_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Notification with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Notification with id ' + id.toString() + ' cannot be found!', 404);
         }
         const entity = await notification_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'Notification retrieved successfully!', {
@@ -42,8 +41,7 @@ exports.mark_as_read = async (req, res) => {
         var id = req.params.id;
         var exists = await notification_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Notification with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Notification with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await notification_service.mark_as_read(id);
         if (updated != null) {

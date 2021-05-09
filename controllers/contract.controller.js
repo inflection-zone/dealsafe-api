@@ -37,8 +37,7 @@ exports.get_by_id = async (req, res) => {
     try {
         const entity = await contract_service.get_by_id(req.params.id);
         if (entity == null) {
-            response_handler.set_failure_response(res, 404, 'Contract with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', 404);
         }
         response_handler.set_success_response(res, req, 200, 'Contract retrieved successfully!', { entity: entity });
     } catch (error) {
@@ -51,8 +50,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Contract with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await contract_service.update(id, req.body);
         if (updated != null) {
@@ -72,8 +70,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Contract with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', 404);
         }
         var result = await contract_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'Contract deleted successfully!', result);
@@ -383,20 +380,12 @@ exports.sanitize_create = async (req, res, next) => {
         await body('description').optional().isLength({ min: 5 }).trim().escape().run(req);
         await body('creator_role').exists().isAlpha().escape().run(req);
         await body('is_full_payment_contract', 'Please mention whether the contract payment is one-time or part-by-part').exists().isBoolean().run(req);
-        // await oneOf([
-        //     body('buyer_company_id').exists().isUUID(),
-        //     body('buyer_contact_user_id').exists().isUUID(),
-        // ]).run(req);
-        // await oneOf([
-        //     body('seller_company_id').exists().isUUID(),
-        //     body('seller_contact_user_id').exists().isUUID(),
-        // ]).run(req);
         await body('buyer_company_id').exists().isUUID().run(req);
         await body('seller_company_id').exists().isUUID().run(req);
 
         await body('execution_planned_start_date').exists().isDate().run(req);
         await body('execution_planned_end_date').exists().isDate().run(req);
-        await body('base_contract_amount').exists().isDecimal().run(req);
+        //await body('base_contract_amount').exists().isDecimal().run(req);
         
         const result = validationResult(req);
         if(!result.isEmpty()) {
@@ -555,7 +544,7 @@ async function extract_contract_details(req) {
         is_full_payment_contract: req.body.is_full_payment_contract,
         execution_planned_start_date: req.body.execution_planned_start_date,
         execution_planned_end_date: req.body.execution_planned_end_date,
-        base_contract_amount: req.body.base_contract_amount,
+        base_contract_amount: req.body.base_contract_amount ? req.body.base_contract_amount : null,
     };
     return entity;
 }

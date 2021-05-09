@@ -37,8 +37,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_milestone_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Contract milestone with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Contract milestone with id ' + id.toString() + ' cannot be found!', 404);
         }
         const entity = await contract_milestone_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'Contract milestone retrieved successfully!', {
@@ -54,8 +53,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_milestone_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Contract milestone with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Contract milestone with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await contract_milestone_service.update(id, req.body);
         if (updated != null) {
@@ -75,8 +73,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_milestone_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Contract milestone with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Contract milestone with id ' + id.toString() + ' cannot be found!', 404);
         }
         var result = await contract_milestone_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'Contract milestone deleted successfully!', result);

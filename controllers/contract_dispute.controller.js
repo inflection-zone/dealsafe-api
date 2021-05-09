@@ -12,8 +12,7 @@ const { query, body, oneOf, validationResult, param } = require('express-validat
 exports.create = async (req, res) => {
     try {
         if (!req.body.contract_id || !req.body.reason || !req.body.raised_by || !req.body.raised_date || !req.body.is_resolved || !req.body.is_blocking) {
-            response_handler.set_failure_response(res, 200, 'Missing required parameters.', req);
-            return;
+            throw new ApiError('Missing required parameters.', 200);
         }
         const entity = await contract_dispute_service.create(req.body);
         response_handler.set_success_response(res, req, 201, 'ContractDispute added successfully!', {
@@ -41,8 +40,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_dispute_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'ContractDispute with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('ContractDispute with id ' + id.toString() + ' cannot be found!', 404);
         }
         const entity = await contract_dispute_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'ContractDispute retrieved successfully!', {
@@ -58,8 +56,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_dispute_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'ContractDispute with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('ContractDispute with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await contract_dispute_service.update(id, req.body);
         if (updated != null) {
@@ -79,8 +76,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_dispute_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'ContractDispute with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('ContractDispute with id ' + id.toString() + ' cannot be found!', 404);
         }
         var result = await contract_dispute_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'ContractDispute deleted successfully!', result);

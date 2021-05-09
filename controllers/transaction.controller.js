@@ -37,8 +37,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await transaction_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Transaction with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Transaction with id ' + id.toString() + ' cannot be found!', 404);
         }
         const entity = await transaction_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'Transaction retrieved successfully!', {
@@ -54,8 +53,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await transaction_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Transaction with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Transaction with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await transaction_service.update(id, req.body);
         if (updated != null) {
@@ -75,8 +73,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await transaction_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Transaction with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Transaction with id ' + id.toString() + ' cannot be found!', 404);
         }
         var result = await transaction_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'Transaction deleted successfully!', result);

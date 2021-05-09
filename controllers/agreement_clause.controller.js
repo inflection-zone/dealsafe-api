@@ -37,8 +37,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await agreement_clause_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Agreement clause with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Agreement clause with id ' + id.toString() + ' cannot be found!', 404);
         }
         const entity = await agreement_clause_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'Agreement clause retrieved successfully!', {
@@ -54,8 +53,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await agreement_clause_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Agreement clause with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Agreement clause with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await agreement_clause_service.update(id, req.body);
         if (updated != null) {
@@ -75,8 +73,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await agreement_clause_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Agreement clause with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Agreement clause with id ' + id.toString() + ' cannot be found!', 404);
         }
         var result = await agreement_clause_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'Agreement clause deleted successfully!', result);
@@ -84,8 +81,7 @@ exports.delete = async (req, res) => {
         response_handler.handle_error(error, res, req);
     }
 };
-
-
+  
 exports.get_deleted = async (req, res) => {
     try {
         const deleted_entities = await agreement_clause_service.get_deleted(req.user);
@@ -176,7 +172,7 @@ exports.sanitize_create = async (req, res, next) => {
     try {
         await body('contract_id').exists().isUUID().run(req);
         await body('milestone_id').isUUID().trim().escape().run(req);
-        await body('text').exists().isAlphanumeric().trim().escape().run(req);
+        await body('text').exists().isLength({ min: 2 }).trim().escape().run(req);
         await body('added_by').exists().isUUID().trim().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
@@ -221,10 +217,10 @@ exports.sanitize_get_by_id = async (req, res, next) => {
 exports.sanitize_update = async (req, res, next) => {
     try {
         await param('id').exists().isUUID().run(req);
-        await body('contract_id').exists().isUUID().run(req);
-        await body('milestone_id').isUUID().trim().escape().run(req);
-        await body('text').exists().isAlphanumeric().trim().escape().run(req);
-        await body('added_by').exists().isUUID().trim().escape().run(req);
+        await body('contract_id').optional().isUUID().run(req);
+        await body('milestone_id').optional().isUUID().trim().escape().run(req);
+        await body('text').isLength({ min: 2 }).trim().escape().run(req);
+        await body('added_by').optional().isUUID().trim().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
             helper.handle_validation_error(result);

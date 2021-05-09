@@ -19,8 +19,7 @@ exports.upload = async (req, res) => {
             user_id = req.user.user_id;
         }
         if (!req.files) {
-            response_handler.set_failure_response(res, 400, 'No file uploaded!',req);
-            return;
+            throw new ApiError('No file uploaded!', 400);
         }
         var reference_item_id = req.body.reference_item_id ? req.body.reference_item_id : null;
         var is_public = req.body.public ? req.body.public : false;
@@ -37,8 +36,7 @@ exports.download = async (req, res) => {
         const resource_id = req.params.resource_id;
         var resource = await resource_service.get_resource_by_id(resource_id);
         if (resource == null) {
-            response_handler.set_failure_response(res, 404, 'Invalid resource Id!');
-            return;
+            throw new ApiError('Invalid resource Id!', 404);
         }
         var local_destination = await resource_service.download(resource);
 
@@ -62,12 +60,10 @@ exports.download_public = async (req, res) => {
         const resource_id = req.params.resource_id;
         var resource = await resource_service.get_resource_by_id(resource_id);
         if (resource == null) {
-            response_handler.set_failure_response(res, 404, 'Invalid resource Id!');
-            return;
+            throw new ApiError('Invalid resource Id!', 404);
         }
         if (!resource.is_public_resource) {
-            response_handler.set_failure_response(res, 404, 'This resource is not a public resource!');
-            return;
+            throw new ApiError('This resource is not a public resource!', 404);
         }
         var local_destination = await resource_service.download(resource);
 
@@ -91,8 +87,7 @@ exports.download_by_reference = async (req, res) => {
         const reference_item_keyword = req.query.reference_item_keyword ? req.query.reference_item_keyword : null;
         var o = await resource_service.download_by_reference(reference_item_id, reference_item_keyword);
         if (o.files == null || o.files.length == 0) {
-            response_handler.set_failure_response(res, 404, 'No resources found for this reference id!');
-            return;
+            throw new ApiError('No resources found for this reference id!', 404);
         }
         var zipper = new admzip();
         for await (var f of o.files) {

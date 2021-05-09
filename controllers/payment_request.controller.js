@@ -35,7 +35,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await payment_request_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'PaymentRequest with id ' + id.toString() + ' cannot be found!', req);
+            throw new ApiError('PaymentRequest with id ' + id.toString() + ' cannot be found!', 404);
             return;
         }
         const entity = await payment_request_service.get_by_id(id);
@@ -52,8 +52,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await payment_request_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'PaymentRequest with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('PaymentRequest with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await payment_request_service.update(id, req.body);
         if (updated != null) {
@@ -73,8 +72,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await payment_request_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'PaymentRequest with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('PaymentRequest with id ' + id.toString() + ' cannot be found!', 404);
         }
         var result = await payment_request_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'PaymentRequest deleted successfully!', result);

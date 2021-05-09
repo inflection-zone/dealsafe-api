@@ -38,8 +38,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await user_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'User with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('User with id ' + id.toString() + ' cannot be found!', 404);
         }
         const entity = await user_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'User retrieved successfully!', {
@@ -70,8 +69,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await user_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'User with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('User with id ' + id.toString() + ' cannot be found!', 404);
         }
         var updated = await user_service.update(id, req.body);
         if (updated != null) {
@@ -91,8 +89,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await user_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'User with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('User with id ' + id.toString() + ' cannot be found!', 404);
         }
         var result = await user_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'User deleted successfully!', result);
@@ -120,8 +117,7 @@ exports.generate_otp = async (req,res) => {
         // const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
 
         if (phone == null && email == null /*&& user_id == null && user_name == null*/) {
-            response_handler.set_failure_response(res, 400, 'Phone or email must be provided!', req);
-            return;
+            throw new ApiError('Phone or email must be provided!', 400);
         };
         var u = await user_service.generate_otp(phone, email);
         response_handler.set_success_response(res, req, 200, "Your OTP", { entity: u });
@@ -138,17 +134,15 @@ exports.login_with_otp = async (req,res) => {
         const otp = (typeof req.body.otp != 'undefined') ? req.body.otp : null;
 
         if (phone == null && email == null) {
-            response_handler.set_failure_response(res, 400, 'Phone, user_name or user_id must be provided!', req);
-            return;
+            throw new ApiError('Phone, user_name or user_id must be provided!', 400);
         };
 
         if(otp == null){
-            response_handler.set_failure_response(res, 400 , 'OTP is missing', req)
+            throw new ApiError('OTP is missing', 400)
         }
         var u = await user_service.login_with_otp(phone, email, otp);
         if (u == null) {
-            response_handler.set_failure_response(res, 404, 'User not found!', req);
-            return;
+            throw new ApiError('User not found!', 404);
         };
 
         var user = u.user;
@@ -171,17 +165,14 @@ exports.login_with_password = async (req, res) => {
         const password = (typeof req.body.password != 'undefined') ? req.body.password : null;
 
         if (phone == null && email == null && user_name == null) {
-            response_handler.set_failure_response(res, 400, 'Phone, email or username must be provided!', req);
-            return;
+            throw new ApiError('Phone, email or username must be provided!', 400);
         }
         if (password == null) {
-            response_handler.set_failure_response(res, 400, 'Password must be provided!', req);
-            return;
+            throw new ApiError('Password must be provided!', 400);
         }
         var u = await user_service.login(phone, email, user_name, password);
         if (u == null) {
-            response_handler.set_failure_response(res, 404, 'User not found!', req);
-            return;
+            throw new ApiError('User not found!', 404);
         }
         var user = u.user;
         var first_name = (user.first_name != null) ? user.first_name : '';
@@ -198,13 +189,11 @@ exports.login_with_password = async (req, res) => {
 exports.change_password = async (req, res) => {
     try {
         if (!req.body.new_password) {
-            response_handler.set_failure_response(res, 422, 'Missing required parameters.', req);
-            return;
+            throw new ApiError('Missing required parameters.', 422);
         }
         const changed = await user_service.change_password(req.user, req.body.previous_password, req.body.new_password);
         if (!changed) {
-            response_handler.set_failure_response(res, 400, 'Problems encountered in updating the password!', req);
-            return;
+            throw new ApiError('Problems encountered in updating the password!', 400);
         }
         response_handler.set_success_response(res, req, 201, 'Password updated successfully!', null);
     }
