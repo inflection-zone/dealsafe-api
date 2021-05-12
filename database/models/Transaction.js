@@ -96,8 +96,6 @@ const schema = {
         type: Sequelize.STRING(128),
         allowNull: true
     },
-
-
     is_active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

@@ -7,9 +7,11 @@ const Op = require('sequelize').Op;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-module.exports.create = async (request_body) => {
+module.exports.create = async (req) => {
     try {
-        var entity = get_entity_to_save(request_body)
+        var request_body =req.body;
+        request_body.company_id= req.company_id; 
+        var entity = await get_entity_to_save(request_body)
         var record = await Address.create(entity);
         return get_object_to_send(record);
     } catch (error) {
@@ -141,13 +143,13 @@ module.exports.exists = async (id) => {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-function get_entity_to_save(request_body) {
+async function get_entity_to_save(request_body) {
     return {
         company_id: request_body.company_id ? request_body.company_id : null,
         address: request_body.address ? unescape(request_body.address) : null,
         city: request_body.city ? request_body.city : null,
         state: request_body.state ? request_body.state : null,
-        country: request_body.country ? request_body.country : null,
+        country: request_body.country ? unescape(request_body.country) : null,
         pincode: request_body.pincode ? request_body.pincode : null,
         is_company_address: request_body.is_company_address ? request_body.is_company_address : true
     };

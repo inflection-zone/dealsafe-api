@@ -28,7 +28,7 @@ exports.set_success_response = (response, request, response_code, message, data,
             message: message,
             response_code: response_code
         };
-        if(logData){
+        if (logData) {
             obj = response_object;
         }
         logger.log(JSON.stringify(obj, null, 2));
@@ -37,19 +37,23 @@ exports.set_success_response = (response, request, response_code, message, data,
     return response.status(response_code).send(response_object);
 }
 
-exports.set_failure_response = (response, request, error = null) => {
+//exports.set_failure_response = (response, request, error = null) => {
+exports.set_failure_response = (response, response_code, message, request) => {
 
-    var response_code = error ? error.http_error_code : 500;
+    //var response_code = error ? error.http_error_code : 500;
+    var response_code = response_code ? response_code : 500;
 
     var obj = {
         status: 'failure',
-        message: error? error.message : message,
-        api_error_code: error ? error.api_error_code : null,
-        trace: error ? error.trace : null,
+        //message: error? error.message : message,
+        message: message,
+        //api_error_code: error ? error.api_error_code : null,
+        api_error_code: response_code,
+        //trace: error ? error.trace : null,
         request: {
             context: request.context ? request.context : null,
             user_id: request.user ? request.user.user_id : null,
-            user_full_name: request.user? request.user.first_name + ' ' + request.user.last_name : 'unknown: <public route>',
+            user_full_name: request.user ? request.user.first_name + ' ' + request.user.last_name : 'unknown: <public route>',
             host: request.hostname,
             headers: request.headers,
             body: request.body,
@@ -61,8 +65,9 @@ exports.set_failure_response = (response, request, error = null) => {
         api_version: process.env.API_VERSION,
         service_version: process.env.SERVICE_VERSION
     };
-    if(process.env.NODE_ENV != 'test'){
+    if (process.env.NODE_ENV != 'test') {
         logger.log(JSON.stringify(obj, null, 2));
+        //console.log(obj);
     }
     return response.status(response_code).send(obj);
 }
@@ -70,12 +75,12 @@ exports.set_failure_response = (response, request, error = null) => {
 exports.handle_error = (error, res, req) => {
 
     if (error instanceof ApiError) {
-        activity_handler.record_activity(req, res, error);
-        exports.set_failure_response(res, req, error);
-    }
-    else {
         var api_error = new ApiError(error.message, 500, null, error.stack);
         activity_handler.record_activity(req, res, api_error);
         exports.set_failure_response(res, req, api_error);
     }
+    else {
+        activity_handler.record_activity(req, res, error);
+        exports.set_failure_response(res, req, error, req.context);
+Y    }
 }

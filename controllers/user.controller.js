@@ -115,7 +115,7 @@ exports.get_deleted = async (req, res) => {
 
 exports.generate_otp = async (req,res) => {
     try{
-        const phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
+        var phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
         phone = helper.sanitize_phonenumber(phone);
@@ -134,7 +134,7 @@ exports.generate_otp = async (req,res) => {
 
 exports.login_with_otp = async (req,res) => {
     try{
-        const phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
+        var phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
         const otp = (typeof req.body.otp != 'undefined') ? req.body.otp : null;
@@ -169,7 +169,7 @@ exports.login_with_otp = async (req,res) => {
 
 exports.login_with_password = async (req, res) => {
     try {
-        const phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
+        var phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const email = (typeof req.body.email != 'undefined') ? req.body.email : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const password = (typeof req.body.password != 'undefined') ? req.body.password : null;
@@ -180,6 +180,7 @@ exports.login_with_password = async (req, res) => {
             response_handler.set_failure_response(res, 400, 'Phone, email or username must be provided!', req);
             return;
         }
+        
         if (password == null) {
             response_handler.set_failure_response(res, 400, 'Password must be provided!', req);
             return;

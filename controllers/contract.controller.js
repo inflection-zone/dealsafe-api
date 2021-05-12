@@ -155,8 +155,12 @@ exports.freeze_contract_details = async (req, res) => {
 
 exports.buyer_deposits_escrow = async (req, res) => {
     try {
-        var id = req.params.id;
-        const updated_entities = await contract_service.buyer_deposits_escrow(id, req.user);
+        var entity = {
+            contract_id:req.params.id,
+            transaction_id:req.body.transaction_id,
+            amount:req.body.amount
+        }
+        const updated_entities = await contract_service.buyer_deposits_escrow(entity);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
             updated_entities: updated_entities
         });
@@ -194,7 +198,7 @@ exports.close_contract = async (req, res) => {
 ///////////////////////////////////////////////////////////////////////////////////
 
 exports.authorize_create = async (req, res, next) => {
-    try{
+    try {
         req.context = 'contract.create';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
@@ -203,23 +207,23 @@ exports.authorize_create = async (req, res, next) => {
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.authorize_search = async (req, res, next) => {
-    try{
+    try {
         req.context = 'contract.search';
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
-    } catch(error){
+    } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.authorize_get_by_id = async (req, res, next) => {
-    try{
+    try {
         req.context = 'contract.get_by_id';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
@@ -227,13 +231,13 @@ exports.authorize_get_by_id = async (req, res, next) => {
             throw new ApiError('Permission denied!', 403);
         }
         next();
-    } catch(error){
+    } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.authorize_update = async (req, res, next) => {
-    try{
+    try {
         req.context = 'contract.update';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
@@ -241,13 +245,13 @@ exports.authorize_update = async (req, res, next) => {
             throw new ApiError('Permission denied!', 403);
         }
         next();
-    } catch(error){
+    } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.authorize_delete = async (req, res, next) => {
-    try{
+    try {
         req.context = 'contract.delete';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
@@ -255,7 +259,7 @@ exports.authorize_delete = async (req, res, next) => {
             throw new ApiError('Permission denied!', 403);
         }
         next();
-    } catch(error){
+    } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
@@ -377,7 +381,7 @@ exports.authorize_close_contract = async (req, res, next) => {
 ///////////////////////////////////////////////////////////////////////////////////
 
 exports.sanitize_create = async (req, res, next) => {
-    try{
+    try {
 
         await body('name', 'Contract name should be atleast 3 character long.').exists().isLength({ min: 3 }).trim().escape().run(req);
         await body('description').optional().isLength({ min: 5 }).trim().escape().run(req);
@@ -397,60 +401,60 @@ exports.sanitize_create = async (req, res, next) => {
         await body('execution_planned_start_date').exists().isDate().run(req);
         await body('execution_planned_end_date').exists().isDate().run(req);
         await body('base_contract_amount').exists().isDecimal().run(req);
-        
+
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.sanitize_search = async (req, res, next) => {
-    try{
+    try {
         await query('name').trim().escape().run(req);
         await query('my_role').trim().escape().run(req);
         await query('from').trim().escape().run(req);
         await query('to').trim().escape().run(req);
-        if(req.query.from) {
-            await query('from').isDate().trim().escape().run(req);            
-        } 
-        
-        if(req.query.to) {
+        if (req.query.from) {
+            await query('from').isDate().trim().escape().run(req);
+        }
+
+        if (req.query.to) {
             await query('to').isDate().trim().escape().run(req);
         }
         const result = validationResult(req);
         console.log(result);
         console.log("----------->>");
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
-exports.sanitize_get_by_id =  async (req, res, next) => {
-    try{
+exports.sanitize_get_by_id = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
-exports.sanitize_update =  async (req, res, next) => {
-    try{
+exports.sanitize_update = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
 
         await body('name', 'Contract name should be atleast 3 character long.').optional().isLength({ min: 3 }).trim().escape().run(req);
@@ -464,56 +468,56 @@ exports.sanitize_update =  async (req, res, next) => {
         await body('base_contract_amount').optional().isDecimal().run(req);
 
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
-exports.sanitize_delete =  async (req, res, next) => {
-    try{
+exports.sanitize_delete = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
-exports.sanitize_id =  async (req, res, next) => {
-    try{
+exports.sanitize_id = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
-exports.sanitize_buyer_deposits_escrow =  async (req, res, next) => {
-    try{
+exports.sanitize_buyer_deposits_escrow = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         await body('transaction_id').exists().isUUID().run(req);
         await body('amount').exists().isDecimal().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
@@ -528,16 +532,16 @@ async function extract_contract_details(req) {
         throw new ApiError('Invalid user id.', 404);
     }
     var creator_company_id = created_by_user.company_id;
-    if(creator_company_id != req.body.buyer_company_id && creator_company_id != req.body.seller_company_id) {
+    if (creator_company_id != req.body.buyer_company_id && creator_company_id != req.body.seller_company_id) {
         throw new ApiError('The user is not authorized to create contract for others!', 403);
     }
     var seller_company = await company_service.get_by_id(req.body.seller_company_id);
-    if(!seller_company){
+    if (!seller_company) {
         throw new ApiError('Seller company record not found!', 404);
     }
     var seller_contact_user_id = seller_company.contact_person_id;
     var buyer_company = await company_service.get_by_id(req.body.buyer_company_id);
-    if(!buyer_company){
+    if (!buyer_company) {
         throw new ApiError('Buyer company record not found!', 404);
     }
     var buyer_contact_user_id = buyer_company.contact_person_id;
@@ -581,18 +585,18 @@ async function get_search_filters(req) {
 
     var from_date = req.query.from ? req.query.from : null;
     var to_date = req.query.to ? req.query.to : null;
-    if(from_date != null && to_date != null){
+    if (from_date != null && to_date != null) {
         filter['from_date'] = from_date;
         filter['to_date'] = to_date;
     }
 
     var state = req.query.state ? req.query.state : null;
-    if(state != null){
+    if (state != null) {
         filter['state'] = state;
     }
 
     var company_name = req.query.company ? req.query.company : null;
-    if(company_name != null){
+    if (company_name != null) {
         filter['company'] = company_name;
     }
 
@@ -605,7 +609,7 @@ async function get_search_filters(req) {
     var items_per_page = req.query.items_per_page ? req.query.items_per_page : 10;
     filter['page_number'] = page_number;
     filter['items_per_page'] = items_per_page;
-    
+
     return filter;
 }
 

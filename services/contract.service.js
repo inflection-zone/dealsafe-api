@@ -82,7 +82,7 @@ module.exports.search = async (filter) => {
             }
         }
         var records = await Contract.findAll(search);
-        
+
         if (filter.hasOwnProperty('other_company_name')) {
             var companies = await Company.findAll({
                 where: {
@@ -373,9 +373,45 @@ module.exports.freeze_contract_details = async (id, user) => {
     }
 }
 
-module.exports.buyer_deposits_escrow = async (id, user) => {
+module.exports.buyer_deposits_escrow = async (req_body) => {
     try {
-        return null;
+        let updates = {};
+        updates.transaction_id = req_body.transaction_id;
+        updates.buyer_brokerage_amount = req_body.amount;
+        var res = await Contract.update(updates, {
+            where: {
+                id: req_body.contract_id
+            }
+        });
+
+        if (res.length != 1) {
+            throw new ApiError('Unable to update contract!');
+        }
+
+        var search = {
+            where: {
+                id: id,
+                is_active: true
+            }
+        };
+        var record = await Contract.findOne(search);
+        if (record == null) {
+            throw new ApiError('Contract not found');
+        }
+
+        let updateContractChecklist = {};
+        updateContractChecklist.execution_started = true;
+        //update contract checklist
+        var result = await ContractChecklist.update(updateContractChecklist, {
+            where: {
+                contract_id: id
+            }
+        });
+        if (result.length != 1) {
+            throw new ApiError('Unable to update contract buyer_agreed!');
+        }
+
+        return await get_object_to_send(record);
     } catch (error) {
         throw (error);
     }

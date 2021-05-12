@@ -12,15 +12,17 @@ const Op = require('sequelize').Op;
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-module.exports.create = async (request_body) => {
+module.exports.create = async (req) => {
     try {
         var contact_person = null;
-        if (request_body.contact_person_id) {
-            contact_person = await User.findByPk(request_body.contact_person_id);
+        var request_body = req.body;
+        if (req.user.user_id) {
+            contact_person = await User.findByPk(req.user.user_id);
             if (contact_person == null) {
                 throw new ApiError('Contact person not found!', 404);
             }
         }
+        request_body.contact_person_id = req.user.user_id;
         var entity = get_entity_to_save(request_body)
         var record = await Company.create(entity);
         if (contact_person != null) {
@@ -185,6 +187,30 @@ module.exports.exists = async (id) => {
     }
 }
 
+module.exports.get_company_id_by_contact_person_id = async (user_id) => {
+    try {
+
+        var record = await Company.findAll({
+            where: {
+                is_active: true,
+                contact_person_id: user_id
+            },
+            // Add order conditions here....
+            order: [
+                ['created_at', 'DESC'],
+            ],
+            attributes: ['id']
+        });
+        if (record == null) {
+            return null;
+        }
+        return record[0].id;
+    } catch (error) {
+        var msg = 'Problem encountered while checking existance of company!';
+        throw (error);
+    }
+}
+
 module.exports.company_exists_with = async (phone, email, gstn, pan, tan, name = null) => {
     try {
         var search = {
@@ -198,11 +224,14 @@ module.exports.company_exists_with = async (phone, email, gstn, pan, tan, name =
         if (email) {
             search.where.contact_email = { [Op.iLike]: '%' + email + '%' };
         }
-        if (gstn) {
+        if (gstn !== null) {
             search.where.GSTN = { [Op.iLike]: '%' + gstn + '%' };
         }
+        if (pan !== null) {
+            search.where.PAN = { [Op.iLike]: '%' + pan + '%' };
+        }
         if (tan) {
-            search.where.TAN = { [Op.iLike]: '%' + email + '%' };
+            search.where.TAN = { [Op.iLike]: '%' + tan + '%' };
         }
         var records = await Company.findAll(search);
         return records.length > 0;
@@ -224,7 +253,7 @@ function get_entity_to_save(request_body) {
         PAN: request_body.PAN ? request_body.PAN : null,
         TAN: request_body.TAN ? request_body.TAN : null,
         contact_person_id: request_body.contact_person_id ? request_body.contact_person_id : null,
-        subscription_type: request_body.subscription_type ? request_body.subscription_type : 'On-premises'
+        subscription_type: request_body.subscription_type ? request_body.subscription_type : 'Regular'
     };
 }
 
