@@ -211,7 +211,7 @@ module.exports.get_company_id_by_contact_person_id = async (user_id) => {
     }
 }
 
-module.exports.company_exists_with = async (phone, email, gstn, pan, tan, name = null) => {
+module.exports.company_exists_with = async (phone, email, gstn=null, pan=null, tan, name = null) => {
     try {
         var search = {
             where: {
@@ -224,16 +224,18 @@ module.exports.company_exists_with = async (phone, email, gstn, pan, tan, name =
         if (email) {
             search.where.contact_email = { [Op.iLike]: '%' + email + '%' };
         }
-        if (gstn !== null) {
+        if (gstn) {
             search.where.GSTN = { [Op.iLike]: '%' + gstn + '%' };
         }
-        if (pan !== null) {
+        if (pan) {
             search.where.PAN = { [Op.iLike]: '%' + pan + '%' };
         }
         if (tan) {
             search.where.TAN = { [Op.iLike]: '%' + tan + '%' };
         }
+        //console.log(search);
         var records = await Company.findAll(search);
+        //console.log(records);
         return records.length > 0;
     } catch (error) {
         var msg = 'Problem encountered while checking existance of company!';

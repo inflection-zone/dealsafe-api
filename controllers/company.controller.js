@@ -14,8 +14,8 @@ exports.create = async (req, res) => {
         var exists = await company_service.company_exists_with(
             req.body.contact_number,
             req.body.contact_email,
-            //req.body.GSTN,
-            //req.body.PAN,
+            req.body.GSTN,
+            req.body.PAN,
             req.body.TAN);
         if (exists) {
             response_handler.set_failure_response(res, 201, 'Company already exists with the given contact details.', req);
@@ -24,7 +24,7 @@ exports.create = async (req, res) => {
         }
         
         const entity = await company_service.create(req);
-        response_handler.set_success_response(res, req, 201, 'Company added successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Company added successfully!', {
             entity: entity
         });
     } catch (error) {
@@ -187,7 +187,7 @@ exports.sanitize_create = async (req, res, next) => {
     try{
         await body('name', 'Company name should be atleast 3 character long.').exists().trim().isLength({ min: 3 }).trim().escape().run(req);
         await body('contact_number').exists().isMobilePhone().trim().isLength({ min: 10 }).trim().escape().run(req);
-        await body('contact_email').exists().normalizeEmail().trim().isEmail().run(req);
+        await body('contact_email').trim().optional({checkFalsy:true}).normalizeEmail().trim().isEmail().run(req);
         await body('GSTN').trim().optional({checkFalsy:true}).isAlphanumeric().isLength({ min: 15, max:15 }).custom(standard_validators.validateGSTN).run(req);
         await body('PAN').trim().optional({checkFalsy:true}).isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validatePAN).run(req);
         await body('TAN').exists().trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validateTAN).run(req);
@@ -198,7 +198,7 @@ exports.sanitize_create = async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -212,7 +212,7 @@ exports.sanitize_search = async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 

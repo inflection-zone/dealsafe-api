@@ -1,4 +1,5 @@
 const bank_account_details_service = require('../services/bank_account_details.service');
+const company_service = require('../services/company.service');
 const helper = require('../common/helper');
 const response_handler = require('../common/response_handler');
 const logger = require('../common/logger');
@@ -12,7 +13,29 @@ const standard_validators = require('../common/standard_validators');
 
 exports.create = async (req, res) => {
     try {
-        const entity = await bank_account_details_service.create(req.body);
+        var exists = await bank_account_details_service.bank_exists_with(
+            req.body.account_number,
+            req.body.bank_ifsc_code,
+            req.body.account_type,
+            //req.body.bank_name,
+            //req.body.bank_branch
+            );
+        
+        if (exists) {
+            response_handler.set_failure_response(res, 201, 'Bank already exists with the given details.', req);
+            //response_handler.set_failure_response(res, req, {message:"Company already exists with the given contact details.", api_error_code:201, http_error_code:201});
+            return;
+        }
+
+        //Get company id from user id
+        var company_id = await company_service.get_company_id_by_contact_person_id(req.user.user_id);
+        if(company_id==null){
+            response_handler.set_failure_response(res, 201, 'Company details not exist, please add company details.', req);
+            return;
+        }
+        req.company_id = company_id;
+        
+        const entity = await bank_account_details_service.create(req);
         response_handler.set_success_response(res, req, 201, 'Bank account details added successfully!', {
             entity: entity
         });
@@ -176,8 +199,8 @@ exports.authorize_delete = async (req, res, next) => {
 
 exports.sanitize_create = async (req, res, next) => {
     try{
-        await body('company_id').exists().isUUID().run(req);
-        await body('user_id').isUUID().trim().escape().run(req);
+        //await body('company_id').exists().isUUID().run(req);
+        //await body('user_id').isUUID().trim().escape().run(req);
         await body('account_number').exists().isAlphanumeric().trim().escape().run(req);
         await body('account_name').exists().isAscii().trim().escape().run(req);
         await body('bank_name').exists().isAscii().trim().escape().run(req);
@@ -192,7 +215,7 @@ exports.sanitize_create = async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 

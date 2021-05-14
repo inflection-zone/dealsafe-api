@@ -6,13 +6,16 @@ const helper = require('../common/helper');
 const logger = require('../common/logger');
 const { ApiError } = require('../common/api_error');
 
-module.exports.create = async (request_body) => {
+module.exports.create = async (req) => {
     try {
-        var entity = get_entity_to_save(request_body)
+        var request_body = req.body;
+        request_body.company_id = req.company_id;
+        request_body.user_id = req.user.user_id;
+        var entity = await get_entity_to_save(request_body);
         var record = await BankAccountDetails.create(entity);
         return get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -33,7 +36,7 @@ module.exports.search = async (filter) => {
         }
         return objects;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -52,7 +55,7 @@ module.exports.get_by_id = async (id) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -80,7 +83,7 @@ module.exports.update = async (id, request_body) => {
         }
         return get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -95,7 +98,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 module.exports.get_deleted = async () => {
@@ -110,9 +113,37 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
+
+module.exports.bank_exists_with = async (account_number, bank_ifsc_code, account_type, bank_name=null, bank_branch=null) => {
+    try {
+        var search ={
+            where:{
+                is_active: true,
+            }
+        };
+
+        if(account_number) {
+           search.where.account_number = { [Op.iLike]: '%' + account_number + '%' };  
+        }
+
+        if(bank_ifsc_code) {
+            search.where.bank_ifsc_code = { [Op.iLike]: '%' + bank_ifsc_code + '%' };  
+        }
+
+        if(account_type) {
+            search.where.account_type = account_type;  
+        }
+        var records = await BankAccountDetails.findAll(search);
+        return records.length>0;
+
+    } catch (error) {
+        throw (error);
+    }
+}
+
 module.exports.exists = async (id) => {
     try {
         var search = {
@@ -127,11 +158,11 @@ module.exports.exists = async (id) => {
         }
         return record != null;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
-function get_entity_to_save(request_body) {
+async function get_entity_to_save(request_body) {
     return {
         company_id: request_body.company_id ? request_body.company_id : null,
         user_id: request_body.user_id ? request_body.user_id : null,

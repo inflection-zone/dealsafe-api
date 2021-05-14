@@ -9,7 +9,7 @@ const helper = require('../common/helper');
 
 exports.create = async (req, res) => {
     try {
-        console.log(req.user.user_id);
+        //console.log(req.user.user_id);
         var company_id = await company_service.get_company_id_by_contact_person_id(req.user.user_id);
         if(company_id==null){
             response_handler.set_failure_response(res, 201, 'Company details not exist, please add company details.', req);

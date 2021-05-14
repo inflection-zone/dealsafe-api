@@ -66,21 +66,24 @@ exports.set_failure_response = (response, response_code, message, request) => {
         service_version: process.env.SERVICE_VERSION
     };
     if (process.env.NODE_ENV != 'test') {
-        logger.log(JSON.stringify(obj, null, 2));
         //console.log(obj);
+        //logger.log(JSON.stringify(obj, null, 2));
     }
     return response.status(response_code).send(obj);
 }
 
 exports.handle_error = (error, res, req) => {
-
+    //console.log(error);
     if (error instanceof ApiError) {
         var api_error = new ApiError(error.message, 500, null, error.stack);
         activity_handler.record_activity(req, res, api_error);
-        exports.set_failure_response(res, req, api_error);
+        //exports.set_failure_response(res, req, api_error, req.context);
+        exports.set_failure_response(res, api_error.http_error_code, error.message, req);
     }
     else {
+       // console.log("else");
         activity_handler.record_activity(req, res, error);
         exports.set_failure_response(res, req, error, req.context);
-Y    }
+
+    }
 }

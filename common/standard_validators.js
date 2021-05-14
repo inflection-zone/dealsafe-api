@@ -3,7 +3,7 @@ const { query, body, oneOf, validationResult, param } = require('express-validat
 
 ////////////////////////////////////////////////////////////////////////////////
 
-exports.validateGSTN = (value, { req, location, path  }) => {
+exports.validateGSTN = (value, { req, location, path }) => {
     var regx = new RegExp('^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
     var is_valid = regx.test(value);
     if (!is_valid) {
@@ -13,7 +13,7 @@ exports.validateGSTN = (value, { req, location, path  }) => {
     }
 }
 
-exports.validatePAN = (value, { req, location, path  }) => {
+exports.validatePAN = (value, { req, location, path }) => {
     var regx = new RegExp('[A-Z]{5}[0-9]{4}[A-Z]{1}');
     var is_valid = regx.test(value);
     if (!is_valid) {
@@ -23,7 +23,7 @@ exports.validatePAN = (value, { req, location, path  }) => {
     }
 }
 
-exports.validateTAN = (value, { req, location, path  }) => {
+exports.validateTAN = (value, { req, location, path }) => {
     var regx = new RegExp('[A-Z]{4}[0-9]{5}[A-Z]{1}');
     var is_valid = regx.test(value);
     if (!is_valid) {
@@ -33,7 +33,7 @@ exports.validateTAN = (value, { req, location, path  }) => {
     }
 }
 
-exports.validateBankIFSC = (value, { req, location, path  }) => {
+exports.validateBankIFSC = (value, { req, location, path }) => {
     var regx = new RegExp('^[A-Z]{4}0[A-Z0-9]{6}$');
     var is_valid = regx.test(value);
     if (!is_valid) {
