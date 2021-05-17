@@ -11,7 +11,7 @@ module.exports.create = async (req) => {
     try {
         var request_body =req.body;
         request_body.company_id= req.company_id; 
-        var entity = await get_entity_to_save(request_body)
+        var entity = get_entity_to_save(request_body)
         var record = await Address.create(entity);
         return get_object_to_send(record);
     } catch (error) {

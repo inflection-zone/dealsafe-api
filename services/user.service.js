@@ -118,7 +118,6 @@ module.exports.get_by_display_id = async (display_id) => {
 }
 
 module.exports.update = async (id, request_body) => {
-
     try {
         await check_other_user_with_same_phone(id, request_body);
         let updates = get_updates(request_body);

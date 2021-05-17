@@ -1,5 +1,4 @@
 'use strict';
-
 const db = require('../database/connection');
 const Company = require('../database/models/Company').Model;
 const Address = require('../database/models/Address').Model;
@@ -72,6 +71,11 @@ module.exports.search = async (filter) => {
             search.where.subscription_type = filter.subscription_type;
         }
 
+        if (filter.hasOwnProperty('contact_person_id')) {
+            search.where.contact_person_id = filter.contact_person_id;
+        }
+
+
         var records = await Company.findAll(search);
         for (var record of records) {
             objects.push(get_object_to_send(record));
@@ -81,6 +85,24 @@ module.exports.search = async (filter) => {
         paginate_companies(filter, objects);
 
         return objects;
+    } catch (error) {
+        throw (error);
+    }
+}
+
+module.exports.get_company_by_contact_person_id = async (contact_id) => {
+    try {
+        var search = {
+            where: {
+                contact_person_id: contact_id,
+                is_active: true
+            }
+        };
+        var record = await Company.findOne(search);
+        if (record == null) {
+            return null;
+        }
+        return get_object_to_send(record);
     } catch (error) {
         throw (error);
     }
@@ -211,7 +233,7 @@ module.exports.get_company_id_by_contact_person_id = async (user_id) => {
     }
 }
 
-module.exports.company_exists_with = async (phone, email, gstn=null, pan=null, tan, name = null) => {
+module.exports.company_exists_with = async (phone, email, gstn = null, pan = null, tan, name = null) => {
     try {
         var search = {
             where: {

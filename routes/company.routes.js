@@ -10,8 +10,8 @@ module.exports = app => {
     router.get('/:id', authenticate, controller.authorize_get_by_id, controller.sanitize_get_by_id, controller.get_by_id);
     router.put('/:id', authenticate, controller.authorize_update, controller.sanitize_update, controller.update);
     router.delete('/:id', authenticate, controller.authorize_delete, controller.sanitize_delete, controller.delete);
-
     router.get('/deleted', authenticate, controller.get_deleted);
+    router.get('/details/contactPerson', authenticate, controller.authorize_get_details_by_contact_person_id, controller.get_details_by_contact_person_id);
 
     app.use('/api/v1/company', router);
 };

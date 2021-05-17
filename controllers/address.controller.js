@@ -54,6 +54,23 @@ exports.get_by_id = async (req, res) => {
     }
 };
 
+exports.get_by_user_id = async (req, res) => {
+    try {
+        var id = req.user.user_id;
+        var exists = await address_service.exists(id);
+        if (!exists) {
+            response_handler.set_failure_response(res, 404, 'Address details not found!', req);
+            return;
+        }
+        const entity = await address_service.get_by_id(id);
+        response_handler.set_success_response(res, req, 200, 'Address retrieved successfully!', {
+            entity: entity
+        });
+    } catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+};
+
 exports.update = async (req, res) => {
     try {
         var id = req.params.id;

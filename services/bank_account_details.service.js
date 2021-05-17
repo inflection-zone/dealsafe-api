@@ -5,6 +5,7 @@ const BankAccountDetails = require('../database/models/BankAccountDetails').Mode
 const helper = require('../common/helper');
 const logger = require('../common/logger');
 const { ApiError } = require('../common/api_error');
+const Op = require('sequelize').Op;
 
 module.exports.create = async (req) => {
     try {
