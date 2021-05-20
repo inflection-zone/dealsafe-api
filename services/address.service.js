@@ -4,15 +4,28 @@ const Address = require('../database/models/Address').Model;
 const helper = require('../common/helper');
 const logger = require('../common/logger');
 const Op = require('sequelize').Op;
+const User = require('../database/models/User').Model;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 module.exports.create = async (req) => {
     try {
+        var contact_person = null;
         var request_body =req.body;
-        request_body.company_id= req.company_id; 
-        var entity = get_entity_to_save(request_body)
+        if (req.user.user_id) {
+            contact_person = await User.findByPk(req.user.user_id);
+            if (contact_person == null) {
+                throw new ApiError('Contact person not found!', 404);
+            }
+        }
+        
+        request_body.company_id= req.company_id;
+        var entity = await get_entity_to_save(request_body);
         var record = await Address.create(entity);
+        if (contact_person != null) {
+            contact_person.primary_address_id = record.id;
+            await contact_person.save();
+        }
         return get_object_to_send(record);
     } catch (error) {
         throw(error);
@@ -117,6 +130,25 @@ module.exports.get_deleted = async () => {
             objects.push(get_object_to_send(record))
         }
         return objects;
+    } catch (error) {
+        throw(error);
+    }
+}
+
+module.exports.address_exists_with = async (company_id) => {
+    try {
+        var search = {
+            where: {
+                company_id: company_id,
+                is_active: true
+            }
+        };
+        var record = await Address.findOne(search);
+        if (record == null) {
+            return null;
+        }
+
+        return record.length>0;
     } catch (error) {
         throw(error);
     }

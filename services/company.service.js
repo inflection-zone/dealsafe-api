@@ -211,7 +211,6 @@ module.exports.exists = async (id) => {
 
 module.exports.get_company_id_by_contact_person_id = async (user_id) => {
     try {
-
         var record = await Company.findAll({
             where: {
                 is_active: true,
@@ -226,9 +225,10 @@ module.exports.get_company_id_by_contact_person_id = async (user_id) => {
         if (record == null) {
             return null;
         }
-        return record[0].id;
+        return get_object_to_send(record[0]);
     } catch (error) {
         var msg = 'Problem encountered while checking existance of company!';
+        console.log(msg);
         throw (error);
     }
 }

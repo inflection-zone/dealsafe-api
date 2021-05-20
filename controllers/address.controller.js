@@ -9,19 +9,28 @@ const helper = require('../common/helper');
 
 exports.create = async (req, res) => {
     try {
-        //console.log(req.user.user_id);
-        var company_id = await company_service.get_company_id_by_contact_person_id(req.user.user_id);
-        if(company_id==null){
+        console.log(req.user.user_id);
+        var company = await company_service.get_company_id_by_contact_person_id(req.user.user_id);
+        if (company == null) {
             response_handler.set_failure_response(res, 201, 'Company details not exist, please add company details.', req);
             return;
         }
-        req.company_id = company_id;
+        req.company_id = company.id;
+
+        var is_address_added =  await address_service.address_exists_with(company_id);
+        if(is_address_added){
+            response_handler.set_failure_response(res, 201, 'Address details already added, please refresh the page and edit address details.', req);
+            return;
+        }
         const entity = await address_service.create(req);
-        response_handler.set_success_response(res, req, 201, 'Address added successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Address added successfully!', {
             entity: entity
         });
+
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        console.log('Problem occured inside address.controller');
+        //response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 };
 
@@ -247,12 +256,12 @@ exports.sanitize_get_by_id = async (req, res, next) => {
 exports.sanitize_update = async (req, res, next) => {
     try {
         await param('id').exists().isUUID().run(req);
-        await body('company_id').isUUID().run(req);
+        //await body('company_id').isUUID().run(req);
         await body('address', 'Address field should be atleast 5 char long.').isLength({ min: 5 }).trim().escape().run(req);
         await body('city').isAlpha().trim().escape().run(req);
-        await body('state').isAlpha().trim().escape().run(req);
-        await body('country').isAlpha().trim().escape().run(req);
-        await body('pincode').isNumeric().trim().escape().run(req);
+        await body('state').trim().optional({ checkFalsy: true }).isAlpha().escape().run(req);
+        await body('country').trim().escape().run(req);
+        await body('pincode').optional({ checkFalsy: true }).isNumeric().trim().escape().run(req);
         await body('is_company_address').isBoolean().trim().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
