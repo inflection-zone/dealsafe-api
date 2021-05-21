@@ -28,12 +28,12 @@ exports.create = async (req, res) => {
         }
 
         //Get company id from user id
-        var company_id = await company_service.get_company_id_by_contact_person_id(req.user.user_id);
-        if(company_id==null){
+        var company = await company_service.get_company_id_by_contact_person_id(req.user.user_id);
+        if(company==null){
             response_handler.set_failure_response(res, 201, 'Company details not exist, please add company details.', req);
             return;
         }
-        req.company_id = company_id;
+        req.company_id = company.id;
         
         const entity = await bank_account_details_service.create(req);
         response_handler.set_success_response(res, req, 201, 'Bank account details added successfully!', {
@@ -46,7 +46,7 @@ exports.create = async (req, res) => {
 
 exports.search = async (req, res) => {
     try {
-        var filter = get_search_filters(req);
+        var filter = await get_search_filters(req);
         const entities = await bank_account_details_service.search(filter);
         response_handler.set_success_response(res, req, 200, 'Bank account details retrieved successfully!', {
             entities: entities
@@ -250,8 +250,8 @@ exports.sanitize_get_by_id =  async (req, res, next) => {
 exports.sanitize_update =  async (req, res, next) => {
     try{
         await param('id').exists().isUUID().run(req);
-        await body('company_id').isUUID().run(req);
-        await body('user_id').isUUID().trim().escape().run(req);
+        //await body('company_id').isUUID().run(req);
+        //await body('user_id').isUUID().trim().escape().run(req);
         await body('account_number').isAlphanumeric().trim().escape().run(req);
         await body('account_name').isAscii().trim().escape().run(req);
         await body('bank_name').isAscii().trim().escape().run(req);
@@ -286,7 +286,7 @@ exports.sanitize_delete =  async (req, res, next) => {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-function get_search_filters(req) {
+async function get_search_filters(req) {
     var filter = {};
     var company_id = req.query.company_id ? req.query.company_id : null;
     if (company_id != null) {

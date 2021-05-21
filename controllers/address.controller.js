@@ -17,7 +17,7 @@ exports.create = async (req, res) => {
         }
         req.company_id = company.id;
 
-        var is_address_added =  await address_service.address_exists_with(company_id);
+        var is_address_added =  await address_service.address_exists_with(req.company_id);
         if(is_address_added){
             response_handler.set_failure_response(res, 201, 'Address details already added, please refresh the page and edit address details.', req);
             return;

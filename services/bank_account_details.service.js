@@ -28,9 +28,9 @@ module.exports.search = async (filter) => {
                 is_active: true
             }
         };
-        // if (filter.hasOwnProperty('name')) {
-        //     search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
-        // }
+        if (filter.hasOwnProperty('company_id')) {
+            search.where.company_id = filter.company_id;
+        }
         var records = await BankAccountDetails.findAll(search);
         for (var record of records) {
             objects.push(get_object_to_send(record));
@@ -118,27 +118,27 @@ module.exports.get_deleted = async () => {
     }
 }
 
-module.exports.bank_exists_with = async (account_number, bank_ifsc_code, account_type, bank_name=null, bank_branch=null) => {
+module.exports.bank_exists_with = async (account_number, bank_ifsc_code, account_type, bank_name = null, bank_branch = null) => {
     try {
-        var search ={
-            where:{
+        var search = {
+            where: {
                 is_active: true,
             }
         };
 
-        if(account_number) {
-           search.where.account_number = { [Op.iLike]: '%' + account_number + '%' };  
+        if (account_number) {
+            search.where.account_number = { [Op.iLike]: '%' + account_number + '%' };
         }
 
-        if(bank_ifsc_code) {
-            search.where.bank_ifsc_code = { [Op.iLike]: '%' + bank_ifsc_code + '%' };  
+        if (bank_ifsc_code) {
+            search.where.bank_ifsc_code = { [Op.iLike]: '%' + bank_ifsc_code + '%' };
         }
 
-        if(account_type) {
-            search.where.account_type = account_type;  
+        if (account_type) {
+            search.where.account_type = account_type;
         }
         var records = await BankAccountDetails.findAll(search);
-        return records.length>0;
+        return records.length > 0;
 
     } catch (error) {
         throw (error);
