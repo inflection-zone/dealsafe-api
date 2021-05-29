@@ -7,6 +7,7 @@ const authorization_handler = require('../common/authorization_handler');
 const { ApiError } = require('../common/api_error');
 const _ = require('lodash');
 const { query, body, oneOf, validationResult, param } = require('express-validator');
+const path =  require('path');
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -113,13 +114,13 @@ exports.get_deleted = async (req, res) => {
     }
 };
 
-exports.generate_otp = async (req,res) => {
-    try{
+exports.generate_otp = async (req, res) => {
+    try {
         var phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
         phone = helper.sanitize_phonenumber(phone);
-        
+
         if (phone == null && user_id == null && user_name == null) {
             response_handler.set_failure_response(res, 400, 'Phone, user_name or user_id must be provided!', req);
             return;
@@ -127,13 +128,13 @@ exports.generate_otp = async (req,res) => {
         var u = await user_service.generate_otp(phone, user_name, user_id);
         response_handler.set_success_response(res, req, 200, "Your OTP", { entity: u });
     }
-    catch (error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
-exports.login_with_otp = async (req,res) => {
-    try{
+exports.login_with_otp = async (req, res) => {
+    try {
         var phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
@@ -146,10 +147,10 @@ exports.login_with_otp = async (req,res) => {
             return;
         };
 
-        if(otp == null){
-            response_handler.set_failure_response(res, 400 , 'OTP is missing', req)
+        if (otp == null) {
+            response_handler.set_failure_response(res, 400, 'OTP is missing', req)
         }
-        var u = await user_service.login_with_otp(phone, user_name, user_id , otp);
+        var u = await user_service.login_with_otp(phone, user_name, user_id, otp);
         if (u == null) {
             response_handler.set_failure_response(res, 404, 'User not found!', req);
             return;
@@ -162,7 +163,7 @@ exports.login_with_otp = async (req,res) => {
         var message = 'User \'' + name + '\' logged in successfully!';
         response_handler.set_success_response(res, req, 200, message, { entity: u });
     }
-    catch (error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
@@ -180,7 +181,7 @@ exports.login_with_password = async (req, res) => {
             response_handler.set_failure_response(res, 400, 'Phone, email or username must be provided!', req);
             return;
         }
-        
+
         if (password == null) {
             response_handler.set_failure_response(res, 400, 'Password must be provided!', req);
             return;
@@ -220,7 +221,38 @@ exports.change_password = async (req, res) => {
     }
 };
 
-
+exports.upload_profile_picture = async (req, res, next) => {
+    try {
+        let sampleFile;
+        let uploadPath;
+        if (!req.files || Object.keys(req.files).length === 0) {
+            //return res.status(400).send('No files were uploaded.');
+            response_handler.set_failure_response(res, 404, 'No files were uploaded.', req);
+            return;
+        }
+        // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+        sampleFile = req.files.sampleFile;
+        let renameFile = req.user.user_name + "_" + Date.now() + path.extname(sampleFile.name)
+        console.log(renameFile);
+        uploadPath = __dirname + '/../upload/' + renameFile;
+        // Use the mv() method to place the file somewhere on your server
+        sampleFile.mv(uploadPath, async function (err) {
+            if (err)
+                return res.status(500).send(err);
+            //res.send("File uploaded successfuly");
+            let update_details={};
+            update_details.profile_picture=renameFile; 
+            var updated = await user_service.update(req.user.user_id, update_details);
+            if (updated != null) {
+                response_handler.set_success_response(res, req, 201, 'Profile picture uploaded successfully', {entity:updated});
+                return;
+            }
+        });
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -228,17 +260,17 @@ exports.change_password = async (req, res) => {
 ///////////////////////////////////////////////////////////////////////////////////
 
 exports.authorize_search = async (req, res, next) => {
-    try{
+    try {
         req.context = 'user.search';
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
-    } catch(error){
+    } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.authorize_get_by_id = async (req, res, next) => {
-    try{
+    try {
         req.context = 'user.get_by_id';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
@@ -246,13 +278,13 @@ exports.authorize_get_by_id = async (req, res, next) => {
             throw new ApiError('Permission denied', 403);
         }
         next();
-    } catch(error){
+    } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.authorize_update = async (req, res, next) => {
-    try{
+    try {
         req.context = 'user.update';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
@@ -260,13 +292,13 @@ exports.authorize_update = async (req, res, next) => {
             throw new ApiError('Permission denied', 403);
         }
         next();
-    } catch(error){
+    } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.authorize_delete = async (req, res, next) => {
-    try{
+    try {
         req.context = 'user.delete';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
@@ -274,7 +306,7 @@ exports.authorize_delete = async (req, res, next) => {
             throw new ApiError('Permission denied!', 403);
         }
         next();
-    } catch(error){
+    } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
@@ -298,7 +330,7 @@ exports.authorize_change_password = async (req, res, next) => {
 ///////////////////////////////////////////////////////////////////////////////////
 
 exports.sanitize_create = async (req, res, next) => {
-    try{
+    try {
         await body('prefix').exists().isLength({ min: 1 }).trim().escape().run(req);
         await body('first_name').exists().isAlpha().isLength({ min: 1 }).trim().escape().run(req);
         await body('last_name').exists().isAlpha().isLength({ min: 1 }).trim().escape().run(req);
@@ -307,93 +339,95 @@ exports.sanitize_create = async (req, res, next) => {
         await body('password').trim().run(req);
         // await body('company_id').isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.sanitize_search = async (req, res, next) => {
-    try{
+    try {
         await query('company_id').optional().isUUID().trim().escape().run(req);
         await query('name').optional().isAscii().trim().escape().run(req);
         await query('phone').optional().trim().escape().run(req);
         await query('email').optional().trim().escape().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
-exports.sanitize_get_by_id =  async (req, res, next) => {
-    try{
+exports.sanitize_get_by_id = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
-exports.sanitize_update =  async (req, res, next) => {
-    try{
-        await param('id').isUUID().run(req);
+exports.sanitize_update = async (req, res, next) => {
+    try {
+        //await param('id').isUUID().run(req);
         await body('prefix').optional().isLength({ min: 1 }).trim().escape().run(req);
         await body('first_name').optional().isAscii().isLength({ min: 1 }).trim().escape().run(req);
         await body('last_name').optional().isAscii().isLength({ min: 1 }).trim().escape().run(req);
         await body('phone').optional().isAscii().isLength({ min: 10 }).trim().escape().run(req);
         await body('email').optional().normalizeEmail().isEmail().trim().escape().run(req);
-        await body('company_id').optional().isUUID().run(req);
+        await body('birth_date').optional().trim().isDate().escape().run(req);
+        //await body('company_id').optional().isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        //console.log(result);
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.sanitize_delete = async (req, res, next) => {
-    try{
+    try {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.sanitize_change_password = async (req, res, next) => {
-    try{
+    try {
         await param('id').exists().isUUID().run(req);
         await body('current_password').exists().trim().run(req);
         await body('new_password').exists().trim().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }

@@ -33,7 +33,8 @@ exports.set_middlewares = () => {
             }));
             app.use(express.json());
             app.use(helmet());
-
+            app.use(express.static(__dirname + '/upload'));
+            
             //Add middleware for file uploads
             app.use(fileUpload({
                 limits: {
@@ -96,7 +97,7 @@ function set_routes() {
             require("./routes/resource.routes")(app);
             require("./routes/types.routes")(app);
 
-
+            
             //Set the base route
             app.get("/api/v1/", (req, res) => {
                 res.send({

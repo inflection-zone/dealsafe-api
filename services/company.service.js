@@ -337,6 +337,7 @@ async function get_object_to_send(record) {
             contact_person['last_name'] = user.last_name;
             contact_person['gender'] = user.gender;
             contact_person['profile_picture'] = user.profile_picture;
+            contact_person['birth_date'] =  user.birth_date;
         }
     }
     return {

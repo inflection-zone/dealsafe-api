@@ -532,6 +532,7 @@ async function extract_contract_details(req) {
         throw new ApiError('Invalid user id.', 404);
     }
     var creator_company_id = created_by_user.company_id;
+    
     if (creator_company_id != req.body.buyer_company_id && creator_company_id != req.body.seller_company_id) {
         throw new ApiError('The user is not authorized to create contract for others!', 403);
     }

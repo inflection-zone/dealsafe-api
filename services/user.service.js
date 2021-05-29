@@ -123,7 +123,7 @@ module.exports.update = async (id, request_body) => {
         let updates = get_updates(request_body);
         var res = await User.update(updates, {
             where: {
-                id: id
+                id: id,
             }
         });
         if (res.length != 1) {
