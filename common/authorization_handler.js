@@ -9,7 +9,7 @@ const { request } = require('needle');
 
 module.exports.authenticate = (req, res, next) => {
   try {
-    req.context='address.controller';
+    req.context = 'address.controller';
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1];
     if (token == null) {

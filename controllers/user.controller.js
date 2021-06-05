@@ -170,6 +170,7 @@ exports.login_with_otp = async (req, res) => {
 
 exports.login_with_password = async (req, res) => {
     try {
+        req.context="user.controller";
         var phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const email = (typeof req.body.email != 'undefined') ? req.body.email : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
