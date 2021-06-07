@@ -18,7 +18,7 @@ exports.create = async (req, res) => {
             entity: entity
         });
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 };
 
@@ -30,7 +30,7 @@ exports.search = async (req, res) => {
             entities: entities
         });
     } catch (error) {
-        response_handler.handle_error(error, res, req.context);
+        response_handler.handle_error(error, res, req);
     }
 };
 
@@ -39,15 +39,14 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await user_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'User with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('User with id ' + id.toString() + ' cannot be found!', null, 404);
         }
         const entity = await user_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'User retrieved successfully!', {
             entity: entity
         });
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 };
 
@@ -62,7 +61,7 @@ exports.get_by_display_id = async (req, res) => {
         response_handler.set_success_response(res, req, 200, 'User retrieved successfully!', { entity: entity });
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 };
 
@@ -71,8 +70,8 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await user_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'User with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('User with id ' + id.toString() + ' cannot be found!', null, 404);
+            
         }
         var updated = await user_service.update(id, req.body);
         if (updated != null) {
@@ -83,7 +82,7 @@ exports.update = async (req, res) => {
         }
         throw new Error('User cannot be updated!');
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 };
 
@@ -92,49 +91,52 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await user_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'User with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('User with id ' + id.toString() + ' cannot be found!', null, 404);
+            
         }
         var result = await user_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'User deleted successfully!', result);
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 
 exports.get_deleted = async (req, res) => {
     try {
+        
         const deleted_entities = await user_service.get_deleted(req.user);
         response_handler.set_success_response(res, req, 200, 'Deleted instances of Users retrieved successfully!', {
             deleted_entities: deleted_entities
         });
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.generate_otp = async (req, res) => {
     try {
+        req.context="user.generate_otp";
         var phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
         phone = helper.sanitize_phonenumber(phone);
 
         if (phone == null && user_id == null && user_name == null) {
-            response_handler.set_failure_response(res, 400, 'Phone, user_name or user_id must be provided!', req);
-            return;
+            throw new ApiError('Phone, email or username must be provided!', null, 400);
+            
         };
         var u = await user_service.generate_otp(phone, user_name, user_id);
         response_handler.set_success_response(res, req, 200, "Your OTP", { entity: u });
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
 exports.login_with_otp = async (req, res) => {
     try {
+        req.context="user.login_with_otp";
         var phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const user_id = (typeof req.body.user_id != 'undefined') ? req.body.user_id : null;
@@ -143,17 +145,16 @@ exports.login_with_otp = async (req, res) => {
         phone = helper.sanitize_phonenumber(phone);
 
         if (phone == null && user_id == null && user_name == null) {
-            response_handler.set_failure_response(res, 400, 'Phone, user_name or user_id must be provided!', req);
-            return;
+            throw new ApiError('Phone, email or username must be provided!', null, 400);
+            
         };
 
         if (otp == null) {
-            response_handler.set_failure_response(res, 400, 'OTP is missing', req)
+            throw new ApiError('OTP is missing', null, 400);
         }
         var u = await user_service.login_with_otp(phone, user_name, user_id, otp);
         if (u == null) {
-            response_handler.set_failure_response(res, 404, 'User not found!', req);
-            return;
+            throw new ApiError('User not found!', null, 404);
         };
 
         var user = u.user;
@@ -164,33 +165,32 @@ exports.login_with_otp = async (req, res) => {
         response_handler.set_success_response(res, req, 200, message, { entity: u });
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
 exports.login_with_password = async (req, res) => {
     try {
-        req.context="user.controller";
+        req.context="user.login_with_password";
         var phone = (typeof req.body.phone != 'undefined') ? req.body.phone : null;
         const email = (typeof req.body.email != 'undefined') ? req.body.email : null;
         const user_name = (typeof req.body.user_name != 'undefined') ? req.body.user_name : null;
         const password = (typeof req.body.password != 'undefined') ? req.body.password : null;
 
         phone = helper.sanitize_phonenumber(phone);
-
         if (phone == null && email == null && user_name == null) {
-            response_handler.set_failure_response(res, 400, 'Phone, email or username must be provided!', req);
-            return;
+            throw new ApiError('Phone, email or username must be provided!', null, 400);
+            
         }
 
         if (password == null) {
-            response_handler.set_failure_response(res, 400, 'Password must be provided!', req);
-            return;
+            throw new ApiError('Password must be provided!', null, 400);
+            
         }
         var u = await user_service.login(phone, email, user_name, password);
         if (u == null) {
-            response_handler.set_failure_response(res, 404, 'User not found!', req);
-            return;
+            throw new ApiError('User not found!', null, 400);
+            
         }
         var user = u.user;
         var first_name = (user.first_name != null) ? user.first_name : '';
@@ -200,25 +200,23 @@ exports.login_with_password = async (req, res) => {
         response_handler.set_success_response(res, req, 200, message, { entity: u }, false);
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.change_password = async (req, res) => {
     try {
         if (!req.body.new_password) {
-            response_handler.set_failure_response(res, 422, 'Missing required parameters.', req);
-            return;
+            throw new ApiError('Missing required parameters.', null, 422);
         }
         const changed = await user_service.change_password(req.user, req.body.previous_password, req.body.new_password);
         if (!changed) {
-            response_handler.set_failure_response(res, 400, 'Problems encountered in updating the password!', req);
-            return;
+            throw new ApiError('Problems encountered in updating the password!', null, 400);
         }
         response_handler.set_success_response(res, req, 201, 'Password updated successfully!', null);
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 };
 
@@ -228,8 +226,8 @@ exports.upload_profile_picture = async (req, res, next) => {
         let uploadPath;
         if (!req.files || Object.keys(req.files).length === 0) {
             //return res.status(400).send('No files were uploaded.');
-            response_handler.set_failure_response(res, 404, 'No files were uploaded.', req);
-            return;
+            throw new ApiError('No files were uploaded.', null, 404);
+            
         }
         // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
         sampleFile = req.files.sampleFile;
@@ -251,7 +249,7 @@ exports.upload_profile_picture = async (req, res, next) => {
         });
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -266,7 +264,7 @@ exports.authorize_search = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -280,7 +278,7 @@ exports.authorize_get_by_id = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -294,7 +292,7 @@ exports.authorize_update = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -308,7 +306,7 @@ exports.authorize_delete = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -322,7 +320,7 @@ exports.authorize_change_password = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -346,7 +344,7 @@ exports.sanitize_create = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -363,7 +361,7 @@ exports.sanitize_search = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -377,7 +375,7 @@ exports.sanitize_get_by_id = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -399,7 +397,7 @@ exports.sanitize_update = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -413,7 +411,7 @@ exports.sanitize_delete = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -429,7 +427,7 @@ exports.sanitize_change_password = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 

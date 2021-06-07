@@ -218,7 +218,7 @@ exports.authorize_search = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -415,27 +415,26 @@ exports.sanitize_create = async (req, res, next) => {
 
 exports.sanitize_search = async (req, res, next) => {
     try {
-        await query('name').trim().escape().run(req);
-        await query('my_role').trim().escape().run(req);
-        await query('from').trim().escape().run(req);
-        await query('to').trim().escape().run(req);
+        await query('name').trim().optional().escape().run(req);
+        await query('my_role').trim().optional().escape().run(req);
+        await query('buyer_contact_user_id').trim().optional().escape().run(req);
+        await query('seller_contact_user_id').trim().optional().escape().run(req);
+        await query('from').trim().optional().escape().run(req);
+        await query('to').trim().optional().escape().run(req);
         if (req.query.from) {
             await query('from').isDate().trim().escape().run(req);
         }
-
         if (req.query.to) {
             await query('to').isDate().trim().escape().run(req);
         }
         const result = validationResult(req);
-        console.log(result);
-        console.log("----------->>");
         if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -589,11 +588,6 @@ async function get_search_filters(req) {
     if (from_date != null && to_date != null) {
         filter['from_date'] = from_date;
         filter['to_date'] = to_date;
-    }
-
-    var state = req.query.state ? req.query.state : null;
-    if (state != null) {
-        filter['state'] = state;
     }
 
     var company_name = req.query.company ? req.query.company : null;

@@ -58,9 +58,11 @@ module.exports.search = async (filter) => {
         //         }
         //     };
         // }
+        console.log(filter.name);
         if (filter.hasOwnProperty('name')) {
             search.where.name = { [Op.iLike]: "%" + filter.name + "%" }
         }
+
         if (filter.hasOwnProperty('from_date') && filter.hasOwnProperty('to_date')) {
             search.where.created_date = {
                 [Op.gte]: filter.from_date,
@@ -108,7 +110,7 @@ module.exports.search = async (filter) => {
                     contract_id: record.id
                 }
             });
-            var obj = await get_object_to_send(record, checklist);
+            var obj = await get_object_to_send(record);
             array.push(obj);
         }
 
@@ -641,46 +643,45 @@ async function get_object_to_send(record) {
 
     return {
         id: record.id,
-        display_id: record.display_id,
-        contract_type: record.contract_type,
-        name: record.name,
-        description: record.description,
-        creator_role: record.creator_role,
+        display_id: record.display_id ? record.display_id : null,
+        contract_type: record.contract_type ? record.contract_type : null,
+        name: record.name ? record.name : null,
+        description: record.description ? record.description : null,
+        creator_role: record.creator_role ? record.creator_role : null,
 
-        is_full_payment_contract: record.is_full_payment_contract,
+        is_full_payment_contract: record.is_full_payment_contract ? record.is_full_payment_contract : null,
 
-        buyer_company_id: record.buyer_company_id,
-        buyer_contact_user_id: record.buyer_contact_user_id,
-        buyer_company_name: buyer_company.name,
-        seller_company_id: record.seller_company_id,
-        seller_contact_user_id: record.seller_contact_user_id,
-        seller_company_name: seller_company.name,
+        buyer_company_id: record.buyer_company_id ? record.buyer_company_id : null,
+        buyer_contact_user_id: record.buyer_contact_user_id ? record.buyer_contact_user_id : null,
+        seller_company_id: record.seller_company_id ? record.seller_company_id : null,
+        seller_contact_user_id: record.seller_contact_user_id ? record.seller_contact_user_id : null,
 
-        created_date: record.created_date,
-        buyer_agreed_date: record.buyer_agreed_date,
-        seller_agreed_date: record.seller_agreed_date,
+        created_date: record.created_date ? record.created_date : null,
+        created_by_user_id: record.created_by_user_id ? record.created_by_user_id : null,
+        buyer_agreed_date: record.buyer_agreed_date ? record.buyer_agreed_date : null,
+        seller_agreed_date: record.seller_agreed_date ? record.seller_agreed_date : null,
 
-        execution_planned_start_date: record.execution_planned_start_date,
-        execution_planned_end_date: record.execution_planned_end_date,
-        execution_actual_start_date: record.execution_actual_start_date,
-        execution_actual_end_date: record.execution_actual_end_date,
+        execution_planned_start_date: record.execution_planned_start_date ? record.execution_planned_start_date : null,
+        execution_planned_end_date: record.execution_planned_end_date ? record.execution_planned_end_date : null,
+        execution_actual_start_date: record.execution_actual_start_date ? record.execution_actual_start_date : null,
+        execution_actual_end_date: record.execution_actual_end_date ? record.execution_actual_end_date : null,
 
-        base_contract_amount: record.base_contract_amount,
-        tax_amount: record.tax_amount,
-        buyer_brokerage_amount: record.buyer_brokerage_amount,
-        seller_brokerage_amount: record.seller_brokerage_amount,
-        has_buyer_deposited_amount: record.has_buyer_deposited_amount,
-        has_seller_deposited_amount: record.has_seller_deposited_amount,
+        base_contract_amount: record.base_contract_amount ? record.base_contract_amount : null,
+        tax_amount: record.tax_amount ? record.tax_amount : null,
+        buyer_brokerage_amount: record.buyer_brokerage_amount ? record.buyer_brokerage_amount : null,
+        seller_brokerage_amount: record.seller_brokerage_amount ? record.seller_brokerage_amount : null,
+        has_buyer_deposited_amount: record.has_buyer_deposited_amount ? record.has_buyer_deposited_amount : null,
+        has_seller_deposited_amount: record.has_seller_deposited_amount ? record.has_seller_deposited_amount : null,
 
-        current_status: record.current_status,
+        current_status: record.current_status ? record.current_status : null,
 
-        is_cancelled: record.is_cancelled,
-        is_closed: record.is_closed,
+        is_cancelled: record.is_cancelled ? record.is_cancelled : null,
+        is_closed: record.is_closed ? record.is_closed : null,
 
-        created_by: record.created_by,
-        arbitrator_user_id: record.arbitrator_user_id,
+        created_by: record.created_by ? record.created_by : null,
+        arbitrator_user_id: record.arbitrator_user_id ? record.arbitrator_user_id : null,
 
-        contract_checklist: checklist
+        contract_checklist: checklist ? checklist : null
     };
 }
 

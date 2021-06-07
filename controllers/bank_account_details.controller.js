@@ -19,22 +19,19 @@ exports.create = async (req, res) => {
             req.body.account_type,
             //req.body.bank_name,
             //req.body.bank_branch
-            );
-        
+        );
+
         if (exists) {
-            response_handler.set_failure_response(res, 201, 'Bank already exists with the given details.', req);
-            //response_handler.set_failure_response(res, req, {message:"Company already exists with the given contact details.", api_error_code:201, http_error_code:201});
-            return;
+            throw new ApiError('Bank already exists with the given details.', null, 403);
         }
 
         //Get company id from user id
         var company = await company_service.get_company_id_by_contact_person_id(req.user.user_id);
-        if(company==null){
-            response_handler.set_failure_response(res, 201, 'Company details not exist, please add company details.', req);
-            return;
+        if (company == null) {
+            throw new ApiError('Company details not exist, please add company details.', null, 403);
         }
         req.company_id = company.id;
-        
+
         const entity = await bank_account_details_service.create(req);
         response_handler.set_success_response(res, req, 201, 'Bank account details added successfully!', {
             entity: entity
@@ -61,8 +58,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await bank_account_details_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Bank account details with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Bank account details with id ' + id.toString() + ' cannot be found!', null, 404);
         }
         const entity = await bank_account_details_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'Bank account details retrieved successfully!', {
@@ -78,8 +74,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await bank_account_details_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Bank account details with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Bank account details with id ' + id.toString() + ' cannot be found!', null, 404);
         }
         var updated = await bank_account_details_service.update(id, req.body);
         if (updated != null) {
@@ -99,11 +94,10 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await bank_account_details_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Bank account details with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Bank account details with id ' + id.toString() + ' cannot be found!', null, 404);
         }
         var result = await bank_account_details_service.delete(id);
-       response_handler.set_success_response(res, req, 200, 'Bank account details deleted successfully!', result);
+        response_handler.set_success_response(res, req, 200, 'Bank account details deleted successfully!', result);
     } catch (error) {
         response_handler.handle_error(error, res, req);
     }
@@ -127,69 +121,69 @@ exports.get_deleted = async (req, res) => {
 ///////////////////////////////////////////////////////////////////////////////////
 
 exports.authorize_create = async (req, res, next) => {
-    try{
+    try {
         req.context = 'bank_account_details.create';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
         if (!is_authorized) {
-            throw new ApiError('Permission denied', 403);
+            throw new ApiError('Permission denied', null, 403);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.authorize_search = async (req, res, next) => {
-    try{
+    try {
         req.context = 'bank_account_details.search';
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
-    } catch(error){
+    } catch (error) {
         response_handler.handle_error(error, res, req, req.context);
     }
 }
 
 exports.authorize_get_by_id = async (req, res, next) => {
-    try{
+    try {
         req.context = 'bank_account_details.get_by_id';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied', 403);
+            throw new ApiError('Permission denied', null, 403);
         }
         next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    } catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
 exports.authorize_update = async (req, res, next) => {
-    try{
+    try {
         req.context = 'bank_account_details.update';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied', 403);
+            throw new ApiError('Permission denied', null, 403);
         }
         next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    } catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
 exports.authorize_delete = async (req, res, next) => {
-    try{
+    try {
         req.context = 'bank_account_details.delete';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    } catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -198,57 +192,57 @@ exports.authorize_delete = async (req, res, next) => {
 ///////////////////////////////////////////////////////////////////////////////////
 
 exports.sanitize_create = async (req, res, next) => {
-    try{
+    try {
         //await body('company_id').exists().isUUID().run(req);
         //await body('user_id').isUUID().trim().escape().run(req);
         await body('account_number').exists().isAlphanumeric().trim().escape().run(req);
         await body('account_name').exists().isAscii().trim().escape().run(req);
         await body('bank_name').exists().isAscii().trim().escape().run(req);
         await body('bank_branch').exists().isAscii().trim().escape().run(req);
-        await body('bank_ifsc_code').exists().trim().escape().isLength({ min: 11, max: 11}).custom(standard_validators.validateBankIFSC).run(req);
-        await body('PAN').exists().trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validatePAN).run(req);
+        await body('bank_ifsc_code').exists().trim().escape().isLength({ min: 11, max: 11 }).custom(standard_validators.validateBankIFSC).run(req);
+        await body('PAN').exists().trim().isAlphanumeric().isLength({ min: 10, max: 10 }).custom(standard_validators.validatePAN).run(req);
         await body('account_type').exists().trim().escape().isInt().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req);
     }
 }
 
 exports.sanitize_search = async (req, res, next) => {
-    try{
+    try {
         await query('company_id').isUUID().trim().escape().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
-exports.sanitize_get_by_id =  async (req, res, next) => {
-    try{
+exports.sanitize_get_by_id = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
-exports.sanitize_update =  async (req, res, next) => {
-    try{
+exports.sanitize_update = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         //await body('company_id').isUUID().run(req);
         //await body('user_id').isUUID().trim().escape().run(req);
@@ -256,31 +250,31 @@ exports.sanitize_update =  async (req, res, next) => {
         await body('account_name').isAscii().trim().escape().run(req);
         await body('bank_name').isAscii().trim().escape().run(req);
         await body('bank_branch').isAscii().trim().escape().run(req);
-        await body('bank_ifsc_code').trim().escape().isLength({ min: 11, max: 11}).custom(standard_validators.validateBankIFSC).run(req);
-        await body('PAN').trim().isAlphanumeric().isLength({ min: 10, max:10 }).custom(standard_validators.validatePAN).run(req);
+        await body('bank_ifsc_code').trim().escape().isLength({ min: 11, max: 11 }).custom(standard_validators.validateBankIFSC).run(req);
+        await body('PAN').trim().isAlphanumeric().isLength({ min: 10, max: 10 }).custom(standard_validators.validatePAN).run(req);
         await body('account_type').trim().escape().isInt().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
-exports.sanitize_delete =  async (req, res, next) => {
-    try{
+exports.sanitize_delete = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 

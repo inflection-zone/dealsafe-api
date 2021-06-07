@@ -21,7 +21,7 @@ module.exports.generate_display_id = (prefix = null) => {
     var timestamp = new Date().getTime().toString();
     var display_id = timestamp.substr(4);
     var identifier = display_id;
-    if(prefix != null){
+    if (prefix != null) {
         identifier = prefix + '#' + identifier;
     }
     return identifier;
@@ -278,11 +278,11 @@ exports.handle_validation_error = (result) => {
         error_messages += ` ${index}. ${er.msg} - <${er.value}> for <${er.param}> in ${er.location}`;
         index++;
     }
-    throw new ApiError('Validation errors: ' + error_messages, 422);
+    throw new ApiError('Validation errors: ' + error_messages, null, 422);
 }
 
 module.exports.sanitize_phonenumber = (phone) => {
-    if(!phone){
+    if (!phone) {
         return null;
     }
     var temp = phone;

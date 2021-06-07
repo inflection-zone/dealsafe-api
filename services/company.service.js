@@ -18,7 +18,7 @@ module.exports.create = async (req) => {
         if (req.user.user_id) {
             contact_person = await User.findByPk(req.user.user_id);
             if (contact_person == null) {
-                throw new ApiError('Contact person not found!', 404);
+                throw new ApiError('Contact person not found!', null, 404);
             }
         }
         request_body.contact_person_id = req.user.user_id;
@@ -136,7 +136,7 @@ module.exports.update = async (id, request_body) => {
             }
         });
         if (res.length != 1) {
-            throw new ApiError('Unable to update company!');
+            throw new ApiError('Unable to update company!', null, 400);
         }
         var search = {
             where: {
@@ -337,7 +337,7 @@ async function get_object_to_send(record) {
             contact_person['last_name'] = user.last_name;
             contact_person['gender'] = user.gender;
             contact_person['profile_picture'] = user.profile_picture;
-            contact_person['birth_date'] =  user.birth_date;
+            contact_person['birth_date'] = user.birth_date;
         }
     }
     return {

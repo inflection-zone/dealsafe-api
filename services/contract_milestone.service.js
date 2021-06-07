@@ -12,7 +12,7 @@ module.exports.create = async (request_body) => {
         var record = await ContractMilestone.create(entity);
         return get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -33,7 +33,7 @@ module.exports.search = async (filter) => {
         }
         return objects;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -52,7 +52,7 @@ module.exports.get_by_id = async (id) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -66,7 +66,7 @@ module.exports.update = async (id, request_body) => {
             }
         });
         if (res.length != 1) {
-            throw new ApiError('Unable to update contract_milestone!');
+            throw new ApiError('Unable to update contract_milestone!', null, 403);
         }
         var search = {
             where: {
@@ -81,7 +81,7 @@ module.exports.update = async (id, request_body) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -96,7 +96,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 module.exports.get_deleted = async () => {
@@ -111,7 +111,7 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 module.exports.exists = async (id) => {
@@ -129,12 +129,12 @@ module.exports.exists = async (id) => {
 
         return record != null;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
 async function get_entity_to_save(request_body) {
-    var existing_milestones = await ContractMilestone.findAll({where: { contract_id: request_body.contract_id }});
+    var existing_milestones = await ContractMilestone.findAll({ where: { contract_id: request_body.contract_id } });
     var milestone_index = existing_milestones.length + 1;
 
     return {

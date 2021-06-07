@@ -9,15 +9,15 @@ const { request } = require('needle');
 
 module.exports.authenticate = (req, res, next) => {
   try {
-    req.context = 'address.controller';
+    req.context = 'user.authenticate';
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1];
     if (token == null) {
-      throw new ApiError('Unauthorized access', 401);
+      throw new ApiError('Unauthorized access', null, 401);
     }
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, user) => {
       if (error) {
-        throw new ApiError('Forebidden access', 403);
+        throw new ApiError('Forebidden access', null, 403);
       }
       req.user = user;
       request.client_ip = request_ip.getClientIp(req);
@@ -32,14 +32,14 @@ module.exports.authenticate = (req, res, next) => {
 
 module.exports.check_role_authorization = async (user, privilege_name) => {
   if (privilege_name == null || privilege_name === 'undefined') {
-    throw new ApiError('Unauthorized access', 401);
+    throw new ApiError('Unauthorized access', null, 401);
   }
   if (user == null) {
-    throw new ApiError('Unauthorized access', 401);
+    throw new ApiError('Unauthorized access', null, 401);
   }
   var has_privilege = await has_user_privilege(user.user_id, privilege_name);
   if (!has_privilege) {
-    throw new ApiError('Forebidden access', 403);
+    throw new ApiError('Forebidden access', null, 403);
   }
   return true;
 }

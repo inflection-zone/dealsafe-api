@@ -27,7 +27,7 @@ module.exports.create = async (request_body, roles) => {
         }
         return get_object_to_send(record, await get_user_roles(record.id));
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -74,7 +74,7 @@ module.exports.search = async (filter) => {
         }
         return objects;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -93,7 +93,7 @@ module.exports.get_by_id = async (id) => {
         var roles = await get_user_roles(record.id);
         return get_object_to_send(record, roles);
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -113,7 +113,7 @@ module.exports.get_by_display_id = async (display_id) => {
         return get_object_to_send(record, roles);
     }
     catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -127,7 +127,7 @@ module.exports.update = async (id, request_body) => {
             }
         });
         if (res.length != 1) {
-            throw new ApiError('Unable to update user!');
+            throw new ApiError('Unable to update user!', null, 400);
         }
         var search = {
             where: {
@@ -145,7 +145,7 @@ module.exports.update = async (id, request_body) => {
         return get_object_to_send(record, roles);
 
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -160,7 +160,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 module.exports.get_deleted = async () => {
@@ -175,7 +175,7 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -191,7 +191,7 @@ module.exports.phone_exists = async (phone) => {
         return record != null;
     }
     catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -207,7 +207,7 @@ module.exports.email_exists = async (email) => {
         return record != null;
     }
     catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -225,7 +225,7 @@ module.exports.exists = async (id) => {
         }
         return record != null;
     } catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -249,7 +249,7 @@ module.exports.generate_otp = async (phone, user_name, user_id) => {
         return entity;
     }
     catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -265,7 +265,7 @@ module.exports.login_with_otp = async (phone, user_name, user_id, otp) => {
             }
         });
         if (!otp_entity) {
-            throw new ApiError("OTP record not found for the user!", 404);
+            throw new ApiError("OTP record not found for the user!", null, 404);
         }
         var date = new Date();
         if ((otp_entity.valid_from >= date || otp_entity.valid_to <= date)) {
@@ -295,7 +295,7 @@ module.exports.login_with_otp = async (phone, user_name, user_id, otp) => {
         return obj;
     }
     catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -304,7 +304,7 @@ module.exports.login = async (phone, email, user_name, password) => {
         var user = await get_user(null, user_name, phone, email);
         var is_password_valid = await bcryptjs.compareSync(password, user.password);
         if (!is_password_valid) {
-            throw new Error('Incorrect password!');
+            throw new ApiError('Incorrect password!', null, 400);
         }
         //The following user data is immutable. Don't include any mutable data
         var obj = {
@@ -331,7 +331,7 @@ module.exports.login = async (phone, email, user_name, password) => {
         return obj;
     }
     catch (error) {
-        throw(error);
+        throw (error);
     }
 }
 
@@ -345,28 +345,28 @@ module.exports.change_password = async (user_id, previous_password, new_password
             throw new ApiError('New password does not fit the security criteria. \
                 The new password must be between 7 to 15 character long, \
                 should have atleast 1 digit, 1 special character, \
-                1 lower-case and 1 uppercase letter.', 406);
+                1 lower-case and 1 uppercase letter.', null, 406);
         }
         let user = await User.findOne({ where: { id: user_id, is_active: true } });
         if (user == null) {
-            throw new ApiError('User does not exist!', 404);
+            throw new ApiError('User does not exist!', null, 404);
         }
         if (previous_password != null) {
             var is_previous_password_valid = await bcryptjs.compareSync(previous_password, user.password);
             if (!is_previous_password_valid) {
-                throw new ApiError('Invalid previous password!', 401);
+                throw new ApiError('Invalid previous password!', null, 401);
             }
         }
         var same_password_specified = await bcryptjs.compareSync(new_password, user.password);
         if (same_password_specified) {
-            throw new ApiError('New password is same as old password!', 406);
+            throw new ApiError('New password is same as old password!', null, 406);
         }
         var new_encrypted_password = bcryptjs.hashSync(new_password, bcryptjs.genSaltSync(8), null);
         user.password = new_encrypted_password;
         await user.save();
     }
     catch (error) {
-        throw(error);
+        throw (error);
     }
 };
 
@@ -487,7 +487,7 @@ async function check_other_user_with_same_phone(id, request_body) {
             }
         });
         if (exists) {
-            throw new ApiError("User with this phone already exists!", 406);
+            throw new ApiError("User with this phone already exists!", null, 406);
         };
     }
 }
@@ -540,7 +540,7 @@ async function get_user(user_id, user_name, phone, email) {
         err_message += user_name ? ' - with username(' + user_name + ')' : '';
         err_message += user_id ? ' - with user id(' + user_id + ')' : '';
 
-        throw new ApiError(err_message, 404);
+        throw new ApiError(err_message, null, 404);
     }
     return user;
 }

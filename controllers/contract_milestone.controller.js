@@ -37,8 +37,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_milestone_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Contract milestone with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Contract milestone with id ' + id.toString() + ' cannot be found!', null, 404);
         }
         const entity = await contract_milestone_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'Contract milestone retrieved successfully!', {
@@ -54,8 +53,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_milestone_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Contract milestone with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Contract milestone with id ' + id.toString() + ' cannot be found!', null, 404);
         }
         var updated = await contract_milestone_service.update(id, req.body);
         if (updated != null) {
@@ -75,8 +73,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_milestone_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Contract milestone with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Contract milestone with id ' + id.toString() + ' cannot be found!', null, 404);
         }
         var result = await contract_milestone_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'Contract milestone deleted successfully!', result);
@@ -107,12 +104,12 @@ exports.authorize_create = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
         if (!is_authorized) {
-            throw new ApiError('Permission denied', 403);
+            throw new ApiError('Permission denied', null, 403);
         }
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -122,7 +119,7 @@ exports.authorize_search = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -132,11 +129,11 @@ exports.authorize_get_by_id = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied', 403);
+            throw new ApiError('Permission denied', null, 403);
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -146,11 +143,11 @@ exports.authorize_update = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied', 403);
+            throw new ApiError('Permission denied', null, 403);
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -160,11 +157,11 @@ exports.authorize_delete = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -176,7 +173,7 @@ exports.sanitize_create = async (req, res, next) => {
     try {
         await body('contract_id').exists().isUUID().run(req);
         await body('name', 'Milestone name should be atleast 5 char long.').exists().isLength({ min: 5 }).trim().escape().run(req);
-        await body('description').optional({checkFalsy:true, nullable:true}).isAscii().isLength({ min: 5 }).trim().escape().run(req);
+        await body('description').optional({ checkFalsy: true, nullable: true }).isAscii().isLength({ min: 5 }).trim().escape().run(req);
         await body('execution_planned_start_date').exists().toDate().run(req);
         await body('execution_planned_end_date').exists().toDate().run(req);
         await body('milestone_amount').isDecimal().trim().escape().run(req);
@@ -194,7 +191,7 @@ exports.sanitize_create = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -208,7 +205,7 @@ exports.sanitize_search = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -222,7 +219,7 @@ exports.sanitize_get_by_id = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -247,7 +244,7 @@ exports.sanitize_update = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -261,7 +258,7 @@ exports.sanitize_delete = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 

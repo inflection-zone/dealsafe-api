@@ -19,13 +19,11 @@ exports.create = async (req, res) => {
             req.body.PAN,
             req.body.TAN);
         if (exists) {
-            response_handler.set_failure_response(res, 201, 'Company already exists with the given contact details.', req);
-            //response_handler.set_failure_response(res, req, {message:"Company already exists with the given contact details.", api_error_code:201, http_error_code:201});
-            return;
+            throw new ApiError('Company already exists with the given contact details.', null, 200);
         }
 
         const entity = await company_service.create(req);
-        response_handler.set_success_response(res, req, 200, 'Company added successfully!', {
+        response_handler.set_success_response(res, req, 201, 'Company added successfully!', {
             entity: entity
         });
     } catch (error) {
@@ -65,8 +63,7 @@ exports.get_by_id = async (req, res) => {
         var id = req.params.id;
         var exists = await company_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Company with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Company with id ' + id.toString() + ' cannot be found!', null, 404);
         }
         const entity = await company_service.get_by_id(id);
         response_handler.set_success_response(res, req, 200, 'Company retrieved successfully!', {
@@ -82,8 +79,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await company_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Company with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Company with id ' + id.toString() + ' cannot be found!', null, 404);
         }
         var updated = await company_service.update(id, req.body);
         if (updated != null) {
@@ -103,8 +99,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await company_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Company with id ' + id.toString() + ' cannot be found!', req);
-            return;
+            throw new ApiError('Company with id ' + id.toString() + ' cannot be found!', null, 404);
         }
         var result = await company_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'Company deleted successfully!', result);
@@ -139,7 +134,7 @@ exports.authorize_create = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -149,7 +144,7 @@ exports.authorize_search = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -163,7 +158,7 @@ exports.authorize_get_by_id = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -177,7 +172,7 @@ exports.authorize_update = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -191,7 +186,7 @@ exports.authorize_delete = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -206,7 +201,7 @@ exports.authorize_get_details_by_contact_person_id = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -222,7 +217,7 @@ exports.sanitize_create = async (req, res, next) => {
         await body('GSTN').trim().optional({ checkFalsy: true }).isAlphanumeric().isLength({ min: 15, max: 15 }).custom(standard_validators.validateGSTN).run(req);
         await body('PAN').trim().optional({ checkFalsy: true }).isAlphanumeric().isLength({ min: 10, max: 10 }).custom(standard_validators.validatePAN).run(req);
         await body('TAN').exists().trim().isAlphanumeric().isLength({ min: 10, max: 10 }).custom(standard_validators.validateTAN).run(req);
-        await body('description').trim().optional({ checkFalsy: true }).isLength({ min: 3, max: 10 }).run(req);
+        await body('description').trim().optional({ checkFalsy: true }).isLength({ min: 3}).run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
             helper.handle_validation_error(result);
@@ -258,7 +253,7 @@ exports.sanitize_get_by_id = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -278,7 +273,7 @@ exports.sanitize_update = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -292,7 +287,7 @@ exports.sanitize_delete = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
