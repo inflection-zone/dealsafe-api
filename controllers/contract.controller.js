@@ -583,6 +583,21 @@ async function get_search_filters(req) {
         filter['name'] = name;
     }
 
+    var buyer_contact_user_id = req.query.buyer_contact_user_id ? req.query.buyer_contact_user_id : null;
+    if (buyer_contact_user_id != null) {
+        filter['buyer_contact_user_id'] = buyer_contact_user_id;
+    }
+
+    var seller_contact_user_id = req.query.seller_contact_user_id ? req.query.seller_contact_user_id : null;
+    if (seller_contact_user_id != null) {
+        filter['seller_contact_user_id'] = seller_contact_user_id;
+    }
+
+    var name = req.query.name ? req.query.name : null;
+    if (name != null) {
+        filter['name'] = name;
+    }
+
     var from_date = req.query.from ? req.query.from : null;
     var to_date = req.query.to ? req.query.to : null;
     if (from_date != null && to_date != null) {

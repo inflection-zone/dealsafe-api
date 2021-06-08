@@ -36,6 +36,14 @@ module.exports.search = async (filter) => {
             }
         };
 
+        if(filter.hasOwnProperty('seller_contact_user_id')){
+            search.where.seller_contact_user_id = filter.seller_contact_user_id;
+        }
+
+        if(filter.hasOwnProperty('buyer_contact_user_id')){
+            search.where.buyer_contact_user_id = filter.buyer_contact_user_id;
+        }
+
 
         if (filter.hasOwnProperty('my_role')) {
             if (filter.my_role === 'buyer') {
@@ -58,7 +66,6 @@ module.exports.search = async (filter) => {
         //         }
         //     };
         // }
-        console.log(filter.name);
         if (filter.hasOwnProperty('name')) {
             search.where.name = { [Op.iLike]: "%" + filter.name + "%" }
         }
@@ -86,7 +93,7 @@ module.exports.search = async (filter) => {
         var records = await Contract.findAll(search);
 
         if (filter.hasOwnProperty('other_company_name')) {
-            var companies = await Company.findAll({
+            var companies = await Company.findAll({ 
                 where: {
                     is_active: true,
                     name: { [Op.iLike]: "%" + filter.other_company_name + "%" },
