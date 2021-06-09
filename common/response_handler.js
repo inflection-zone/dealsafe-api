@@ -37,19 +37,19 @@ exports.set_success_response = (response, request, response_code, message, data,
     return response.status(response_code).send(response_object);
 }
 
-//exports.set_failure_response = (response, request, error = null) => {
-exports.set_failure_response = (response, response_code, message, request) => {
+exports.set_failure_response = (response, request, error = null) => {
+//exports.set_failure_response = (response, response_code, message, request) => {
 
-    //var response_code = error ? error.http_error_code : 500;
-    var response_code = response_code ? response_code : 500;
+    var response_code = error.http_error_code || 500;
+    //var response_code = response_code ? response_code : 500;
 
     var obj = {
         status: 'failure',
-        //message: error? error.message : message,
-        message: message,
-        //api_error_code: error ? error.api_error_code : null,
-        api_error_code: response_code,
-        //trace: error ? error.trace : null,
+        message: error? error.message : message,
+        //message: message,
+        api_error_code: error ? error.api_internal_error_code : null,
+        //api_error_code: response_code,
+        trace: error ? error.trace : null,
         request: {
             context: request.context ? request.context : null,
             user_id: request.user ? request.user.user_id : null,
@@ -66,24 +66,23 @@ exports.set_failure_response = (response, response_code, message, request) => {
         service_version: process.env.SERVICE_VERSION
     };
     if (process.env.NODE_ENV != 'test') {
-        //console.log(obj);
+        console.log(obj);
         //logger.log(JSON.stringify(obj, null, 2));
     }
     return response.status(response_code).send(obj);
 }
 
 exports.handle_error = (error, res, req) => {
-    //console.log(error);
+    
+    console.log(error); 
+ 
     if (error instanceof ApiError) {
-        var api_error = new ApiError(error.message, 500, null, error.stack);
+        var api_error = new ApiError(error.message, 500, error.api_internal_error_code, error.stack);
         activity_handler.record_activity(req, res, api_error);
-        //exports.set_failure_response(res, req, api_error, req.context);
-        exports.set_failure_response(res, api_error.http_error_code, error.message, req);
+        exports.set_failure_response(res, req, api_error);
     }
     else {
-       // console.log("else");
         activity_handler.record_activity(req, res, error);
-        exports.set_failure_response(res, req, error, req.context);
-
+        exports.set_failure_response(res, req, error);
     }
 }
