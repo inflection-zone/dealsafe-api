@@ -73,9 +73,6 @@ exports.set_failure_response = (response, request, error = null) => {
 }
 
 exports.handle_error = (error, res, req) => {
-    
-    console.log(error); 
- 
     if (error instanceof ApiError) {
         var api_error = new ApiError(error.message, 500, error.api_internal_error_code, error.stack);
         activity_handler.record_activity(req, res, api_error);

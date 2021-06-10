@@ -53,11 +53,13 @@ module.exports.generate_token = (user) => {
 
 async function has_user_privilege(user_id, privilege_name) {
   var privilege = await role_authorization_service.get_privilege_by_name(privilege_name);
+  console.log("privilege = ", privilege);
   if (privilege == null) {
     return true;
   }
   var privilege_ids = [];
   var roles = await role_authorization_service.get_roles_for_user(user_id);
+  console.log("roles=",roles);
   for await (var role of roles) {
     var role_privileges = await role_authorization_service.get_role_privileges_for_role(role.id);
     var privileges = role_privileges.map(rp => rp.privilege_id);
@@ -65,6 +67,7 @@ async function has_user_privilege(user_id, privilege_name) {
       privilege_ids.push(...privileges);
     }
   }
+  console.log("privilege_id =",privilege_ids);
   for await (var pid of privilege_ids) {
     if (pid == privilege.id) {
       return true;
