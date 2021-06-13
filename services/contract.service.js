@@ -10,6 +10,7 @@ const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
 const Op = require('sequelize').Op;
+const { QueryTypes} = require('sequelize');
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,61 +37,89 @@ module.exports.search = async (filter) => {
             }
         };
 
+        var whereArray = [true];
+        var condition = 'where is_active = ?';
+          
         if(filter.hasOwnProperty('seller_contact_user_id')){
-            search.where.seller_contact_user_id = filter.seller_contact_user_id;
+            whereArray.push(filter.seller_contact_user_id);
+            condition=condition+" and seller_contact_user_id = ?";
         }
 
         if(filter.hasOwnProperty('buyer_contact_user_id')){
-            search.where.buyer_contact_user_id = filter.buyer_contact_user_id;
+            whereArray.push(filter.buyer_contact_user_id);
+            condition=condition+" and buyer_contact_user_id = ?";
         }
-
 
         if (filter.hasOwnProperty('my_role')) {
             if (filter.my_role === 'buyer') {
-                search.where.buyer_company_id = filter.current_user_company_id;
+                whereArray.push(filter.current_user_company_id);
+                condition=condition+" and buyer_company_id = ?";
             }
-            else {
-                search.where.seller_company_id = filter.current_user_company_id;
+
+            if (filter.my_role === 'seller') {
+                whereArray.push(filter.current_user_company_id);
+                condition=condition+" and seller_company_id = ?";
             }
         }
-        // else {
-        //     search = {
-        //         where: {
-        //             is_active: true,
-        //             [Op.or]: [
-        //                 {
-        //                     seller_company_id: filter.current_user_company_id,
-        //                     buyer_company_id: filter.current_user_company_id,
-        //                 }
-        //             ]
-        //         }
-        //     };
-        // }
-        if (filter.hasOwnProperty('name')) {
-            search.where.name = { [Op.iLike]: "%" + filter.name + "%" }
+        else {
+            //whereArray.push(filter.current_user_company_id);
+            condition=condition+" and (buyer_company_id = ? or seller_company_id = ? ) ";
+            whereArray.push(filter.current_user_company_id);
+            whereArray.push(filter.current_user_company_id);
+
         }
 
+        if (filter.hasOwnProperty('name')) {
+            whereArray.push("%"+filter.name+"%");
+            condition=condition+" and name like ? ";
+        }
+
+        
         if (filter.hasOwnProperty('from_date') && filter.hasOwnProperty('to_date')) {
-            search.where.created_date = {
-                [Op.gte]: filter.from_date,
-                [Op.lte]: filter.to_date
-            }
+            whereArray.push(filter.from_date);
+            whereArray.push(filter.to_date);
+            condition=condition+" and from_date>= ? and to_date<= ? ";
         }
         if (filter.hasOwnProperty('state')) {
             if (filter.state === 'created') {
-                search.where.current_status = ContractStatusTypes.Created.code;
+                whereArray.push(ContractStatusTypes.Created.code);
+                condition=condition+" and current_status= ? ";
             }
             if (filter.state === 'in-progress') {
-                search.where.current_status = ContractStatusTypes.InProgress.code;
+                whereArray.push(ContractStatusTypes.InProgress.code);
+                condition=condition+" and current_status= ? ";
             }
             if (filter.state === 'closed') {
-                search.where.current_status = ContractStatusTypes.Closed.code;
+                whereArray.push(ContractStatusTypes.Closed.code);
+                condition=condition+" and current_status= ? ";
             }
             if (filter.state === 'cancelled') {
-                search.where.current_status = ContractStatusTypes.Cancelled.code;
+                whereArray.push(ContractStatusTypes.Cancelled.code);
+                condition=condition+" and current_status= ? ";
             }
         }
-        var records = await Contract.findAll(search);
+
+        //var records = await Contract.findAll(search);
+        console.log('filter = ', filter);
+        console.log('-----------------------');
+        let query = "SELECT * FROM public.contracts "+condition;
+        console.log('query=', query);
+        console.log('whereArray=', whereArray);
+        var records=await db.sequelize.query(
+            query,
+            {
+              replacements: whereArray,
+              type: QueryTypes.SELECT
+            }
+        );
+        console.log(await db.sequelize.query(
+            query,
+            {
+              replacements: whereArray,
+              type: QueryTypes.SELECT
+            }
+        ));
+        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>', records);
 
         if (filter.hasOwnProperty('other_company_name')) {
             var companies = await Company.findAll({ 

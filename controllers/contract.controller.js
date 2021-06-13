@@ -26,6 +26,8 @@ exports.create = async (req, res) => {
 exports.search = async (req, res) => {
     try {
         var filter = await get_search_filters(req);
+        //console.log(req.query);
+        //console.log("filter = ", filter);
         const entities = await contract_service.search(filter);
         response_handler.set_success_response(res, req, 200, 'Contracts retrieved successfully!', { entities: entities });
     } catch (error) {
@@ -156,9 +158,9 @@ exports.freeze_contract_details = async (req, res) => {
 exports.buyer_deposits_escrow = async (req, res) => {
     try {
         var entity = {
-            contract_id:req.params.id,
-            transaction_id:req.body.transaction_id,
-            amount:req.body.amount
+            contract_id: req.params.id,
+            transaction_id: req.body.transaction_id,
+            amount: req.body.amount
         }
         const updated_entities = await contract_service.buyer_deposits_escrow(entity);
         response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
@@ -203,7 +205,7 @@ exports.authorize_create = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     }
@@ -228,7 +230,7 @@ exports.authorize_get_by_id = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -242,7 +244,7 @@ exports.authorize_update = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -256,7 +258,7 @@ exports.authorize_delete = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -270,7 +272,7 @@ exports.authorize_buyer_agrees = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -284,7 +286,7 @@ exports.authorize_seller_agrees = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -298,7 +300,7 @@ exports.authorize_buyer_rejects = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -312,7 +314,7 @@ exports.authorize_seller_rejects = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -326,7 +328,7 @@ exports.authorize_freeze_contract_details = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -340,7 +342,7 @@ exports.authorize_buyer_deposits_escrow = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -354,7 +356,7 @@ exports.authorize_start_execution = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -368,7 +370,7 @@ exports.authorize_close_contract = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
         if (!is_authorized) {
-            throw new ApiError('Permission denied!', 403);
+            throw new ApiError('Permission denied!', null, 403);
         }
         next();
     } catch (error) {
@@ -528,21 +530,21 @@ async function extract_contract_details(req) {
     var current_user_id = req.user.user_id;
     var created_by_user = await user_service.get_by_id(current_user_id);
     if (!created_by_user) {
-        throw new ApiError('Invalid user id.', 404);
+        throw new ApiError('Invalid user id.', null, 404);
     }
     var creator_company_id = created_by_user.company_id;
-    
+
     if (creator_company_id != req.body.buyer_company_id && creator_company_id != req.body.seller_company_id) {
-        throw new ApiError('The user is not authorized to create contract for others!', 403);
+        throw new ApiError('The user is not authorized to create contract for others!', null, 403);
     }
     var seller_company = await company_service.get_by_id(req.body.seller_company_id);
     if (!seller_company) {
-        throw new ApiError('Seller company record not found!', 404);
+        throw new ApiError('Seller company record not found!', null, 404);
     }
     var seller_contact_user_id = seller_company.contact_person_id;
     var buyer_company = await company_service.get_by_id(req.body.buyer_company_id);
     if (!buyer_company) {
-        throw new ApiError('Buyer company record not found!', 404);
+        throw new ApiError('Buyer company record not found!', null, 404);
     }
     var buyer_contact_user_id = buyer_company.contact_person_id;
 
@@ -565,9 +567,7 @@ async function extract_contract_details(req) {
 }
 
 async function get_search_filters(req) {
-
     var filter = {};
-
     var current_user_id = req.user.user_id;
     var current_user = await user_service.get_by_id(current_user_id);
     var current_user_company_id = current_user.company_id;
