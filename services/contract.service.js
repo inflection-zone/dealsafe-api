@@ -10,7 +10,7 @@ const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
 const Op = require('sequelize').Op;
-const { QueryTypes} = require('sequelize');
+const { QueryTypes, where} = require('sequelize');
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -139,7 +139,7 @@ module.exports.search = async (filter) => {
         //       type: QueryTypes.SELECT
         //     }
         // ));
-        // console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>', records);
+        
 
         if (filter.hasOwnProperty('other_company_name')) {
             var companies = await Company.findAll({ 
@@ -169,7 +169,6 @@ module.exports.search = async (filter) => {
             var obj = await get_object_to_send(record);
             array.push(obj);
         }
-
         sort_contracts(filter, array);
         return paginate_contracts(filter, array);
 
