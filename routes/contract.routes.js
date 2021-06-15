@@ -2,9 +2,7 @@ const controller = require('../controllers/contract.controller');
 const authenticate = require('../common/authorization_handler').authenticate;
 
 module.exports = app => {
-
     const router = require('express').Router();
-
     router.post('', authenticate, controller.authorize_create, controller.sanitize_create, controller.create);
     router.get('/search', authenticate, controller.authorize_search, controller.sanitize_search, controller.search);
     router.get('/:id', authenticate, controller.authorize_get_by_id, controller.sanitize_get_by_id, controller.get_by_id);

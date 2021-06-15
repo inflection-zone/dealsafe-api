@@ -81,7 +81,7 @@ module.exports.RolePrivileges = [
             'bank_account_details.update',
             'bank_account_details.delete',
             'contract.create',
-            'contract.searchs',
+            'contract.search',
             'contract.get_all',
             'contract.get_by_id',
             'contract.update',

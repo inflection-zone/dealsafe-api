@@ -14,6 +14,7 @@ const { query, body, oneOf, validationResult, param } = require('express-validat
 exports.create = async (req, res) => {
     try {
         var entity = await extract_contract_details(req);
+        console.log('entity=', entity);
         const contract = await contract_service.create(entity);
         response_handler.set_success_response(res, req, 201, 'Contract added successfully!', {
             entity: contract
@@ -26,8 +27,6 @@ exports.create = async (req, res) => {
 exports.search = async (req, res) => {
     try {
         var filter = await get_search_filters(req);
-        //console.log(req.query);
-        //console.log("filter = ", filter);
         const entities = await contract_service.search(filter);
         response_handler.set_success_response(res, req, 200, 'Contracts retrieved successfully!', { entities: entities });
     } catch (error) {
@@ -572,10 +571,10 @@ async function get_search_filters(req) {
     var current_user = await user_service.get_by_id(current_user_id);
     var current_user_company_id = current_user.company_id;
     filter['current_user_company_id'] = current_user_company_id;
-
-    var my_role = req.query.my_role ? req.query.my_role : null;
+    filter['current_user_id'] =  current_user_id;
+    var my_role = req.query.my_role ? decodeURIComponent(req.query.my_role) : null;
     if (my_role != null) {
-        filter['my_role'] = req.query.my_role;
+        filter['my_role'] = my_role;
     }
 
     var name = req.query.name ? req.query.name : null;
@@ -591,11 +590,6 @@ async function get_search_filters(req) {
     var seller_contact_user_id = req.query.seller_contact_user_id ? req.query.seller_contact_user_id : null;
     if (seller_contact_user_id != null) {
         filter['seller_contact_user_id'] = seller_contact_user_id;
-    }
-
-    var name = req.query.name ? req.query.name : null;
-    if (name != null) {
-        filter['name'] = name;
     }
 
     var from_date = req.query.from ? req.query.from : null;

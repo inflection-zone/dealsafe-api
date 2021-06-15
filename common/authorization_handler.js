@@ -26,7 +26,8 @@ module.exports.authenticate = (req, res, next) => {
   }
   catch (err) {
     logger.log(JSON.stringify(err));
-    response_handler.handle_error(res, req, err);
+    //response_handler.handle_error(res, req, err);
+    response_handler.handle_error(err, res, req);
   }
 };
 

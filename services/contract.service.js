@@ -38,8 +38,14 @@ module.exports.search = async (filter) => {
         };
 
         var whereArray = [true];
-        var condition = 'where is_active = ?';
-          
+        var condition = 'where is_active = ? ';
+        
+        // if(!(filter.hasOwnProperty('seller_contact_user_id') && filter.hasOwnProperty('buyer_contact_user_id'))){
+        //     condition=condition+" and (seller_contact_user_id = ? or buyer_contact_user_id = ? ) ";
+        //     whereArray.push(filter['current_user_id']);
+        //     whereArray.push(filter['current_user_id']);
+        // }
+
         if(filter.hasOwnProperty('seller_contact_user_id')){
             whereArray.push(filter.seller_contact_user_id);
             condition=condition+" and seller_contact_user_id = ?";
@@ -52,33 +58,47 @@ module.exports.search = async (filter) => {
 
         if (filter.hasOwnProperty('my_role')) {
             if (filter.my_role === 'buyer') {
-                whereArray.push(filter.current_user_company_id);
-                condition=condition+" and buyer_company_id = ?";
+                whereArray.push(ContractRoles.Buyer.type_id);
+                whereArray.push(filter.buyer_contact_user_id);
+                condition=condition+" and creator_role = ? ";
+                condition=condition+" and buyer_contact_user_id = ?";
             }
 
             if (filter.my_role === 'seller') {
-                whereArray.push(filter.current_user_company_id);
-                condition=condition+" and seller_company_id = ?";
+                whereArray.push(ContractRoles.Seller.type_id);
+                condition=condition+" and creator_role = ? ";
+                whereArray.push(filter.seller_contact_user_id);
+                condition=condition+" and seller_contact_user_id = ?";
             }
         }
-        else {
-            //whereArray.push(filter.current_user_company_id);
-            condition=condition+" and (buyer_company_id = ? or seller_company_id = ? ) ";
-            whereArray.push(filter.current_user_company_id);
-            whereArray.push(filter.current_user_company_id);
 
-        }
+        // if (filter.hasOwnProperty('my_role')) {
+        //     if (filter.my_role === 'buyer') {
+        //         whereArray.push(filter.current_user_company_id);
+        //         condition=condition+" and buyer_company_id = ?";
+        //     }
+
+        //     if (filter.my_role === 'seller') {
+        //         whereArray.push(filter.current_user_company_id);
+        //         condition=condition+" and seller_company_id = ?";
+        //     }
+        // }
+        // else {
+        //     condition=condition+" and (buyer_company_id = ? or seller_company_id = ? ) ";
+        //     whereArray.push(filter.current_user_company_id);
+        //     whereArray.push(filter.current_user_company_id);
+
+        // }
 
         if (filter.hasOwnProperty('name')) {
             whereArray.push("%"+filter.name+"%");
             condition=condition+" and name like ? ";
         }
-
         
         if (filter.hasOwnProperty('from_date') && filter.hasOwnProperty('to_date')) {
             whereArray.push(filter.from_date);
             whereArray.push(filter.to_date);
-            condition=condition+" and from_date>= ? and to_date<= ? ";
+            condition=condition+" and created_at>= ? and created_at<= ? ";
         }
         if (filter.hasOwnProperty('state')) {
             if (filter.state === 'created') {
@@ -112,14 +132,14 @@ module.exports.search = async (filter) => {
               type: QueryTypes.SELECT
             }
         );
-        console.log(await db.sequelize.query(
-            query,
-            {
-              replacements: whereArray,
-              type: QueryTypes.SELECT
-            }
-        ));
-        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>', records);
+        // console.log(await db.sequelize.query(
+        //     query,
+        //     {
+        //       replacements: whereArray,
+        //       type: QueryTypes.SELECT
+        //     }
+        // ));
+        // console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>', records);
 
         if (filter.hasOwnProperty('other_company_name')) {
             var companies = await Company.findAll({ 
@@ -567,10 +587,7 @@ function get_entity_to_save(entity) {
 
     var role_type_id = ContractRoles.Buyer.type_id;
     if (entity.creator_role) {
-        // if (entity.creator_role.toLowerCase() === ContractRoles.Seller.name.toLowerCase()) {
-        //     role_type_id = ContractRoles.Seller.type_id;
-        // }
-        if (entity.creator_role === 2) {
+        if (entity.creator_role.toLowerCase()=="seller") {
             role_type_id = ContractRoles.Seller.type_id;
         }
     }

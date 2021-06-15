@@ -197,7 +197,8 @@ exports.sanitize_create = async (req, res, next) => {
 
 exports.sanitize_search = async (req, res, next) => {
     try {
-        await query('contract_id').isUUID().trim().escape().run(req);
+        await query('name').trim().optional().escape().run(req);
+        await query('contract_id').isUUID().trim().exists().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
             helper.handle_validation_error(result);
@@ -269,6 +270,10 @@ function get_search_filters(req) {
     var contract_id = req.query.contract_id ? req.query.contract_id : null;
     if (contract_id != null) {
         filter['contract_id'] = contract_id;
+    }
+    var milestone_name = req.query.name ? req.query.name : null;
+    if (milestone_name != null) {
+        filter['name'] = milestone_name;
     }
     return filter;
 }

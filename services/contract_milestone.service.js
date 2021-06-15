@@ -24,9 +24,14 @@ module.exports.search = async (filter) => {
                 is_active: true
             }
         };
-        // if (filter.hasOwnProperty('name')) {
-        //     search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
-        // }
+        if (filter.hasOwnProperty('name')) {
+            search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
+        }
+
+        if (filter.hasOwnProperty('contract_id')) {
+            search.where.name = filter.contract_id;
+        }
+
         var records = await ContractMilestone.findAll(search);
         for (var record of records) {
             objects.push(get_object_to_send(record));
