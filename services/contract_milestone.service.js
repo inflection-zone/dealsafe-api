@@ -24,12 +24,13 @@ module.exports.search = async (filter) => {
                 is_active: true
             }
         };
+
         if (filter.hasOwnProperty('name')) {
             search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
         }
 
         if (filter.hasOwnProperty('contract_id')) {
-            search.where.name = filter.contract_id;
+            search.where.contract_id = filter.contract_id;
         }
 
         var records = await ContractMilestone.findAll(search);

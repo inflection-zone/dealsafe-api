@@ -176,7 +176,7 @@ exports.sanitize_create = async (req, res, next) => {
     try {
         await body('contract_id').exists().isUUID().run(req);
         await body('milestone_id').isUUID().trim().escape().run(req);
-        await body('text').exists().isAlphanumeric().trim().escape().run(req);
+        await body('text').exists().trim().escape().run(req);
         await body('added_by').exists().isUUID().trim().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
