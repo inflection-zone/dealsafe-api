@@ -6,11 +6,12 @@ const ContractChecklist = require('../database/models/ContractChecklist').Model;
 const Company = require('../database/models/Company').Model;
 const ContractStatusTypes = require('../common/constants').ContractStatusTypes;
 const ContractRoles = require('../common/constants').ContractRoles;
+const company_service = require('../services/company.service');
 const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
 const Op = require('sequelize').Op;
-const { QueryTypes, where} = require('sequelize');
+const { QueryTypes, where } = require('sequelize');
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -39,110 +40,72 @@ module.exports.search = async (filter) => {
 
         var whereArray = [true];
         var condition = 'where is_active = ? ';
-        
-        // if(!(filter.hasOwnProperty('seller_contact_user_id') && filter.hasOwnProperty('buyer_contact_user_id'))){
-        //     condition=condition+" and (seller_contact_user_id = ? or buyer_contact_user_id = ? ) ";
-        //     whereArray.push(filter['current_user_id']);
-        //     whereArray.push(filter['current_user_id']);
-        // }
 
-        if(filter.hasOwnProperty('seller_contact_user_id')){
+        if (filter.hasOwnProperty('seller_contact_user_id')) {
             whereArray.push(filter.seller_contact_user_id);
-            condition=condition+" and seller_contact_user_id = ?";
+            condition = condition + " and seller_contact_user_id = ?";
         }
 
-        if(filter.hasOwnProperty('buyer_contact_user_id')){
+        if (filter.hasOwnProperty('buyer_contact_user_id')) {
             whereArray.push(filter.buyer_contact_user_id);
-            condition=condition+" and buyer_contact_user_id = ?";
+            condition = condition + " and buyer_contact_user_id = ?";
         }
 
         if (filter.hasOwnProperty('my_role')) {
             if (filter.my_role === 'buyer') {
                 whereArray.push(ContractRoles.Buyer.type_id);
                 whereArray.push(filter.current_user_id);
-                condition=condition+" and creator_role = ? ";
-                condition=condition+" and buyer_contact_user_id = ?";
+                condition = condition + " and creator_role = ? ";
+                condition = condition + " and buyer_contact_user_id = ?";
             }
 
             if (filter.my_role === 'seller') {
                 whereArray.push(ContractRoles.Seller.type_id);
-                condition=condition+" and creator_role = ? ";
+                condition = condition + " and creator_role = ? ";
                 whereArray.push(filter.current_user_id);
-                condition=condition+" and seller_contact_user_id = ?";
+                condition = condition + " and seller_contact_user_id = ?";
             }
         }
 
-        // if (filter.hasOwnProperty('my_role')) {
-        //     if (filter.my_role === 'buyer') {
-        //         whereArray.push(filter.current_user_company_id);
-        //         condition=condition+" and buyer_company_id = ?";
-        //     }
-
-        //     if (filter.my_role === 'seller') {
-        //         whereArray.push(filter.current_user_company_id);
-        //         condition=condition+" and seller_company_id = ?";
-        //     }
-        // }
-        // else {
-        //     condition=condition+" and (buyer_company_id = ? or seller_company_id = ? ) ";
-        //     whereArray.push(filter.current_user_company_id);
-        //     whereArray.push(filter.current_user_company_id);
-
-        // }
-
         if (filter.hasOwnProperty('name')) {
-            whereArray.push("%"+filter.name+"%");
-            condition=condition+" and name like ? ";
+            whereArray.push("%" + filter.name + "%");
+            condition = condition + " and name like ? ";
         }
-        
+
         if (filter.hasOwnProperty('from_date') && filter.hasOwnProperty('to_date')) {
             whereArray.push(filter.from_date);
             whereArray.push(filter.to_date);
-            condition=condition+" and created_at>= ? and created_at<= ? ";
+            condition = condition + " and created_at>= ? and created_at<= ? ";
         }
         if (filter.hasOwnProperty('state')) {
             if (filter.state === 'created') {
                 whereArray.push(ContractStatusTypes.Created.code);
-                condition=condition+" and current_status= ? ";
+                condition = condition + " and current_status= ? ";
             }
             if (filter.state === 'in-progress') {
                 whereArray.push(ContractStatusTypes.InProgress.code);
-                condition=condition+" and current_status= ? ";
+                condition = condition + " and current_status= ? ";
             }
             if (filter.state === 'closed') {
                 whereArray.push(ContractStatusTypes.Closed.code);
-                condition=condition+" and current_status= ? ";
+                condition = condition + " and current_status= ? ";
             }
             if (filter.state === 'cancelled') {
                 whereArray.push(ContractStatusTypes.Cancelled.code);
-                condition=condition+" and current_status= ? ";
+                condition = condition + " and current_status= ? ";
             }
         }
-
-        //var records = await Contract.findAll(search);
-        console.log('filter = ', filter);
-        console.log('-----------------------');
-        let query = "SELECT * FROM public.contracts "+condition;
-        console.log('query=', query);
-        console.log('whereArray=', whereArray);
-        var records=await db.sequelize.query(
+        let query = "SELECT * FROM public.contracts "+condition;    
+        var records = await db.sequelize.query(
             query,
             {
-              replacements: whereArray,
-              type: QueryTypes.SELECT
+                replacements: whereArray,
+                type: QueryTypes.SELECT
             }
         );
-        // console.log(await db.sequelize.query(
-        //     query,
-        //     {
-        //       replacements: whereArray,
-        //       type: QueryTypes.SELECT
-        //     }
-        // ));
-        
 
         if (filter.hasOwnProperty('other_company_name')) {
-            var companies = await Company.findAll({ 
+            var companies = await Company.findAll({
                 where: {
                     is_active: true,
                     name: { [Op.iLike]: "%" + filter.other_company_name + "%" },
@@ -171,7 +134,6 @@ module.exports.search = async (filter) => {
         }
         sort_contracts(filter, array);
         return paginate_contracts(filter, array);
-
     }
     catch (error) {
         logger.log(error.message);
@@ -197,18 +159,33 @@ module.exports.get_by_id = async (id) => {
     }
 }
 
-module.exports.update = async (id, request_body) => {
+module.exports.update = async (id, req) => {
 
     try {
-        let updates = get_updates(request_body);
+        let updates = get_updates(req.body);
+
+        if (req.body.hasOwnProperty('buyer_company_id')) {
+            var buyer_company = await company_service.get_by_id(req.body.buyer_company_id);
+            if (!buyer_company) {
+                throw new ApiError('Buyer company record not found!', null, 404);
+            }
+        }
+        if (req.body.hasOwnProperty('seller_company_id')) {
+            var seller_company = await company_service.get_by_id(req.body.seller_company_id);
+            if (!seller_company) {
+                throw new ApiError('Seller company record not found!', null, 404);
+            }
+        }
         var res = await Contract.update(updates, {
             where: {
                 id: id
             }
         });
+
         if (res.length != 1) {
             throw new ApiError('Unable to update contract!');
         }
+        
         var search = {
             where: {
                 id: id,
@@ -586,7 +563,7 @@ function get_entity_to_save(entity) {
 
     var role_type_id = ContractRoles.Buyer.type_id;
     if (entity.creator_role) {
-        if (entity.creator_role.toLowerCase()=="seller") {
+        if (entity.creator_role.toLowerCase() == "seller") {
             role_type_id = ContractRoles.Seller.type_id;
         }
     }
@@ -627,8 +604,10 @@ function get_updates(request_body) {
     if (request_body.hasOwnProperty('is_full_payment_contract')) {
         updates.is_full_payment_contract = request_body.is_full_payment_contract;
     }
+
     if (request_body.hasOwnProperty('buyer_company_id')) {
         updates.buyer_company_id = request_body.buyer_company_id;
+
     }
     if (request_body.hasOwnProperty('buyer_contact_user_id')) {
         updates.buyer_contact_user_id = request_body.buyer_contact_user_id;

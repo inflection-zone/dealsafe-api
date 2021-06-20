@@ -57,6 +57,11 @@ module.exports.RolePrivileges = [
             'transaction.get_by_id',
             'transaction.update',
             'transaction.delete',
+            'agreement_clause.create',
+            'agreement_clause.search',
+            'agreement_clause.get_by_id',
+            'agreement_clause.update',
+            'agreement_clause.delete',
         ],
     },
     {
@@ -107,6 +112,11 @@ module.exports.RolePrivileges = [
             'transaction.get_by_id',
             'transaction.update',
             'transaction.delete',
+            'agreement_clause.create',
+            'agreement_clause.search',
+            'agreement_clause.get_by_id',
+            'agreement_clause.update',
+            'agreement_clause.delete',
         ],
     },
     {
@@ -157,6 +167,11 @@ module.exports.RolePrivileges = [
             'transaction.get_by_id',
             'transaction.update',
             'transaction.delete',
+            'agreement_clause.create',
+            'agreement_clause.search',
+            'agreement_clause.get_by_id',
+            'agreement_clause.update',
+            'agreement_clause.delete'
         ],
     },
 

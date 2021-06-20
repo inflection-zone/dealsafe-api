@@ -112,7 +112,7 @@ exports.authorize_create = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -122,7 +122,7 @@ exports.authorize_search = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -136,7 +136,7 @@ exports.authorize_get_by_id = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -150,7 +150,7 @@ exports.authorize_update = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -164,7 +164,7 @@ exports.authorize_delete = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -185,14 +185,14 @@ exports.sanitize_create = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
 exports.sanitize_search = async (req, res, next) => {
     try {
         await query('contract_id').isUUID().trim().escape().run(req);
-        await query('milestone_id').isUUID().trim().escape().run(req);
+        await query('milestone_id').optional().isUUID().trim().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
             helper.handle_validation_error(result);
@@ -200,7 +200,7 @@ exports.sanitize_search = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -214,7 +214,7 @@ exports.sanitize_get_by_id = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -222,8 +222,8 @@ exports.sanitize_update = async (req, res, next) => {
     try {
         await param('id').exists().isUUID().run(req);
         await body('contract_id').exists().isUUID().run(req);
-        await body('milestone_id').isUUID().trim().escape().run(req);
-        await body('text').exists().isAlphanumeric().trim().escape().run(req);
+        await body('milestone_id').optional().isUUID().trim().escape().run(req);
+        await body('text').exists().trim().escape().run(req);
         await body('added_by').exists().isUUID().trim().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
@@ -232,7 +232,7 @@ exports.sanitize_update = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -246,7 +246,7 @@ exports.sanitize_delete = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 

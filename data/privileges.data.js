@@ -8,7 +8,7 @@ module.exports.Privileges = [
         
         { name: 'agreement_clause.create', category: 'CRUD-actors' },
         { name: 'agreement_clause.search', category: 'CRUD-actors' },
-        { name: 'agreement_clause.get_by_id', category: 'CRUD-actors' },
+        { name: 'agreement_clause.get_by_id', category: 'CRUD-actors'},
         { name: 'agreement_clause.update', category: 'CRUD-actors' },
         { name: 'agreement_clause.delete', category: 'CRUD-actors' },
         

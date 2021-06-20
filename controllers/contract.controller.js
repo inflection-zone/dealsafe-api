@@ -14,7 +14,6 @@ const { query, body, oneOf, validationResult, param } = require('express-validat
 exports.create = async (req, res) => {
     try {
         var entity = await extract_contract_details(req);
-        console.log('entity=', entity);
         const contract = await contract_service.create(entity);
         response_handler.set_success_response(res, req, 201, 'Contract added successfully!', {
             entity: contract
@@ -38,7 +37,7 @@ exports.get_by_id = async (req, res) => {
     try {
         const entity = await contract_service.get_by_id(req.params.id);
         if (entity == null) {
-            response_handler.set_failure_response(res, 404, 'Contract with id ' + id.toString() + ' cannot be found!', req);
+            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', null, 404);           
             return;
         }
         response_handler.set_success_response(res, req, 200, 'Contract retrieved successfully!', { entity: entity });
@@ -52,10 +51,11 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Contract with id ' + id.toString() + ' cannot be found!', req);
+            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', null, 404);           
+            //response_handler.set_failure_response(res, 404, 'Contract with id ' + id.toString() + ' cannot be found!', req);
             return;
         }
-        var updated = await contract_service.update(id, req.body);
+        var updated = await contract_service.update(id, req);
         if (updated != null) {
             response_handler.set_success_response(res, req, 200, 'Contract updated successfully!', {
                 updated: updated
@@ -73,7 +73,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_service.exists(id);
         if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Contract with id ' + id.toString() + ' cannot be found!', req);
+            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', null, 404);           
             return;
         }
         var result = await contract_service.delete(id);

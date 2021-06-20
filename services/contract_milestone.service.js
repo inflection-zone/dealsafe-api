@@ -5,6 +5,7 @@ const ContractMilestone = require('../database/models/ContractMilestone').Model;
 const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
+const Op = require('sequelize').Op;
 
 module.exports.create = async (request_body) => {
     try {

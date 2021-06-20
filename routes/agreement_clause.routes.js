@@ -12,7 +12,7 @@ module.exports = app => {
     router.delete('/:id', authenticate, controller.authorize_delete, controller.sanitize_delete, controller.delete);
 
 
-    router.get('/deleted', authenticate, controller.get_deleted);
+    router.get('/deleted/records', authenticate, controller.get_deleted);
 
     app.use('/api/v1/agreement-clause', router);
 };
