@@ -17,9 +17,58 @@ module.exports.create = async (request_body) => {
     }
 }
 
+function sort_milestones(filter, array) {
+
+    //default sorting by date - recent first
+    array.sort((a, b) => { return new Date(b.created_date) - new Date(a.created_date) });
+    if (!filter.hasOwnProperty('sort_by')) {
+        return array;
+    }
+
+    if (filter.sort_by == "created_date") {
+        if (filter.sort_type == "ascending") {
+            array.sort((a, b) => { return new Date(a.created_at) - new Date(b.created_at) });
+        }
+        else {
+            array.sort((a, b) => { return new Date(b.created_at) - new Date(b.created_at) });
+        }
+    }
+    if (filter.sort_by == "name") {
+        array.sort((a, b) => {
+            if (a.name < b.name) {
+                return -1;
+            }
+            if (a.name > b.name) {
+                return 1;
+            }
+            return 0;
+        });
+        if (filter.sort_type != "ascending") {
+            array.reverse();
+        }
+    }
+  
+}
+
+function paginate_milestone(filter, array) {
+    if (filter.hasOwnProperty("page_number") && filter.hasOwnProperty("items_per_page")) {
+        var start_offset = (filter.page_number - 1) * filter.items_per_page;
+        var end_offset = filter.page_number * filter.items_per_page;
+        var current_page = filter.page_number ? +filter.page_number : 1;
+        var total_pages = Math.ceil(array.length / parseInt(filter.items_per_page));
+        array = array.slice(start_offset, end_offset);
+    }
+    return {
+        current_page: current_page,
+        total_pages: total_pages,
+        items_per_page: filter.items_per_page,
+        contracts: array
+    };
+}
+
 module.exports.search = async (filter) => {
     try {
-        let objects = [];
+        let array = [];
         var search = {
             where: {
                 is_active: true
@@ -36,9 +85,10 @@ module.exports.search = async (filter) => {
 
         var records = await ContractMilestone.findAll(search);
         for (var record of records) {
-            objects.push(get_object_to_send(record));
+            array.push(get_object_to_send(record));
         }
-        return objects;
+        sort_milestones(filter, array);
+        return paginate_milestone(filter, array);
     } catch (error) {
         throw (error);
     }

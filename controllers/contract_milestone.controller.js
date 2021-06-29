@@ -199,6 +199,8 @@ exports.sanitize_search = async (req, res, next) => {
     try {
         await query('name').trim().optional().escape().run(req);
         await query('contract_id').isUUID().trim().exists().escape().run(req);
+        await query('page_number').trim().optional().escape().run(req);
+        await query('items_per_page').trim().optional().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
             helper.handle_validation_error(result);
@@ -275,6 +277,17 @@ function get_search_filters(req) {
     if (milestone_name != null) {
         filter['name'] = milestone_name;
     }
+
+    var sort_type = req.query.sort_type ? req.query.sort_type : 'descending';
+    var sort_by = req.query.sort_by ? req.query.sort_by : 'created_date';
+    filter['sort_type'] = sort_type;
+    filter['sort_by'] = sort_by;
+
+    var page_number = req.query.page_number ? req.query.page_number : 1;
+    var items_per_page = req.query.items_per_page ? req.query.items_per_page : 10;
+    filter['page_number'] = page_number;
+    filter['items_per_page'] = items_per_page;
+    
     return filter;
 }
 

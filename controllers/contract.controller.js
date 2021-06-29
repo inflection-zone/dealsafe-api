@@ -422,6 +422,10 @@ exports.sanitize_search = async (req, res, next) => {
         await query('seller_contact_user_id').trim().optional().escape().run(req);
         await query('from').trim().optional().escape().run(req);
         await query('to').trim().optional().escape().run(req);
+        await query('page_number').trim().optional().escape().run(req);
+        await query('items_per_page').trim().optional().escape().run(req);
+        
+
         if (req.query.from) {
             await query('from').isDate().trim().escape().run(req);
         }
