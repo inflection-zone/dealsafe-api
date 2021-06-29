@@ -62,7 +62,7 @@ function paginate_milestone(filter, array) {
         current_page: current_page,
         total_pages: total_pages,
         items_per_page: filter.items_per_page,
-        contracts: array
+        contract_milestones: array
     };
 }
 
