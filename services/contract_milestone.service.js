@@ -2,6 +2,7 @@
 
 const db = require('../database/connection');
 const ContractMilestone = require('../database/models/ContractMilestone').Model;
+const Contract = require('../database/models/Contract').Model;
 const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
@@ -11,7 +12,7 @@ module.exports.create = async (request_body) => {
     try {
         var entity = await get_entity_to_save(request_body)
         var record = await ContractMilestone.create(entity);
-        return get_object_to_send(record);
+        return await get_object_to_send(record);
     } catch (error) {
         throw (error);
     }
@@ -47,7 +48,7 @@ function sort_milestones(filter, array) {
             array.reverse();
         }
     }
-  
+
 }
 
 function paginate_milestone(filter, array) {
@@ -85,7 +86,7 @@ module.exports.search = async (filter) => {
 
         var records = await ContractMilestone.findAll(search);
         for (var record of records) {
-            array.push(get_object_to_send(record));
+            array.push(await get_object_to_send(record));
         }
         sort_milestones(filter, array);
         return paginate_milestone(filter, array);
@@ -107,7 +108,7 @@ module.exports.get_by_id = async (id) => {
             return null;
         }
 
-        return get_object_to_send(record);
+        return await get_object_to_send(record);
     } catch (error) {
         throw (error);
     }
@@ -136,7 +137,7 @@ module.exports.update = async (id, request_body) => {
             return null;
         }
 
-        return get_object_to_send(record);
+        return await get_object_to_send(record);
     } catch (error) {
         throw (error);
     }
@@ -164,7 +165,7 @@ module.exports.get_deleted = async () => {
             }
         });
         for (var record of records) {
-            objects.push(get_object_to_send(record))
+            objects.push(await get_object_to_send(record))
         }
         return objects;
     } catch (error) {
@@ -258,9 +259,18 @@ function get_updates(request_body) {
     return updates;
 }
 
-function get_object_to_send(record) {
+async function get_contract_details(contract_id) {
+    var contract_details = await Contract.findOne({ where: { id: contract_id } }); 
+    return contract_details;
+}
+
+async function get_object_to_send(record) {
     if (record == null) {
         return null;
+    }
+    let contract_details=null;
+    if(record.contract_id) {
+        contract_details = await get_contract_details(record.contract_id);
     }
     return {
         id: record.id,
@@ -278,6 +288,7 @@ function get_object_to_send(record) {
         current_status: record.current_status,
         is_cancelled: record.is_cancelled,
         is_closed: record.is_closed,
-        transaction_id: record.transaction_id
+        transaction_id: record.transaction_id,
+        contracts: contract_details
     };
 }

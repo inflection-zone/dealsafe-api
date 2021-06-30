@@ -77,6 +77,7 @@ module.exports.search = async (filter) => {
             whereArray.push(filter.to_date);
             condition = condition + " and created_at>= ? and created_at<= ? ";
         }
+        
         if (filter.hasOwnProperty('state')) {
             if (filter.state === 'created') {
                 whereArray.push(ContractStatusTypes.Created.code);
