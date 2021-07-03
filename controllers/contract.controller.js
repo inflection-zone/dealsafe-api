@@ -34,12 +34,12 @@ exports.search = async (req, res) => {
 };
 
 exports.get_summary_by_creator_role = async (req, res) => {
-    try{
+    try {
         var filter = await get_summary_filters(req);
         const entities = await contract_service.summary(filter);
         response_handler.set_success_response(res, req, 200, 'Summary retrieved successfully!', { entities: entities });
     }
-    catch(error){
+    catch (error) {
         response_handler.handle_error(error, res, req);
     }
 }
@@ -51,6 +51,15 @@ exports.get_by_id = async (req, res) => {
             throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', null, 404);
             return;
         }
+
+        if (entity.buyer_contact_user_id == req.user.user_id) {
+            entity.buyer_name = entity.buyer_name + " (You)";
+        }
+
+        if (entity.seller_contact_user_id == req.user.user_id) {
+            entity.seller_name = entity.seller_name + " (You)";
+        }
+
         response_handler.set_success_response(res, req, 200, 'Contract retrieved successfully!', { entity: entity });
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -610,11 +619,11 @@ async function extract_contract_details(req) {
 }
 
 async function get_summary_filters(req) {
-    var filter={};
+    var filter = {};
     filter['current_user_id'] = req.user.user_id;
 
     var my_role = req.query.my_role ? decodeURIComponent(req.query.my_role) : null;
-    
+
     if (my_role != null) {
         filter['my_role'] = my_role;
     }
@@ -623,7 +632,7 @@ async function get_summary_filters(req) {
     if (state != null) {
         filter['state'] = state;
     }
-    
+
     return filter;
 }
 

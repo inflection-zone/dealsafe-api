@@ -827,16 +827,13 @@ async function get_object_to_send(record) {
     var seller_company = await Company.findByPk(record.seller_company_id);
     var buyer_details = null;
     var seller_details = null;
-    if (record.creator_role == 1) {
-        if (record.buyer_contact_user_id) {
-            buyer_details = await User.findByPk(record.buyer_contact_user_id);
-        }
+    
+    if (record.buyer_contact_user_id) {
+        buyer_details = await User.findByPk(record.buyer_contact_user_id);
     }
 
-    if (record.creator_role == 2) {
-        if (record.seller_contact_user_id) {
-            seller_details = await User.findByPk(record.seller_contact_user_id);
-        }
+    if (record.seller_contact_user_id) {
+        seller_details = await User.findByPk(record.seller_contact_user_id);
     }
 
     return {
