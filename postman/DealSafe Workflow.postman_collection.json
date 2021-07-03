@@ -4015,6 +4015,436 @@
 							]
 						},
 						{
+							"name": "Get summary by creator role",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true,
+								"disabledSystemHeaders": {
+									"host": true,
+									"user-agent": true,
+									"accept": true,
+									"accept-encoding": true,
+									"connection": true
+								}
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract/summary?my_role=seller&state=closed",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract",
+										"summary"
+									],
+									"query": [
+										{
+											"key": "my_role",
+											"value": "seller"
+										},
+										{
+											"key": "state",
+											"value": "closed"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Get summary by creator role",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/contract/summary",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract",
+												"summary"
+											],
+											"query": [
+												{
+													"key": "state",
+													"value": null,
+													"disabled": true
+												},
+												{
+													"key": "my_role",
+													"value": "seller",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "Expect-CT",
+											"value": "max-age=0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Methods",
+											"value": "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+										},
+										{
+											"key": "Access-Control-Allow-Headers",
+											"value": "Origin,Authorization,X-Requested-With,content-type,Accept,enc"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "354"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"162-e8NXXEqYQMJP/kuGLbSY2jlO75s\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 03 Jul 2021 06:22:37 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Summary retrieved successfully!\",\n    \"response_code\": 200,\n    \"data\": {\n        \"entities\": {\n            \"buyer_summary\": {\n                \"Pending\": 2,\n                \"InProgress\": 1,\n                \"Closed\": 1,\n                \"Cancelled\": 0,\n                \"Total\": 4\n            },\n            \"seller_summary\": {\n                \"Pending\": 2,\n                \"InProgress\": 0,\n                \"Closed\": 0,\n                \"Cancelled\": 0,\n                \"Total\": 2\n            },\n            \"buyer_seller_summary\": {\n                \"Pending\": 4,\n                \"InProgress\": 1,\n                \"Closed\": 1,\n                \"Cancelled\": 0,\n                \"Total\": 6\n            }\n        }\n    }\n}"
+								},
+								{
+									"name": "Get summary by creator role",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/contract/summary?my_role=seller&state=pending",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract",
+												"summary"
+											],
+											"query": [
+												{
+													"key": "my_role",
+													"value": "seller"
+												},
+												{
+													"key": "state",
+													"value": "pending"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "Expect-CT",
+											"value": "max-age=0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Methods",
+											"value": "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+										},
+										{
+											"key": "Access-Control-Allow-Headers",
+											"value": "Origin,Authorization,X-Requested-With,content-type,Accept,enc"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "354"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"162-BcaLL0AfwmrbEP1vGDBnQPIsypQ\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 03 Jul 2021 06:28:40 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Summary retrieved successfully!\",\n    \"response_code\": 200,\n    \"data\": {\n        \"entities\": {\n            \"buyer_summary\": {\n                \"Pending\": 0,\n                \"InProgress\": 0,\n                \"Closed\": 0,\n                \"Cancelled\": 0,\n                \"Total\": 0\n            },\n            \"seller_summary\": {\n                \"Pending\": 2,\n                \"InProgress\": 0,\n                \"Closed\": 0,\n                \"Cancelled\": 0,\n                \"Total\": 2\n            },\n            \"buyer_seller_summary\": {\n                \"Pending\": 2,\n                \"InProgress\": 0,\n                \"Closed\": 0,\n                \"Cancelled\": 0,\n                \"Total\": 2\n            }\n        }\n    }\n}"
+								},
+								{
+									"name": "Get summary by creator role",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/contract/summary?my_role=seller&state=closed",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract",
+												"summary"
+											],
+											"query": [
+												{
+													"key": "my_role",
+													"value": "seller"
+												},
+												{
+													"key": "state",
+													"value": "closed"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "Expect-CT",
+											"value": "max-age=0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Methods",
+											"value": "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+										},
+										{
+											"key": "Access-Control-Allow-Headers",
+											"value": "Origin,Authorization,X-Requested-With,content-type,Accept,enc"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "354"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"162-hTCXZWwfm+EMTaoyS1Tigo8ovzs\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 03 Jul 2021 06:29:16 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Summary retrieved successfully!\",\n    \"response_code\": 200,\n    \"data\": {\n        \"entities\": {\n            \"buyer_summary\": {\n                \"Pending\": 0,\n                \"InProgress\": 0,\n                \"Closed\": 0,\n                \"Cancelled\": 0,\n                \"Total\": 0\n            },\n            \"seller_summary\": {\n                \"Pending\": 0,\n                \"InProgress\": 0,\n                \"Closed\": 0,\n                \"Cancelled\": 0,\n                \"Total\": 0\n            },\n            \"buyer_seller_summary\": {\n                \"Pending\": 0,\n                \"InProgress\": 0,\n                \"Closed\": 0,\n                \"Cancelled\": 0,\n                \"Total\": 0\n            }\n        }\n    }\n}"
+								}
+							]
+						},
+						{
 							"name": "Search contracts with filters",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true

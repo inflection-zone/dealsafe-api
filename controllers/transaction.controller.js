@@ -122,7 +122,7 @@ exports.authorize_create = async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -132,7 +132,7 @@ exports.authorize_search = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
     } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -146,7 +146,7 @@ exports.authorize_get_by_id = async (req, res, next) => {
         }
         next();
     } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -160,7 +160,7 @@ exports.authorize_update = async (req, res, next) => {
         }
         next();
     } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -174,7 +174,7 @@ exports.authorize_delete = async (req, res, next) => {
         }
         next();
     } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -206,7 +206,7 @@ exports.sanitize_create = async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -220,7 +220,7 @@ exports.sanitize_search = async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -234,7 +234,7 @@ exports.sanitize_get_by_id =  async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -262,7 +262,7 @@ exports.sanitize_update =  async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -276,7 +276,7 @@ exports.sanitize_delete =  async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 

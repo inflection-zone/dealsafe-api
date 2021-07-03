@@ -3,6 +3,7 @@
 const db = require('../database/connection');
 const Contract = require('../database/models/Contract').Model;
 const ContractChecklist = require('../database/models/ContractChecklist').Model;
+const User = require('../database/models/User').Model;
 const Company = require('../database/models/Company').Model;
 const ContractStatusTypes = require('../common/constants').ContractStatusTypes;
 const ContractRoles = require('../common/constants').ContractRoles;
@@ -28,8 +29,160 @@ module.exports.create = async (request_body) => {
     }
 }
 
-module.exports.search = async (filter) => {
+module.exports.summary = async (filter) => {
+    try {
+        var array = [];
+        var search = {};
+        var whereArray = [];
+        var condition = 'where ';
+        var result = {};
 
+        if (filter.hasOwnProperty('my_role')) {
+
+            if (filter.my_role === 'buyer') {
+                whereArray.push(ContractRoles.Buyer.type_id);
+                whereArray.push(filter.current_user_id);
+                condition = condition + " creator_role = ? ";
+                condition = condition + "and buyer_contact_user_id = ?";
+            }
+
+            if (filter.my_role === 'seller') {
+                whereArray.push(ContractRoles.Seller.type_id);
+                condition = condition + " creator_role = ? ";
+                whereArray.push(filter.current_user_id);
+                condition = condition + "and seller_contact_user_id = ?";
+            }
+
+            if (!(filter.my_role === 'seller' || filter.my_role === 'buyer')) {
+                whereArray.push(ContractRoles.Seller.type_id);
+                condition = condition + " creator_role = ? ";
+                whereArray.push(filter.current_user_id);
+                whereArray.push(filter.current_user_id);
+                condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?) ";
+            }
+
+        } else {
+            //whereArray.push(" in (1,2)"); // buyer and seller roles
+            condition = condition + " creator_role in (1,2) ";
+            whereArray.push(filter.current_user_id);
+            whereArray.push(filter.current_user_id);
+            condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?)";
+
+        }
+
+        if (filter.hasOwnProperty('state')) {
+            if (filter.state === 'pending') {
+                whereArray.push(ContractStatusTypes.Created.type_id);
+                condition = condition + " and current_status= ? ";
+            }
+            if (filter.state === 'in-progress') {
+                whereArray.push(ContractStatusTypes.InProgress.type_id);
+                condition = condition + " and current_status= ? ";
+            }
+            if (filter.state === 'closed') {
+                whereArray.push(ContractStatusTypes.Closed.type_id);
+                condition = condition + " and current_status= ? ";
+            }
+            if (filter.state === 'cancelled') {
+                whereArray.push(ContractStatusTypes.Cancelled.type_id);
+                condition = condition + " and current_status= ? ";
+            }
+        }
+
+        let query = "SELECT creator_role, current_status, count(*) FROM public.contracts " + condition + " group by 1, 2";
+
+        var records = await db.sequelize.query(
+            query,
+            {
+                replacements: whereArray,
+                type: QueryTypes.SELECT
+            }
+        );
+
+        console.log("records = ", records);
+        result.buyer_summary = {
+            'Pending': 0,
+            'InProgress': 0,
+            'Closed': 0,
+            'Cancelled': 0,
+            'Total': 0
+        };
+        result.seller_summary = {
+            'Pending': 0,
+            'InProgress': 0,
+            'Closed': 0,
+            'Cancelled': 0,
+            'Total': 0
+        };
+
+        result.buyer_seller_summary = {
+            'Pending': 0,
+            'InProgress': 0,
+            'Closed': 0,
+            'Cancelled': 0,
+            'Total': 0
+        };
+        //result.seller_summary = {};
+
+        for await (var r of records) {
+            if (r.creator_role == 1) {
+                if (r.current_status == ContractStatusTypes.Created.type_id) {
+                    result.buyer_summary.Pending = Number(r.count);
+                    result.buyer_summary.Total = Number(result.buyer_summary.Total) + result.buyer_summary.Pending;
+                    result.buyer_seller_summary.Pending = Number(result.buyer_seller_summary.Pending) + Number(r.count);
+                }
+                if (r.current_status == ContractStatusTypes.InProgress.type_id) {
+                    result.buyer_summary.InProgress = Number(r.count);
+                    result.buyer_summary.Total = Number(result.buyer_summary.Total) + result.buyer_summary.InProgress;
+                    result.buyer_seller_summary.InProgress = Number(result.buyer_seller_summary.InProgress) + Number(r.count);
+                }
+                if (r.current_status == ContractStatusTypes.Closed.type_id) {
+                    result.buyer_summary.Closed = Number(r.count);
+                    result.buyer_summary.Total = Number(result.buyer_summary.Total) + result.buyer_summary.Closed;
+                    result.buyer_seller_summary.Closed = Number(result.buyer_seller_summary.Closed) + Number(r.count);
+                }
+                if (r.current_status == ContractStatusTypes.Cancelled.type_id) {
+                    result.buyer_summary.Cancelled = Number(r.count);
+                    result.buyer_summary.Total = Number(result.buyer_summary.Total) + result.buyer_summary.Cancelled;
+                    result.buyer_seller_summary.Cancelled = Number(result.buyer_seller_summary.Cancelled) + Number(r.count);
+                }
+            }
+
+            if (r.creator_role == 2) {
+                if (r.current_status == ContractStatusTypes.Created.type_id) {
+                    result.seller_summary.Pending = Number(r.count);
+                    result.seller_summary.Total = Number(result.seller_summary.Total) + result.seller_summary.Pending;
+                    result.buyer_seller_summary.Pending = Number(result.buyer_seller_summary.Pending) + Number(r.count);
+                }
+                if (r.current_status == ContractStatusTypes.InProgress.type_id) {
+                    result.seller_summary.InProgress = Number(r.count);
+                    result.seller_summary.Total = Number(result.seller_summary.Total) + result.seller_summary.InProgress;
+                    result.buyer_seller_summary.InProgress = Number(result.buyer_seller_summary.InProgress) + Number(r.count);
+                }
+                if (r.current_status == ContractStatusTypes.Closed.type_id) {
+                    result.seller_summary.Closed = Number(r.count);
+                    result.seller_summary.Total = Number(result.seller_summary.Total) + result.seller_summary.Closed;
+                    result.buyer_seller_summary.Closed = Number(result.buyer_seller_summary.Closed) + Number(r.count);
+                }
+                if (r.current_status == ContractStatusTypes.Cancelled.type_id) {
+                    result.seller_summary.Cancelled = Number(r.count);
+                    result.seller_summary.Total = Number(result.seller_summary.Total) + result.seller_summary.Cancelled;
+                    result.buyer_seller_summary.Cancelled = Number(result.buyer_seller_summary.Cancelled) + Number(r.count);
+                }
+            }
+
+            result.buyer_seller_summary.Total = result.buyer_seller_summary.Pending + result.buyer_seller_summary.InProgress + result.buyer_seller_summary.Closed + result.buyer_seller_summary.Cancelled;
+
+        }
+        return result;
+    }
+    catch (error) {
+        //logger.log(error.message);
+        throw (error);
+    }
+}
+
+module.exports.search = async (filter) => {
     try {
         var array = [];
         var search = {
@@ -77,26 +230,26 @@ module.exports.search = async (filter) => {
             whereArray.push(filter.to_date);
             condition = condition + " and created_at>= ? and created_at<= ? ";
         }
-        
+
         if (filter.hasOwnProperty('state')) {
             if (filter.state === 'created') {
-                whereArray.push(ContractStatusTypes.Created.code);
+                whereArray.push(ContractStatusTypes.Created.type_id);
                 condition = condition + " and current_status= ? ";
             }
             if (filter.state === 'in-progress') {
-                whereArray.push(ContractStatusTypes.InProgress.code);
+                whereArray.push(ContractStatusTypes.InProgress.type_id);
                 condition = condition + " and current_status= ? ";
             }
             if (filter.state === 'closed') {
-                whereArray.push(ContractStatusTypes.Closed.code);
+                whereArray.push(ContractStatusTypes.Closed.type_id);
                 condition = condition + " and current_status= ? ";
             }
             if (filter.state === 'cancelled') {
-                whereArray.push(ContractStatusTypes.Cancelled.code);
+                whereArray.push(ContractStatusTypes.Cancelled.type_id);
                 condition = condition + " and current_status= ? ";
             }
         }
-        let query = "SELECT * FROM public.contracts "+condition;    
+        let query = "SELECT * FROM public.contracts " + condition;
         var records = await db.sequelize.query(
             query,
             {
@@ -186,7 +339,7 @@ module.exports.update = async (id, req) => {
         if (res.length != 1) {
             throw new ApiError('Unable to update contract!');
         }
-        
+
         var search = {
             where: {
                 id: id,
@@ -672,6 +825,19 @@ async function get_object_to_send(record) {
     var checklist = await ContractChecklist.findOne({ where: { contract_id: record.id } });
     var buyer_company = await Company.findByPk(record.buyer_company_id);
     var seller_company = await Company.findByPk(record.seller_company_id);
+    var buyer_details = null;
+    var seller_details = null;
+    if (record.creator_role == 1) {
+        if (record.buyer_contact_user_id) {
+            buyer_details = await User.findByPk(record.buyer_contact_user_id);
+        }
+    }
+
+    if (record.creator_role == 2) {
+        if (record.seller_contact_user_id) {
+            seller_details = await User.findByPk(record.seller_contact_user_id);
+        }
+    }
 
     return {
         id: record.id,
@@ -687,7 +853,8 @@ async function get_object_to_send(record) {
         buyer_contact_user_id: record.buyer_contact_user_id ? record.buyer_contact_user_id : null,
         seller_company_id: record.seller_company_id ? record.seller_company_id : null,
         seller_contact_user_id: record.seller_contact_user_id ? record.seller_contact_user_id : null,
-
+        buyer_name: buyer_details ? buyer_details.first_name + " " + buyer_details.last_name : null,
+        seller_name: seller_details ? seller_details.first_name + " " + seller_details.last_name : null,
         created_date: record.created_date ? record.created_date : null,
         created_by_user_id: record.created_by_user_id ? record.created_by_user_id : null,
         buyer_agreed_date: record.buyer_agreed_date ? record.buyer_agreed_date : null,

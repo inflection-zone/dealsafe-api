@@ -33,11 +33,22 @@ exports.search = async (req, res) => {
     }
 };
 
+exports.get_summary_by_creator_role = async (req, res) => {
+    try{
+        var filter = await get_summary_filters(req);
+        const entities = await contract_service.summary(filter);
+        response_handler.set_success_response(res, req, 200, 'Summary retrieved successfully!', { entities: entities });
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req);
+    }
+}
+
 exports.get_by_id = async (req, res) => {
     try {
         const entity = await contract_service.get_by_id(req.params.id);
         if (entity == null) {
-            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', null, 404);           
+            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', null, 404);
             return;
         }
         response_handler.set_success_response(res, req, 200, 'Contract retrieved successfully!', { entity: entity });
@@ -51,7 +62,7 @@ exports.update = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_service.exists(id);
         if (!exists) {
-            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', null, 404);           
+            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', null, 404);
             //response_handler.set_failure_response(res, 404, 'Contract with id ' + id.toString() + ' cannot be found!', req);
             return;
         }
@@ -73,7 +84,7 @@ exports.delete = async (req, res) => {
         var id = req.params.id;
         var exists = await contract_service.exists(id);
         if (!exists) {
-            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', null, 404);           
+            throw new ApiError('Contract with id ' + id.toString() + ' cannot be found!', null, 404);
             return;
         }
         var result = await contract_service.delete(id);
@@ -209,7 +220,7 @@ exports.authorize_create = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -217,6 +228,20 @@ exports.authorize_search = async (req, res, next) => {
     try {
         req.context = 'contract.search';
         await authorization_handler.check_role_authorization(req.user, req.context);
+        next();
+    } catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+}
+
+exports.authorize_get_summary_by_creator_role = async (req, res, next) => {
+    try {
+        req.context = 'contract.get_summary_by_creator_role';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', null, 403);
+        }
         next();
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -233,7 +258,7 @@ exports.authorize_get_by_id = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -247,7 +272,7 @@ exports.authorize_update = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -261,7 +286,7 @@ exports.authorize_delete = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -275,7 +300,7 @@ exports.authorize_buyer_agrees = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -289,7 +314,7 @@ exports.authorize_seller_agrees = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -303,7 +328,7 @@ exports.authorize_buyer_rejects = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -317,7 +342,7 @@ exports.authorize_seller_rejects = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -331,7 +356,7 @@ exports.authorize_freeze_contract_details = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -345,7 +370,7 @@ exports.authorize_buyer_deposits_escrow = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -359,7 +384,7 @@ exports.authorize_start_execution = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -373,7 +398,7 @@ exports.authorize_close_contract = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -410,7 +435,7 @@ exports.sanitize_create = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -424,7 +449,6 @@ exports.sanitize_search = async (req, res, next) => {
         await query('to').trim().optional().escape().run(req);
         await query('page_number').trim().optional().escape().run(req);
         await query('items_per_page').trim().optional().escape().run(req);
-        
 
         if (req.query.from) {
             await query('from').isDate().trim().escape().run(req);
@@ -432,6 +456,22 @@ exports.sanitize_search = async (req, res, next) => {
         if (req.query.to) {
             await query('to').isDate().trim().escape().run(req);
         }
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            helper.handle_validation_error(result);
+        }
+        next();
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+}
+
+exports.sanitize_get_summary_by_creator_role = async (req, res, next) => {
+    try {
+        //await param('id').exists().isUUID().run(req);
+        await query('my_role').trim().optional().escape().run(req);
+        await query('state').exists().trim().optional().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
             helper.handle_validation_error(result);
@@ -453,7 +493,7 @@ exports.sanitize_get_by_id = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -478,7 +518,7 @@ exports.sanitize_update = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -492,7 +532,7 @@ exports.sanitize_delete = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -506,7 +546,7 @@ exports.sanitize_id = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -522,7 +562,7 @@ exports.sanitize_buyer_deposits_escrow = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -569,13 +609,31 @@ async function extract_contract_details(req) {
     return entity;
 }
 
+async function get_summary_filters(req) {
+    var filter={};
+    filter['current_user_id'] = req.user.user_id;
+
+    var my_role = req.query.my_role ? decodeURIComponent(req.query.my_role) : null;
+    
+    if (my_role != null) {
+        filter['my_role'] = my_role;
+    }
+
+    var state = req.query.state ? decodeURIComponent(req.query.state) : null;
+    if (state != null) {
+        filter['state'] = state;
+    }
+    
+    return filter;
+}
+
 async function get_search_filters(req) {
     var filter = {};
     var current_user_id = req.user.user_id;
     var current_user = await user_service.get_by_id(current_user_id);
     var current_user_company_id = current_user.company_id;
     filter['current_user_company_id'] = current_user_company_id;
-    filter['current_user_id'] =  current_user_id;
+    filter['current_user_id'] = current_user_id;
     var my_role = req.query.my_role ? decodeURIComponent(req.query.my_role) : null;
     if (my_role != null) {
         filter['my_role'] = my_role;

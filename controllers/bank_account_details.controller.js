@@ -131,7 +131,7 @@ exports.authorize_create = async (req, res, next) => {
         next();
     }
     catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -141,7 +141,7 @@ exports.authorize_search = async (req, res, next) => {
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
     } catch (error) {
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 

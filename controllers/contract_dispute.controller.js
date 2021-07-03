@@ -85,7 +85,7 @@ exports.delete = async (req, res) => {
         var result = await contract_dispute_service.delete(id);
         response_handler.set_success_response(res, req, 200, 'ContractDispute deleted successfully!', result);
     } catch (error) {
-       response_handler.handle_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
@@ -105,7 +105,7 @@ exports.get_deleted = async (req, res) => {
 ///////////////////////////////////////////////////////////////////////////////////
 
 exports.authorize_create = async (req, res, next) => {
-    try{
+    try {
         req.context = 'contract_dispute.create';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_create_resource(req.user.user_id, req.body);
@@ -114,23 +114,23 @@ exports.authorize_create = async (req, res, next) => {
         }
         next();
     }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
 exports.authorize_search = async (req, res, next) => {
-    try{
+    try {
         req.context = 'contract_dispute.search';
         await authorization_handler.check_role_authorization(req.user, req.context);
         next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    } catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
 exports.authorize_get_by_id = async (req, res, next) => {
-    try{
+    try {
         req.context = 'contract_dispute.get_by_id';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
@@ -138,13 +138,13 @@ exports.authorize_get_by_id = async (req, res, next) => {
             throw new ApiError('Permission denied', 403);
         }
         next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    } catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
 exports.authorize_update = async (req, res, next) => {
-    try{
+    try {
         req.context = 'contract_dispute.update';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_update_resource(req.user.user_id, req.params.id);
@@ -152,13 +152,13 @@ exports.authorize_update = async (req, res, next) => {
             throw new ApiError('Permission denied', 403);
         }
         next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    } catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
 exports.authorize_delete = async (req, res, next) => {
-    try{
+    try {
         req.context = 'contract_dispute.delete';
         await authorization_handler.check_role_authorization(req.user, req.context);
         var is_authorized = await is_user_authorized_to_delete_resource(req.user.user_id, req.params.id);
@@ -166,8 +166,8 @@ exports.authorize_delete = async (req, res, next) => {
             throw new ApiError('Permission denied!', 403);
         }
         next();
-    } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    } catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -176,7 +176,7 @@ exports.authorize_delete = async (req, res, next) => {
 ///////////////////////////////////////////////////////////////////////////////////
 
 exports.sanitize_create = async (req, res, next) => {
-    try{
+    try {
         await body('company_id').exists().isUUID().run(req);
         await body('contract_dispute', 'Address field should be atleast 5 char long.').isLength({ min: 5 }).trim().escape().run(req);
         await body('city').exists().isAlpha().trim().escape().run(req);
@@ -185,46 +185,46 @@ exports.sanitize_create = async (req, res, next) => {
         await body('pincode').isAlphanumeric().trim().escape().run(req);
         await body('address_type').isAlpha().trim().escape().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
 exports.sanitize_search = async (req, res, next) => {
-    try{
+    try {
         await query('company_id').isUUID().trim().escape().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
-exports.sanitize_get_by_id =  async (req, res, next) => {
-    try{
+exports.sanitize_get_by_id = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
-exports.sanitize_update =  async (req, res, next) => {
-    try{
+exports.sanitize_update = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         await body('company_id').isUUID().run(req);
         await body('contract_dispute', 'Address field should be atleast 5 char long.').isLength({ min: 5 }).trim().escape().run(req);
@@ -234,27 +234,27 @@ exports.sanitize_update =  async (req, res, next) => {
         await body('pincode').isNumeric().trim().escape().run(req);
         await body('address_type').isAlpha().trim().escape().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 
-exports.sanitize_delete =  async (req, res, next) => {
-    try{
+exports.sanitize_delete = async (req, res, next) => {
+    try {
         await param('id').exists().isUUID().run(req);
         const result = validationResult(req);
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             helper.handle_validation_error(result);
         }
         next();
     }
-    catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+    catch (error) {
+        response_handler.handle_error(error, res, req);
     }
 }
 

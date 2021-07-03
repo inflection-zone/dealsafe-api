@@ -180,7 +180,7 @@ exports.authorize_upload = async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -194,7 +194,7 @@ exports.authorize_download = async (req, res, next) => {
         }
         next();
     } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -208,7 +208,7 @@ exports.authorize_download_by_reference = async (req, res, next) => {
         }
         next();
     } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -222,7 +222,7 @@ exports.authorize_delete = async (req, res, next) => {
         }
         next();
     } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -236,7 +236,7 @@ exports.authorize_get_by_reference = async (req, res, next) => {
         }
         next();
     } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -250,7 +250,7 @@ exports.authorize_delete_by_reference = async (req, res, next) => {
         }
         next();
     } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -264,7 +264,7 @@ exports.authorize_update_reference = async (req, res, next) => {
         }
         next();
     } catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -284,7 +284,7 @@ exports.sanitize_upload = async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -298,7 +298,7 @@ exports.sanitize_download = async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -312,7 +312,7 @@ exports.sanitize_download_by_reference =  async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -326,7 +326,7 @@ exports.sanitize_delete =  async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -340,7 +340,7 @@ exports.sanitize_get_by_reference =  async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -354,7 +354,7 @@ exports.sanitize_delete_by_reference =  async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
@@ -370,7 +370,7 @@ exports.sanitize_update_reference =  async (req, res, next) => {
         next();
     }
     catch(error){
-        response_handler.handle_error(error, res, req, req.context);
+        response_handler.handle_error(error, res, req);
     }
 }
 
