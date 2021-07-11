@@ -84,6 +84,14 @@ module.exports.search = async (filter) => {
             search.where.contract_id = filter.contract_id;
         }
 
+        if (filter.hasOwnProperty('execution_planned_start_date')) {
+            search.where.execution_planned_start_date = filter.execution_planned_start_date;
+        }
+
+        if (filter.hasOwnProperty('execution_planned_end_date')) {
+            search.where.execution_planned_end_date = filter.execution_planned_end_date;
+        }
+
         var records = await ContractMilestone.findAll(search);
         for (var record of records) {
             array.push(await get_object_to_send(record));

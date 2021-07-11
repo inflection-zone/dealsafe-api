@@ -33,6 +33,17 @@ exports.search = async (req, res) => {
     }
 };
 
+exports.get_pending_tasks = async (req, res) => {
+    try {
+        var filter = await get_pending_tasks_filters(req);
+        const entities = await contract_service.pending_tasks(filter);
+        response_handler.set_success_response(res, req, 200, 'Pending tasks retrieved successfully!', { entities: entities });
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+}
+
 exports.get_summary_by_creator_role = async (req, res) => {
     try {
         var filter = await get_summary_filters(req);
@@ -237,6 +248,21 @@ exports.authorize_search = async (req, res, next) => {
     try {
         req.context = 'contract.search';
         await authorization_handler.check_role_authorization(req.user, req.context);
+        next();
+    } catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+}
+
+
+exports.authorize_get_pending_tasks = async (req, res, next) => {
+    try {
+        req.context = 'contract.get_pending_tasks';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied!', null, 403);
+        }
         next();
     } catch (error) {
         response_handler.handle_error(error, res, req);
@@ -476,6 +502,25 @@ exports.sanitize_search = async (req, res, next) => {
     }
 }
 
+
+exports.sanitize_get_pending_tasks = async (req, res, next) => {
+    try {
+        await query('current_status').trim().optional().escape().run(req);
+        await query('is_cancelled').trim().optional().escape().run(req);
+        await query('is_closed').trim().optional().escape().run(req);
+        await query('execution_planned_start_date').trim().optional().escape().run(req);
+        await query('execution_planned_end_date').exists().trim().optional().escape().run(req);
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            helper.handle_validation_error(result);
+        }
+        next();
+    }
+    catch (error) {
+        response_handler.handle_error(error, res, req);
+    }
+}
+
 exports.sanitize_get_summary_by_creator_role = async (req, res, next) => {
     try {
         //await param('id').exists().isUUID().run(req);
@@ -631,6 +676,54 @@ async function get_summary_filters(req) {
     var state = req.query.state ? decodeURIComponent(req.query.state) : null;
     if (state != null) {
         filter['state'] = state;
+    }
+
+    return filter;
+}
+
+async function get_pending_tasks_filters(req) {
+    var filter = {};
+    filter['current_user_id'] = req.user.user_id;
+
+    var my_role = req.query.my_role ? decodeURIComponent(req.query.my_role) : null;
+
+    if (my_role != null) {
+        filter['my_role'] = my_role;
+    }
+
+    var current_status = req.query.current_status ? decodeURIComponent(req.query.current_status) : null;
+    if (current_status != null) {
+        filter['current_status'] = current_status;
+    }
+
+    var is_cancelled = req.query.is_cancelled ? decodeURIComponent(req.query.is_cancelled) : null;
+    if (is_cancelled != null) {
+        filter['is_cancelled'] = is_cancelled;
+    }
+    
+    var is_closed = req.query.is_closed ? decodeURIComponent(req.query.is_closed) : null;
+    if (is_closed != null) {
+        filter['is_closed'] = is_closed;
+    }
+    
+    var current_status = req.query.current_status ? decodeURIComponent(req.query.current_status) : null;
+    if (current_status != null) {
+        filter['current_status'] = current_status;
+    }
+    
+    var current_status = req.query.current_status ? decodeURIComponent(req.query.current_status) : null;
+    if (current_status != null) {
+        filter['current_status'] = current_status;
+    }
+    
+    var execution_planned_start_date = req.query.execution_planned_start_date ? decodeURIComponent(req.query.execution_planned_start_date) : null;
+    if (execution_planned_start_date != null) {
+        filter['execution_planned_start_date'] = execution_planned_start_date;
+    }
+    
+    var execution_planned_end_date = req.query.execution_planned_end_date ? decodeURIComponent(req.query.execution_planned_end_date) : null;
+    if (execution_planned_end_date != null) {
+        filter['execution_planned_end_date'] = execution_planned_end_date;
     }
 
     return filter;

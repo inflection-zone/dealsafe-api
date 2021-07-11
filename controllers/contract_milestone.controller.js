@@ -174,8 +174,8 @@ exports.sanitize_create = async (req, res, next) => {
         await body('contract_id').exists().isUUID().run(req);
         await body('name', 'Milestone name should be atleast 5 char long.').exists().isLength({ min: 5 }).trim().escape().run(req);
         await body('description').optional({ checkFalsy: true, nullable: true }).isAscii().isLength({ min: 5 }).trim().escape().run(req);
-        await body('execution_planned_start_date').exists().toDate().run(req);
-        await body('execution_planned_end_date').exists().toDate().run(req);
+        await body('execution_planned_start_date').trim().exists().toDate().run(req);
+        await body('execution_planned_end_date').trim().exists().toDate().run(req);
         await body('milestone_amount').isDecimal().trim().escape().run(req);
 
         // custom((value, { req }) => {
@@ -199,6 +199,8 @@ exports.sanitize_search = async (req, res, next) => {
     try {
         await query('name').trim().optional().escape().run(req);
         await query('contract_id').isUUID().trim().exists().escape().run(req);
+        await query('execution_planned_start_date').trim().optional().isDate().escape().run(req);
+        await query('execution_planned_end_date').trim().optional().isDate().escape().run(req);
         await query('page_number').trim().optional().escape().run(req);
         await query('items_per_page').trim().optional().escape().run(req);
         const result = validationResult(req);
@@ -273,9 +275,24 @@ function get_search_filters(req) {
     if (contract_id != null) {
         filter['contract_id'] = contract_id;
     }
+
     var milestone_name = req.query.name ? req.query.name : null;
     if (milestone_name != null) {
         filter['name'] = milestone_name;
+    }
+
+    var execution_planned_start_date = req.query.execution_planned_start_date ? req.query.execution_planned_start_date : null;
+    //execution_planned_start_date = execution_planned_start_date.getFullYear()+"-"+String(execution_planned_start_date.getMonth()).padStart(2,'0')+"-"+String(execution_planned_start_date.getDay()).padStart(2,'0')+" 05:30:00+05:30";
+    
+    if (execution_planned_start_date != null) {
+        filter['execution_planned_start_date'] = execution_planned_start_date+" 05:30:00+05:30";
+    }
+    
+    var execution_planned_end_date = req.query.execution_planned_end_date ? req.query.execution_planned_end_date : null;
+     
+    //execution_planned_end_date = execution_planned_end_date.getFullYear()+"-"+String(execution_planned_end_date.getMonth()).padStart(2,'0')+"-"+String(execution_planned_end_date.getDay()).padStart(2,'0')+" 05:30:00+05:30";
+    if (execution_planned_end_date != null) {
+        filter['execution_planned_end_date'] = execution_planned_end_date+" 05:30:00+05:30";
     }
 
     var sort_type = req.query.sort_type ? req.query.sort_type : 'descending';

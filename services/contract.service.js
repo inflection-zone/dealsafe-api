@@ -8,6 +8,7 @@ const Company = require('../database/models/Company').Model;
 const ContractStatusTypes = require('../common/constants').ContractStatusTypes;
 const ContractRoles = require('../common/constants').ContractRoles;
 const company_service = require('../services/company.service');
+const contract_milestone_service = require('../services/contract_milestone.service');
 const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
@@ -25,6 +26,114 @@ module.exports.create = async (request_body) => {
         var checklist_record = await ContractChecklist.create(contract_checklist);
         return await get_object_to_send(record);
     } catch (error) {
+        throw (error);
+    }
+}
+
+module.exports.pending_tasks = async (filter) => {
+    try {
+        var array = [];
+        var search = {};
+        var whereArray = [];
+        var whereArrayMilestone = [];
+        var condition = 'where is_active=true ';
+        var condition_milestone = 'where is_active=true ';
+        var result = [];
+        var contract_ids_array=[];
+        var contract_ids="";
+        var contract_details=[];
+        if (filter.hasOwnProperty('my_role')) {
+
+            if (filter.my_role === 'buyer') {
+                whereArray.push(ContractRoles.Buyer.type_id);
+                whereArray.push(filter.current_user_id);
+                condition = condition + "and creator_role = ? ";
+                condition = condition + "and buyer_contact_user_id = ?";
+            } else if (filter.my_role === 'seller') {
+                whereArray.push(ContractRoles.Seller.type_id);
+                condition = condition + "and creator_role = ? ";
+                whereArray.push(filter.current_user_id);
+                condition = condition + "and seller_contact_user_id = ?";
+            } else {
+                whereArray.push(ContractRoles.Seller.type_id);
+                condition = condition + "and creator_role = ? ";
+                whereArray.push(filter.current_user_id);
+                whereArray.push(filter.current_user_id);
+                condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?) ";
+            }
+
+        } else {
+            //whereArray.push(" in (1,2)"); // buyer and seller roles
+            condition = condition + "and creator_role in (1,2) ";
+            whereArray.push(filter.current_user_id);
+            whereArray.push(filter.current_user_id);
+            condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?)";
+        }
+
+        let query = "SELECT * FROM public.contracts " + condition;
+
+        var records = await db.sequelize.query(
+            query,
+            {
+                replacements: whereArray,
+                type: QueryTypes.SELECT
+            }
+        );
+        
+        for await (var r of records) {
+            contract_ids_array.push(r.id);
+            contract_details[r.id]=r.display_id;
+        }
+
+        if(contract_ids_array.length>0) {
+            contract_ids = contract_ids_array.join("','");
+            condition_milestone = condition_milestone + "and contract_id in ('"+contract_ids+"')";
+            // whereArrayMilestone.push(contract_ids);
+        }
+
+        if (filter.hasOwnProperty('execution_planned_start_date')) {
+            condition_milestone = condition_milestone + "and execution_planned_start_date = ? ";
+            whereArrayMilestone.push(filter.execution_planned_start_date);
+        }
+
+        if (filter.hasOwnProperty('execution_planned_end_date')) {
+            condition_milestone = condition_milestone + "and execution_planned_end_date = ? ";
+            whereArrayMilestone.push(filter.execution_planned_end_date);
+        }
+        
+        if (filter.hasOwnProperty('current_status')) {
+            condition_milestone = condition_milestone + "and current_status = ? ";
+            whereArrayMilestone.push(Number(filter.current_status));
+        }
+
+        if (filter.hasOwnProperty('is_cancelled')) {
+            condition_milestone = condition_milestone + "and is_cancelled = ? ";
+            whereArrayMilestone.push(filter.is_cancelled);
+        }
+
+        if (filter.hasOwnProperty('is_closed')) {
+            condition_milestone = condition_milestone + "and is_closed = ? ";
+            whereArrayMilestone.push(filter.is_closed);
+        }
+
+        query = "SELECT * FROM public.contract_milestones " + condition_milestone;
+
+        var milestone_records = await db.sequelize.query(
+            query,
+            {
+                replacements: whereArrayMilestone,
+                type: QueryTypes.SELECT
+            }
+        );
+            
+        for(var row of milestone_records){
+            row.contract_display_id=contract_details[row.contract_id];
+            result.push(row);
+        }
+        return result;
+    }
+    catch (error) {
+        //logger.log(error.message);
         throw (error);
     }
 }
@@ -827,7 +936,7 @@ async function get_object_to_send(record) {
     var seller_company = await Company.findByPk(record.seller_company_id);
     var buyer_details = null;
     var seller_details = null;
-    
+
     if (record.buyer_contact_user_id) {
         buyer_details = await User.findByPk(record.buyer_contact_user_id);
     }

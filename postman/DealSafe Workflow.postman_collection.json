@@ -4056,7 +4056,7 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "{{BASE_URL}}/contract/summary?my_role=seller&state=closed",
+									"raw": "{{BASE_URL}}/contract/summary",
 									"host": [
 										"{{BASE_URL}}"
 									],
@@ -4067,11 +4067,13 @@
 									"query": [
 										{
 											"key": "my_role",
-											"value": "seller"
+											"value": "seller",
+											"disabled": true
 										},
 										{
 											"key": "state",
-											"value": "closed"
+											"value": "closed",
+											"disabled": true
 										}
 									]
 								}
@@ -4441,6 +4443,195 @@
 									],
 									"cookie": [],
 									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Summary retrieved successfully!\",\n    \"response_code\": 200,\n    \"data\": {\n        \"entities\": {\n            \"buyer_summary\": {\n                \"Pending\": 0,\n                \"InProgress\": 0,\n                \"Closed\": 0,\n                \"Cancelled\": 0,\n                \"Total\": 0\n            },\n            \"seller_summary\": {\n                \"Pending\": 0,\n                \"InProgress\": 0,\n                \"Closed\": 0,\n                \"Cancelled\": 0,\n                \"Total\": 0\n            },\n            \"buyer_seller_summary\": {\n                \"Pending\": 0,\n                \"InProgress\": 0,\n                \"Closed\": 0,\n                \"Cancelled\": 0,\n                \"Total\": 0\n            }\n        }\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Get pending tasks",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true,
+								"disabledSystemHeaders": {
+									"host": true,
+									"user-agent": true,
+									"accept": true,
+									"accept-encoding": true,
+									"connection": true
+								}
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{USER_JWT}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/contract/pending-tasks?execution_planned_end_date=2021-04-29",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"contract",
+										"pending-tasks"
+									],
+									"query": [
+										{
+											"key": "state",
+											"value": "closed",
+											"disabled": true
+										},
+										{
+											"key": "execution_planned_end_date",
+											"value": "2021-04-29",
+											"description": "pass todays date"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Get pending tasks",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"type": "text",
+												"value": "Bearer {{USER_JWT}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/contract/pending-tasks?execution_planned_end_date=2021-04-29",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"contract",
+												"pending-tasks"
+											],
+											"query": [
+												{
+													"key": "state",
+													"value": "closed",
+													"disabled": true
+												},
+												{
+													"key": "execution_planned_end_date",
+													"value": "2021-04-29"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "Expect-CT",
+											"value": "max-age=0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Methods",
+											"value": "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+										},
+										{
+											"key": "Access-Control-Allow-Headers",
+											"value": "Origin,Authorization,X-Requested-With,content-type,Accept,enc"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "2008"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"7d8-GsVDz4Pg47rSyoFuMfXvZg+hz+I\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 10 Jul 2021 07:57:18 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Pending tasks retrieved successfully!\",\n    \"response_code\": 200,\n    \"data\": {\n        \"entities\": [\n            {\n                \"id\": \"aa1f5dca-af2c-4de0-9c9a-6df673a64bfc\",\n                \"display_id\": \"476321457\",\n                \"contract_id\": \"e8ab1876-3d12-4e55-8113-6a131397bd3a\",\n                \"milestone_index\": 1,\n                \"name\": \"First Milestone\",\n                \"description\": null,\n                \"created_date\": \"2021-06-12T05:38:41.457Z\",\n                \"execution_planned_start_date\": \"2021-04-20T00:00:00.000Z\",\n                \"execution_planned_end_date\": \"2021-04-29T00:00:00.000Z\",\n                \"execution_actual_start_date\": null,\n                \"execution_actual_end_date\": null,\n                \"milestone_amount\": 12345,\n                \"current_status\": 1,\n                \"is_cancelled\": false,\n                \"is_closed\": false,\n                \"transaction_id\": null,\n                \"is_active\": true,\n                \"deleted_at\": null,\n                \"created_at\": \"2021-06-12T05:38:41.468Z\",\n                \"updated_at\": \"2021-06-12T05:38:41.468Z\"\n            },\n            {\n                \"id\": \"6a0d3007-385a-4520-a5b4-1480a1b51172\",\n                \"display_id\": \"081826339\",\n                \"contract_id\": \"9c4b0ef6-43c6-4fec-b258-44c3f56ac65e\",\n                \"milestone_index\": 1,\n                \"name\": \"First milestone\",\n                \"description\": null,\n                \"created_date\": \"2021-06-19T05:50:26.339Z\",\n                \"execution_planned_start_date\": \"2021-04-20T00:00:00.000Z\",\n                \"execution_planned_end_date\": \"2021-04-29T00:00:00.000Z\",\n                \"execution_actual_start_date\": null,\n                \"execution_actual_end_date\": null,\n                \"milestone_amount\": 12345,\n                \"current_status\": 1,\n                \"is_cancelled\": false,\n                \"is_closed\": false,\n                \"transaction_id\": null,\n                \"is_active\": true,\n                \"deleted_at\": null,\n                \"created_at\": \"2021-06-19T05:50:26.409Z\",\n                \"updated_at\": \"2021-06-19T09:02:59.003Z\"\n            },\n            {\n                \"id\": \"58777a48-24a9-49c4-a75a-5864cf862a3c\",\n                \"display_id\": \"124951111\",\n                \"contract_id\": \"2e14d128-a10b-40bb-adc3-2e329a063861\",\n                \"milestone_index\": 1,\n                \"name\": \"Third Milestone\",\n                \"description\": null,\n                \"created_date\": \"2021-06-19T17:49:11.111Z\",\n                \"execution_planned_start_date\": \"2021-04-20T00:00:00.000Z\",\n                \"execution_planned_end_date\": \"2021-04-29T00:00:00.000Z\",\n                \"execution_actual_start_date\": null,\n                \"execution_actual_end_date\": null,\n                \"milestone_amount\": 12345,\n                \"current_status\": 1,\n                \"is_cancelled\": false,\n                \"is_closed\": false,\n                \"transaction_id\": null,\n                \"is_active\": true,\n                \"deleted_at\": null,\n                \"created_at\": \"2021-06-19T17:49:11.112Z\",\n                \"updated_at\": \"2021-06-19T17:49:11.112Z\"\n            }\n        ]\n    }\n}"
 								}
 							]
 						},
@@ -5265,7 +5456,15 @@
 						{
 							"name": "Search Milestone with filters",
 							"protocolProfileBehavior": {
-								"disableBodyPruning": true
+								"disableBodyPruning": true,
+								"disabledSystemHeaders": {
+									"connection": true,
+									"accept-encoding": true,
+									"accept": true,
+									"user-agent": true,
+									"host": true,
+									"content-type": true
+								}
 							},
 							"request": {
 								"method": "GET",
@@ -5286,7 +5485,7 @@
 									"raw": "{\r\n\"contract_id\":\"{{CONTRACT_ID}}\",\r\n\"name\":\"First Milestone\",\r\n\"description\":\"\",\r\n\"execution_planned_start_date\":\"2021-04-20\",\r\n\"execution_planned_end_date\":\"2021-04-29\",\r\n\"milestone_amount\":\"12345\"\r\n}\r\n"
 								},
 								"url": {
-									"raw": "{{BASE_URL}}/contract-milestone/search?contract_id={{CONTRACT_ID}}",
+									"raw": "{{BASE_URL}}/contract-milestone/search?contract_id={{CONTRACT_ID}}&execution_planned_end_date=2021-04-29",
 									"host": [
 										"{{BASE_URL}}"
 									],
@@ -5303,6 +5502,15 @@
 											"key": "name",
 											"value": "third miles",
 											"disabled": true
+										},
+										{
+											"key": "execution_planned_start_date",
+											"value": "2021-04-21",
+											"disabled": true
+										},
+										{
+											"key": "execution_planned_end_date",
+											"value": "2021-04-29"
 										}
 									]
 								}
