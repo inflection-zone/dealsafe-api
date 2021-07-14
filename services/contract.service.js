@@ -45,18 +45,18 @@ module.exports.pending_tasks = async (filter) => {
         if (filter.hasOwnProperty('my_role')) {
 
             if (filter.my_role === 'buyer') {
-                whereArray.push(ContractRoles.Buyer.type_id);
+                //whereArray.push(ContractRoles.Buyer.type_id);
                 whereArray.push(filter.current_user_id);
-                condition = condition + "and creator_role = ? ";
+                //condition = condition + "and creator_role = ? ";
                 condition = condition + "and buyer_contact_user_id = ?";
             } else if (filter.my_role === 'seller') {
-                whereArray.push(ContractRoles.Seller.type_id);
-                condition = condition + "and creator_role = ? ";
+                //whereArray.push(ContractRoles.Seller.type_id);
+                //condition = condition + "and creator_role = ? ";
                 whereArray.push(filter.current_user_id);
                 condition = condition + "and seller_contact_user_id = ?";
             } else {
-                whereArray.push(ContractRoles.Seller.type_id);
-                condition = condition + "and creator_role = ? ";
+               // whereArray.push(ContractRoles.Seller.type_id);
+                //condition = condition + "and creator_role = ? ";
                 whereArray.push(filter.current_user_id);
                 whereArray.push(filter.current_user_id);
                 condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?) ";
@@ -71,7 +71,8 @@ module.exports.pending_tasks = async (filter) => {
         }
 
         let query = "SELECT * FROM public.contracts " + condition;
-
+        console.log("query", query);
+        console.log("wherearray", whereArray);
         var records = await db.sequelize.query(
             query,
             {
