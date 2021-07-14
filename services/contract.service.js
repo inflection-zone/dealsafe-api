@@ -315,15 +315,15 @@ module.exports.search = async (filter) => {
 
         if (filter.hasOwnProperty('my_role')) {
             if (filter.my_role === 'buyer') {
-                whereArray.push(ContractRoles.Buyer.type_id);
+                //whereArray.push(ContractRoles.Buyer.type_id);
                 whereArray.push(filter.current_user_id);
-                condition = condition + " and creator_role = ? ";
+                //condition = condition + " and creator_role = ? ";
                 condition = condition + " and buyer_contact_user_id = ?";
             }
 
             if (filter.my_role === 'seller') {
-                whereArray.push(ContractRoles.Seller.type_id);
-                condition = condition + " and creator_role = ? ";
+                //whereArray.push(ContractRoles.Seller.type_id);
+                //condition = condition + " and creator_role = ? ";
                 whereArray.push(filter.current_user_id);
                 condition = condition + " and seller_contact_user_id = ?";
             }
@@ -359,6 +359,8 @@ module.exports.search = async (filter) => {
             }
         }
         let query = "SELECT * FROM public.contracts " + condition;
+        console.log("getcontractquery",query);
+        console.log("wherearray",whereArray);
         var records = await db.sequelize.query(
             query,
             {
