@@ -330,11 +330,11 @@ exports.authorize_change_password = async (req, res, next) => {
 
 exports.sanitize_create = async (req, res, next) => {
     try {
-        await body('prefix').exists().isLength({ min: 1 }).trim().escape().run(req);
-        await body('first_name').exists().isAlpha().isLength({ min: 1 }).trim().escape().run(req);
-        await body('last_name').exists().isAlpha().isLength({ min: 1 }).trim().escape().run(req);
-        await body('phone').isMobilePhone().isLength({ min: 10 }).trim().escape().run(req);
-        await body('email').normalizeEmail().isEmail().trim().escape().run(req);
+        await body('prefix').trim().exists().isLength({ min: 1 }).escape().run(req);
+        await body('first_name').trim().exists().isAlpha().isLength({ min: 1 }).run(req);
+        await body('last_name').trim().exists().isAlpha().isLength({ min: 1 }).escape().run(req);
+        await body('phone').trim().isMobilePhone().isLength({ min: 10 }).escape().run(req);
+        await body('email').trim().normalizeEmail().isEmail().escape().run(req);
         await body('password').trim().run(req);
         // await body('company_id').isUUID().run(req);
         const result = validationResult(req);

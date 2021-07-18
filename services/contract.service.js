@@ -46,8 +46,8 @@ module.exports.pending_tasks = async (filter) => {
 
             if (filter.my_role === 'buyer') {
                 //whereArray.push(ContractRoles.Buyer.type_id);
-                whereArray.push(filter.current_user_id);
                 //condition = condition + "and creator_role = ? ";
+                whereArray.push(filter.current_user_id);
                 condition = condition + "and buyer_contact_user_id = ?";
             } else if (filter.my_role === 'seller') {
                 //whereArray.push(ContractRoles.Seller.type_id);
@@ -64,7 +64,7 @@ module.exports.pending_tasks = async (filter) => {
 
         } else {
             //whereArray.push(" in (1,2)"); // buyer and seller roles
-            condition = condition + "and creator_role in (1,2) ";
+            // condition = condition + "and creator_role in (1,2) ";
             whereArray.push(filter.current_user_id);
             whereArray.push(filter.current_user_id);
             condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?)";
@@ -98,7 +98,7 @@ module.exports.pending_tasks = async (filter) => {
         }
 
         if (filter.hasOwnProperty('execution_planned_end_date')) {
-            condition_milestone = condition_milestone + "and execution_planned_end_date = ? ";
+            condition_milestone = condition_milestone + "and execution_planned_end_date >= ? ";
             whereArrayMilestone.push(filter.execution_planned_end_date);
         }
         
@@ -144,28 +144,28 @@ module.exports.summary = async (filter) => {
         var array = [];
         var search = {};
         var whereArray = [];
-        var condition = 'where ';
+        var condition = 'where is_active=true ';
         var result = {};
 
         if (filter.hasOwnProperty('my_role')) {
 
             if (filter.my_role === 'buyer') {
-                whereArray.push(ContractRoles.Buyer.type_id);
+                //whereArray.push(ContractRoles.Buyer.type_id);
+                //condition = condition + "and creator_role = ? ";
                 whereArray.push(filter.current_user_id);
-                condition = condition + " creator_role = ? ";
                 condition = condition + "and buyer_contact_user_id = ?";
             }
 
             if (filter.my_role === 'seller') {
-                whereArray.push(ContractRoles.Seller.type_id);
-                condition = condition + " creator_role = ? ";
+                // whereArray.push(ContractRoles.Seller.type_id);
+                // condition = condition + "and creator_role = ? ";
                 whereArray.push(filter.current_user_id);
                 condition = condition + "and seller_contact_user_id = ?";
             }
 
             if (!(filter.my_role === 'seller' || filter.my_role === 'buyer')) {
-                whereArray.push(ContractRoles.Seller.type_id);
-                condition = condition + " creator_role = ? ";
+                // whereArray.push(ContractRoles.Seller.type_id);
+                // condition = condition + " creator_role = ? ";
                 whereArray.push(filter.current_user_id);
                 whereArray.push(filter.current_user_id);
                 condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?) ";
@@ -173,13 +173,12 @@ module.exports.summary = async (filter) => {
 
         } else {
             //whereArray.push(" in (1,2)"); // buyer and seller roles
-            condition = condition + " creator_role in (1,2) ";
+            // condition = condition + " creator_role in (1,2) ";
             whereArray.push(filter.current_user_id);
             whereArray.push(filter.current_user_id);
             condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?)";
 
         }
-
         if (filter.hasOwnProperty('state')) {
             if (filter.state === 'pending') {
                 whereArray.push(ContractStatusTypes.Created.type_id);
@@ -284,6 +283,7 @@ module.exports.summary = async (filter) => {
             result.buyer_seller_summary.Total = result.buyer_seller_summary.Pending + result.buyer_seller_summary.InProgress + result.buyer_seller_summary.Closed + result.buyer_seller_summary.Cancelled;
 
         }
+        console.log("result=", result);
         return result;
     }
     catch (error) {
