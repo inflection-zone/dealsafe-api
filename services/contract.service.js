@@ -83,13 +83,12 @@ module.exports.pending_tasks = async (filter) => {
         
         for await (var r of records) {
             contract_ids_array.push(r.id);
-            contract_details[r.id]=r.display_id;
+            contract_details[r.id]=r;
         }
 
         if(contract_ids_array.length>0) {
             contract_ids = contract_ids_array.join("','");
             condition_milestone = condition_milestone + "and contract_id in ('"+contract_ids+"')";
-            // whereArrayMilestone.push(contract_ids);
         }
 
         if (filter.hasOwnProperty('execution_planned_start_date')) {
@@ -126,10 +125,16 @@ module.exports.pending_tasks = async (filter) => {
                 type: QueryTypes.SELECT
             }
         );
-            
-        for(var row of milestone_records){
-            row.contract_display_id=contract_details[row.contract_id];
-            result.push(row);
+        console.log("contract_ids_array :", contract_ids_array);
+        console.log("milestone_records :", milestone_records);
+    
+        for(var m=0;m<contract_ids_array.length;m++) {
+            var cmdetails={'contract_id':contract_ids_array[m],'contract_display_id': contract_details[contract_ids_array[m]].display_id,'execution_planned_end_date':contract_details[contract_ids_array[m]].execution_planned_end_date,'milestone_details':[]};
+            for(var row of milestone_records){
+                row.contract_display_id=contract_details[row.contract_id].display_id;
+                cmdetails.milestone_details.push(row);
+            }
+            result.push(cmdetails);
         }
         return result;
     }

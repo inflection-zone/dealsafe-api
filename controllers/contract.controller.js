@@ -444,8 +444,8 @@ exports.authorize_close_contract = async (req, res, next) => {
 exports.sanitize_create = async (req, res, next) => {
     try {
 
-        await body('name', 'Contract name should be atleast 3 character long.').exists().isLength({ min: 3 }).trim().escape().run(req);
-        await body('description').optional().isLength({ min: 5 }).trim().escape().run(req);
+        await body('name', 'Contract name should be atleast 3 character long.').trim().exists().isLength({ min: 3 }).escape().run(req);
+        await body('description').trim().optional().isLength({ min: 5 }).escape().run(req);
         await body('creator_role').exists().isAlpha().escape().run(req);
         await body('is_full_payment_contract', 'Please mention whether the contract payment is one-time or part-by-part').exists().isBoolean().run(req);
         // await oneOf([
