@@ -31,6 +31,146 @@ module.exports.create = async (request_body) => {
 }
 
 module.exports.pending_tasks = async (filter) => {
+    try{
+        var whereArray = [];
+        var whereArrayMilestone = [];
+        var condition = 'where is_active=true ';
+        var condition_milestone = 'where is_active=true ';
+        var result = [];
+        var contract_ids_array=[];
+        var contract_ids="";
+        var contract_details=[];
+        var todays_date = new Date();
+        
+        const tomorrow = new Date(todays_date)
+        tomorrow.setDate(tomorrow.getDate() + 1)
+        var dd = String(todays_date.getDate()).padStart(2, "0");
+        var mm = String(todays_date.getMonth() + 1).padStart(2, "0"); //January is 0!
+        var yyyy = todays_date.getFullYear();
+
+        var dd1 = String(tomorrow.getDate()).padStart(2, "0");
+        var mm1 = String(tomorrow.getMonth() + 1).padStart(2, "0"); //January is 0!
+        var yyyy1 = tomorrow.getFullYear();
+
+        todays_date = yyyy + "-" + mm + "-" + dd;
+        //todays_date="2021-07-30"
+        var tomorrow_date = yyyy1 + "-"+ mm1 + "-" + dd1;
+        //tomorrow_date="2021-07-31"
+
+        if (filter.hasOwnProperty('my_role')) {
+
+            if (filter.my_role === 'buyer') {
+                whereArray.push(filter.current_user_id);
+                condition = condition + "and buyer_contact_user_id = ?";
+            } else if (filter.my_role === 'seller') {
+                whereArray.push(filter.current_user_id);
+                condition = condition + "and seller_contact_user_id = ?";
+            } else {
+                whereArray.push(filter.current_user_id);
+                whereArray.push(filter.current_user_id);
+                condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?) ";
+            }
+
+        } else {
+            whereArray.push(filter.current_user_id);
+            whereArray.push(filter.current_user_id);
+            condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?)";
+        }
+
+        let query = "SELECT id, display_id, name, description, is_full_payment_contract, buyer_company_id, buyer_contact_user_id, seller_company_id, seller_contact_user_id, created_date, creator_role, created_by_user_id, buyer_agreed_date, seller_agreed_date, DATE(execution_planned_start_date) as execution_planned_start_date, DATE(execution_planned_end_date) as execution_planned_end_date, execution_actual_start_date, execution_actual_end_date, base_contract_amount, tax_amount, buyer_brokerage_amount, seller_brokerage_amount, has_buyer_deposited_amount, has_seller_deposited_amount, current_status, is_cancelled, is_closed, arbitrator_user_id, is_active, deleted_at, created_at, updated_at FROM public.contracts " + condition;
+        // console.log("query", query);
+        // console.log("wherearray", whereArray);
+        var records = await db.sequelize.query(
+            query,
+            {
+                replacements: whereArray,
+                type: QueryTypes.SELECT
+            }
+        );
+        
+        var contracts_with_near_due_date = records.filter(record => (record.execution_planned_end_date >= todays_date && record.execution_planned_end_date <= tomorrow_date));
+        console.log("contracts_with_near_due_date=", contracts_with_near_due_date);
+        for await (var r of records) {
+            contract_ids_array.push(r.id);
+            contract_details[r.id]=r;
+        }
+
+        if(contract_ids_array.length>0) {
+            contract_ids = contract_ids_array.join("','");
+            condition_milestone = condition_milestone + "and contract_id in ('"+contract_ids+"')";
+        }
+
+        if (filter.hasOwnProperty('execution_planned_start_date')) {
+            condition_milestone = condition_milestone + "and execution_planned_start_date = ? ";
+            whereArrayMilestone.push(filter.execution_planned_start_date);
+        }
+
+        if (filter.hasOwnProperty('execution_planned_end_date')) {
+            condition_milestone = condition_milestone + "and execution_planned_end_date >= ? ";
+            whereArrayMilestone.push(filter.execution_planned_end_date);
+        }
+        
+        // if (filter.hasOwnProperty('current_status')) {
+        //     condition_milestone = condition_milestone + "and current_status = ? ";
+        //     whereArrayMilestone.push(Number(filter.current_status));
+        // }
+
+        if (filter.hasOwnProperty('current_status')) {
+            if (filter.current_status === 'created') {
+                whereArrayMilestone.push(ContractStatusTypes.Created.type_id);
+                condition_milestone = condition_milestone + "and current_status = ? ";
+            }
+            if (filter.current_status === 'in-progress') {
+                whereArrayMilestone.push(ContractStatusTypes.InProgress.type_id);
+                condition_milestone = condition_milestone + "and current_status = ? ";
+            }
+            if (filter.current_status === 'closed') {
+                whereArrayMilestone.push(ContractStatusTypes.Closed.type_id);
+                condition_milestone = condition_milestone + "and current_status = ? ";
+            }
+            if (filter.current_status === 'cancelled') {
+                whereArrayMilestone.push(ContractStatusTypes.Cancelled.type_id);
+                condition_milestone = condition_milestone + "and current_status = ? ";
+            }
+        }
+
+        if (filter.hasOwnProperty('is_cancelled')) {
+            condition_milestone = condition_milestone + "and is_cancelled = ? ";
+            whereArrayMilestone.push(filter.is_cancelled);
+        }
+
+        if (filter.hasOwnProperty('is_closed')) {
+            condition_milestone = condition_milestone + "and is_closed = ? ";
+            whereArrayMilestone.push(filter.is_closed);
+        }
+
+        query = "SELECT id  , display_id  , contract_id  , milestone_index  , name  , description  , created_date  , DATE(execution_planned_start_date) as execution_planned_start_date  , DATE(execution_planned_end_date) as execution_planned_end_date  , execution_actual_start_date  , execution_actual_end_date  , milestone_amount  , current_status  , is_cancelled  , is_closed  , transaction_id  , is_active  , deleted_at  , created_at  , updated_at FROM public.contract_milestones " + condition_milestone;
+
+        var milestone_records = await db.sequelize.query(
+            query,
+            {
+                replacements: whereArrayMilestone,
+                type: QueryTypes.SELECT
+            }
+        );
+        // console.log("contract_ids_array :", contract_ids_array);
+        // console.log("milestone_records :", milestone_records);
+        var milestones_with_near_due_date = milestone_records.filter(record => (record.execution_planned_end_date >= todays_date && record.execution_planned_end_date <= tomorrow_date));
+        var milestone_contract_ids_with_near_due_date = milestones_with_near_due_date.map(record => record.contract_id); 
+        // console.log("milestones_with_near_due_date=", milestones_with_near_due_date);
+        // console.log("milestone_contract_ids_with_near_due_date=", milestone_contract_ids_with_near_due_date);
+        let pending_contract_milestones = {};
+        pending_contract_milestones['pending_contracts'] = contracts_with_near_due_date;
+        pending_contract_milestones['pending_milestones'] = milestones_with_near_due_date;
+        return pending_contract_milestones;   
+    }    
+    catch (error) {
+        //logger.log(error.message);
+        throw (error);
+    }
+}
+
+module.exports.pending_tasks_next = async (filter) => {
     try {
         var array = [];
         var search = {};
@@ -45,26 +185,18 @@ module.exports.pending_tasks = async (filter) => {
         if (filter.hasOwnProperty('my_role')) {
 
             if (filter.my_role === 'buyer') {
-                //whereArray.push(ContractRoles.Buyer.type_id);
-                //condition = condition + "and creator_role = ? ";
                 whereArray.push(filter.current_user_id);
                 condition = condition + "and buyer_contact_user_id = ?";
             } else if (filter.my_role === 'seller') {
-                //whereArray.push(ContractRoles.Seller.type_id);
-                //condition = condition + "and creator_role = ? ";
                 whereArray.push(filter.current_user_id);
                 condition = condition + "and seller_contact_user_id = ?";
             } else {
-               // whereArray.push(ContractRoles.Seller.type_id);
-                //condition = condition + "and creator_role = ? ";
                 whereArray.push(filter.current_user_id);
                 whereArray.push(filter.current_user_id);
                 condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?) ";
             }
 
         } else {
-            //whereArray.push(" in (1,2)"); // buyer and seller roles
-            // condition = condition + "and creator_role in (1,2) ";
             whereArray.push(filter.current_user_id);
             whereArray.push(filter.current_user_id);
             condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?)";
@@ -213,7 +345,7 @@ module.exports.summary = async (filter) => {
             }
         );
 
-        console.log("records = ", records);
+        //console.log("records = ", records);
         result.buyer_summary = {
             'Pending': 0,
             'InProgress': 0,
@@ -288,7 +420,7 @@ module.exports.summary = async (filter) => {
             result.buyer_seller_summary.Total = result.buyer_seller_summary.Pending + result.buyer_seller_summary.InProgress + result.buyer_seller_summary.Closed + result.buyer_seller_summary.Cancelled;
 
         }
-        console.log("result=", result);
+        //console.log("result=", result);
         return result;
     }
     catch (error) {
@@ -365,8 +497,8 @@ module.exports.search = async (filter) => {
             }
         }
         let query = "SELECT * FROM public.contracts " + condition;
-        console.log("getcontractquery",query);
-        console.log("wherearray",whereArray);
+        // console.log("getcontractquery",query);
+        // console.log("wherearray",whereArray);
         var records = await db.sequelize.query(
             query,
             {

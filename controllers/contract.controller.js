@@ -446,7 +446,7 @@ exports.sanitize_create = async (req, res, next) => {
 
         await body('name', 'Contract name should be atleast 3 character long.').trim().exists().isLength({ min: 3 }).escape().run(req);
         await body('description').trim().optional().isLength({ min: 5 }).escape().run(req);
-        await body('creator_role').exists().isAlpha().escape().run(req);
+        await body('creator_role').trim().exists().isAlpha().escape().run(req);
         await body('is_full_payment_contract', 'Please mention whether the contract payment is one-time or part-by-part').exists().isBoolean().run(req);
         // await oneOf([
         //     body('buyer_company_id').exists().isUUID(),
@@ -506,10 +506,10 @@ exports.sanitize_search = async (req, res, next) => {
 exports.sanitize_get_pending_tasks = async (req, res, next) => {
     try {
         await query('current_status').trim().optional().escape().run(req);
-        await query('is_cancelled').trim().optional().escape().run(req);
-        await query('is_closed').trim().optional().escape().run(req);
+        await query('is_cancelled').optional().escape().run(req);
+        await query('is_closed').optional().escape().run(req);
         await query('execution_planned_start_date').trim().optional().escape().run(req);
-        await query('execution_planned_end_date').exists().trim().optional().escape().run(req);
+        await query('execution_planned_end_date').trim().optional().escape().run(req);
         const result = validationResult(req);
         if (!result.isEmpty()) {
             helper.handle_validation_error(result);
