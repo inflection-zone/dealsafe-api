@@ -33,7 +33,7 @@ const schema = {
     },
     buyer_company_id: {
         type: Sequelize.UUID,
-        allowNull: true
+        allowNull: false
     },
     buyer_contact_user_id: {
         type: Sequelize.UUID,
@@ -41,7 +41,7 @@ const schema = {
     },
     seller_company_id: {
         type: Sequelize.UUID,
-        allowNull: true
+        allowNull: false
     },
     seller_contact_user_id: {
         type: Sequelize.UUID,
@@ -49,6 +49,14 @@ const schema = {
     },
     created_date: {
         type: Sequelize.DATE,
+        allowNull: false
+    },
+    creator_role: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+    },
+    created_by_user_id: {
+        type: Sequelize.UUID,
         allowNull: false
     },
     buyer_agreed_date: {
@@ -116,16 +124,10 @@ const schema = {
         allowNull: false,
         defaultValue: false
     },
-    created_by: {
-        type: Sequelize.UUID,
-        allowNull: false
-    },
     arbitrator_user_id: {
         type: Sequelize.UUID,
         allowNull: true
     },
-
-
     is_active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

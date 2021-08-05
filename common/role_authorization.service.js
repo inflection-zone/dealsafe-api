@@ -5,8 +5,6 @@ const Privilege = require("../database/models/Privilege").Model;
 const Role = require("../database/models/Role").Model;
 const RolePrivilege = require("../database/models/RolePrivilege").Model;
 
-const error_handler = require('../common/error_handler');
-
 module.exports.get_roles_for_user = async (user_id) => {
     var roles = [];
     var user_roles = await UserRole.findAll({where: {user_id: user_id}});
@@ -27,8 +25,7 @@ module.exports.add_role_to_user = async (user_id, role_id) =>{
         return record; 
     }
     catch (error) {
-        var msg = 'Problem encountered while adding role to the user!';
-        error_handler.throw_service_error(error, msg);
+        throw new Error(error);
     };
 };
 
@@ -54,9 +51,7 @@ module.exports.get_role_privileges_for_role = async (role_id) => {
         return objects;
     }
     catch (error) {
-        console.log(error,"error");
-        var msg = 'Problem encountered while retrieving role privilege instances!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -66,8 +61,7 @@ module.exports.get_role_by_name = async (role_name) => {
         return await Role.findOne(search);
     }
     catch (error) {
-        var msg = 'Problem encountered while retrieving role by name!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -81,7 +75,6 @@ module.exports.get_privilege_by_id = async (privilege_id) => {
         });
     }
     catch (error) {
-        var msg = 'Problem encountered while retrieving privilege!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }

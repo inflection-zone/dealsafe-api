@@ -1,7 +1,12 @@
 const genpass = require('generate-password');
 const logger = require('./logger');
+const { ApiError } = require('./api_error');
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 const NEARNESS_SEARCH_DISTANCE = 15.0; //In kilometers
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 // function create_unique_user_display_id(prefix) {
 //     var id = uuidv4();
@@ -14,10 +19,10 @@ const NEARNESS_SEARCH_DISTANCE = 15.0; //In kilometers
 
 module.exports.generate_display_id = (prefix = null) => {
     var timestamp = new Date().getTime().toString();
-    var display_id = timestamp.substr(4, 8);
+    var display_id = timestamp.substr(4);
     var identifier = display_id;
-    if(prefix != null){
-        identifier = prefix + '-' + identifier;
+    if (prefix != null) {
+        identifier = prefix + '#' + identifier;
     }
     return identifier;
 }
@@ -266,3 +271,23 @@ module.exports.is_empty = (obj) => {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
 
+exports.handle_validation_error = (result) => {
+    var index = 1;
+    var error_messages = "";
+    for (var er of result.errors) {
+        error_messages += ` ${index}. ${er.msg} - <${er.value}> for <${er.param}> in ${er.location}`;
+        index++;
+    }
+    throw new ApiError('Validation errors: ' + error_messages, null, 422);
+}
+
+module.exports.sanitize_phonenumber = (phone) => {
+    if (!phone) {
+        return null;
+    }
+    var temp = phone;
+    temp = temp.replace(' ', '');
+    temp = temp.replace('-', '');
+    temp = temp.trim();
+    return temp;
+}

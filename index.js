@@ -1,14 +1,16 @@
 'use strict';
 require('dotenv').config();
 const express = require("express");
-const app = express();
-
+const helmet = require('helmet');
+const fileUpload = require('express-fileupload');
 const logger = require('./common/logger');
 const scheduler = require("./common/job_scheduler");
 const thirdparty_handler = require('./common/thirdparty_handler');
 const seeder = require('./common/seeder');
+
 //const cache_handler = require('./common/cache_handler');
 const db = require("./database/connection");
+const app = express();
 
 async function setup_db() {
     try {
@@ -22,15 +24,18 @@ async function setup_db() {
 exports.set_middlewares = () => {
     return new Promise((resolve, reject) => {
         try {
+            app.set('trust proxy', true);
+
             const bodyParser = require("body-parser");
             app.use(bodyParser.json());
             app.use(bodyParser.urlencoded({
                 extended: true
             }));
             app.use(express.json());
-
+            app.use(helmet());
+            app.use(express.static(__dirname + '/upload'));
+            
             //Add middleware for file uploads
-            const fileUpload = require('express-fileupload');
             app.use(fileUpload({
                 limits: {
                     fileSize: 25 * 1024 * 1024
@@ -92,11 +97,11 @@ function set_routes() {
             require("./routes/resource.routes")(app);
             require("./routes/types.routes")(app);
 
-
+            
             //Set the base route
             app.get("/api/v1/", (req, res) => {
                 res.send({
-                    message: "DealSafe API [Service version - 0.0.1]"
+                    message: `DealSafe API [Service version - ${process.env.SERVICE_VERSION}]`
                 });
             });
             resolve(true);

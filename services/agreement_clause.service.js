@@ -2,8 +2,8 @@
 
 const db = require('../database/connection');
 const AgreementClause = require('../database/models/AgreementClause').Model;
+const { ApiError } = require('../common/api_error');
 const helper = require('../common/helper');
-const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 
 module.exports.create = async (request_body) => {
@@ -12,12 +12,11 @@ module.exports.create = async (request_body) => {
         var record = await AgreementClause.create(entity);
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while creating agreement_clause instance!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-module.exports.get_all = async (filter) => {
+module.exports.search = async (filter) => {
     try {
         let objects = [];
         var search = {
@@ -25,17 +24,22 @@ module.exports.get_all = async (filter) => {
                 is_active: true
             }
         };
-        // if (filter.hasOwnProperty('name')) {
-        //     search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
-        // }
+        if (filter.hasOwnProperty('contract_id')) {
+            search.where.contract_id = filter.contract_id;
+        }
+
+        if (filter.hasOwnProperty('milestone_id')) {
+            search.where.milestone_id = filter.milestone_id;
+        }
+        
+
         var records = await AgreementClause.findAll(search);
         for (var record of records) {
             objects.push(get_object_to_send(record));
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while retrieving agreement_clause instances!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -54,8 +58,7 @@ module.exports.get_by_id = async (id) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while retrieving agreement_clause by id!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -69,7 +72,7 @@ module.exports.update = async (id, request_body) => {
             }
         });
         if (res.length != 1) {
-            throw new Error('Unable to update agreement_clause!');
+            throw new ApiError('Unable to update agreement_clause!');
         }
         var search = {
             where: {
@@ -84,8 +87,7 @@ module.exports.update = async (id, request_body) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while updating agreement_clause!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -100,8 +102,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        var msg = 'Problem encountered while deleting agreement_clause!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 module.exports.get_deleted = async () => {
@@ -116,8 +117,7 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while deleted instances of agreement_clause!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 module.exports.exists = async (id) => {
@@ -132,11 +132,9 @@ module.exports.exists = async (id) => {
         if (record == null) {
             return null;
         }
-
         return record != null;
     } catch (error) {
-        var msg = 'Problem encountered while checking existance of agreement_clause with id ' + id.toString() + '!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 

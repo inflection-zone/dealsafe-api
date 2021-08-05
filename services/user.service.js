@@ -4,9 +4,11 @@ const db = require('../database/connection');
 const User = require('../database/models/User').Model;
 const UserRole = require('../database/models/UserRole').Model;
 const Role = require('../database/models/Role').Model;
+const Otp = require('../database/models/Otp').Model;
+const moment = require('moment');
 const helper = require('../common/helper');
 const authorization_handler = require('../common/authorization_handler');
-const error_handler = require('../common/error_handler');
+const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
 const { DateTime } = require('luxon');
 const Op = require('sequelize').Op;
@@ -14,6 +16,8 @@ const bcryptjs = require('bcryptjs');
 const Roles = require('../common/constants').Roles;
 
 const messaging_service = require('../thirdparty/message.service');
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 module.exports.create = async (request_body, roles) => {
     try {
@@ -25,12 +29,11 @@ module.exports.create = async (request_body, roles) => {
         }
         return get_object_to_send(record, await get_user_roles(record.id));
     } catch (error) {
-        var msg = 'Problem encountered while creating user instance!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
-module.exports.get_all = async (filter) => {
+module.exports.search = async (filter) => {
     try {
         var objects = [];
         var search = { where: { is_active: true } };
@@ -73,8 +76,7 @@ module.exports.get_all = async (filter) => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while retrieving user instances!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -93,8 +95,7 @@ module.exports.get_by_id = async (id) => {
         var roles = await get_user_roles(record.id);
         return get_object_to_send(record, roles);
     } catch (error) {
-        var msg = 'Problem encountered while retrieving user by id!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -114,23 +115,21 @@ module.exports.get_by_display_id = async (display_id) => {
         return get_object_to_send(record, roles);
     }
     catch (error) {
-        var msg = 'Problem encountered while retrieving user by display id!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
 module.exports.update = async (id, request_body) => {
-
     try {
         await check_other_user_with_same_phone(id, request_body);
         let updates = get_updates(request_body);
         var res = await User.update(updates, {
             where: {
-                id: id
+                id: id,
             }
         });
         if (res.length != 1) {
-            throw new Error('Unable to update user!');
+            throw new ApiError('Unable to update user!', null, 400);
         }
         var search = {
             where: {
@@ -148,8 +147,7 @@ module.exports.update = async (id, request_body) => {
         return get_object_to_send(record, roles);
 
     } catch (error) {
-        var msg = 'Problem encountered while updating user!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -164,8 +162,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        var msg = 'Problem encountered while deleting user!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 module.exports.get_deleted = async () => {
@@ -180,8 +177,7 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while deleted instances of user!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -197,8 +193,7 @@ module.exports.phone_exists = async (phone) => {
         return record != null;
     }
     catch (error) {
-        var msg = 'Problem encountered while checking existance of user with phone number! ';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -214,8 +209,7 @@ module.exports.email_exists = async (email) => {
         return record != null;
     }
     catch (error) {
-        var msg = 'Problem encountered while checking existance of user with email! ';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -233,17 +227,16 @@ module.exports.exists = async (id) => {
         }
         return record != null;
     } catch (error) {
-        var msg = 'Problem encountered while checking existance of user with id ' + id.toString() + '!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
-module.exports.generate_otp = async (phone, user_name, user_id) => {
+module.exports.generate_otp = async (phone, email) => {
     try {
-        var user = get_user(user_id, user_name, phone, null);
+        var user = await get_user(null, null, phone, email);
         var otp = (Math.floor(Math.random() * 900000) + 100000).toString();
-        var valid_to = DateTime.fromJSDate(Date.now()).plus({ seconds: 180 });
-
+        var valid_to = moment().add(180, 's').toDate();
+        
         var entity = await Otp.create({
             user_name: user.user_name,
             user_id: user.id,
@@ -252,20 +245,19 @@ module.exports.generate_otp = async (phone, user_name, user_id) => {
             valid_from: Date.now(),
             valid_to: valid_to
         });
-        var platform_phone_number = '+91 1234567890';
+        var platform_phone_number = '+17865743620';
         var otp_message = `Hello ${user.first_name}, ${otp} is login OTP for login on Deal-Safe platform. If you have not requested this OTP, please contact Deal-Safe support.`;
         await messaging_service.send_message_sms(user.phone, otp_message, platform_phone_number);
         return entity;
     }
     catch (error) {
-        var msg = 'Problem encountered while generating OTP!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-module.exports.login_with_otp = async (phone, user_name, user_id, otp) => {
+module.exports.login_with_otp = async (phone, email, otp) => {
     try {
-        var user = await get_user(user_id, user_name, phone, null);
+        var user = await get_user(null, null, phone, null);
         var otp_entity = await Otp.findOne({
             where: {
                 phone: user.phone,
@@ -275,11 +267,11 @@ module.exports.login_with_otp = async (phone, user_name, user_id, otp) => {
             }
         });
         if (!otp_entity) {
-            throw new Error("OTP record not found for the user!")
+            throw new ApiError("OTP record not found for the user!", 404);
         }
         var date = new Date();
         if ((otp_entity.valid_from >= date || otp_entity.valid_to <= date)) {
-            throw new Error('Login OTP has expired. Please regenerate OTP again!');
+            throw new Error('Login OTP has expired. Please regenerate OTP again!', 401);
         }
         var obj = {
             user_id: user.id,
@@ -305,8 +297,7 @@ module.exports.login_with_otp = async (phone, user_name, user_id, otp) => {
         return obj;
     }
     catch (error) {
-        var msg = 'Problem encountered during login with OTP!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -315,7 +306,7 @@ module.exports.login = async (phone, email, user_name, password) => {
         var user = await get_user(null, user_name, phone, email);
         var is_password_valid = await bcryptjs.compareSync(password, user.password);
         if (!is_password_valid) {
-            throw new Error('Incorrect password!');
+            throw new ApiError('Incorrect password!', null, 400);
         }
         //The following user data is immutable. Don't include any mutable data
         var obj = {
@@ -342,8 +333,7 @@ module.exports.login = async (phone, email, user_name, password) => {
         return obj;
     }
     catch (error) {
-        var msg = 'Problem encountered during user login!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -354,32 +344,31 @@ module.exports.change_password = async (user_id, previous_password, new_password
         }
         var validated = validate_password(new_password);
         if (!validated) {
-            throw new Error('New password does not fit the security criteria. \
+            throw new ApiError('New password does not fit the security criteria. \
                 The new password must be between 7 to 15 character long, \
                 should have atleast 1 digit, 1 special character, \
-                1 lower-case and 1 uppercase letter.');
+                1 lower-case and 1 uppercase letter.', null, 406);
         }
         let user = await User.findOne({ where: { id: user_id, is_active: true } });
         if (user == null) {
-            throw new Error('User does not exist!');
+            throw new ApiError('User does not exist!', null, 404);
         }
         if (previous_password != null) {
             var is_previous_password_valid = await bcryptjs.compareSync(previous_password, user.password);
             if (!is_previous_password_valid) {
-                throw new Error('Invalid previous password!');
+                throw new ApiError('Invalid previous password!', null, 401);
             }
         }
         var same_password_specified = await bcryptjs.compareSync(new_password, user.password);
         if (same_password_specified) {
-            throw new Error('New password is same as old password!');
+            throw new ApiError('New password is same as old password!', null, 406);
         }
         var new_encrypted_password = bcryptjs.hashSync(new_password, bcryptjs.genSaltSync(8), null);
         user.password = new_encrypted_password;
         await user.save();
     }
     catch (error) {
-        var msg = 'Problem encountered while creating user instance!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 };
 
@@ -392,7 +381,7 @@ async function get_entity_to_save(request_body) {
         first_name: request_body.first_name ? request_body.first_name : null,
         last_name: request_body.last_name ? request_body.last_name : null,
         prefix: request_body.prefix ? request_body.prefix : null,
-        phone: request_body.phone ? request_body.phone : null,
+        phone: helper.sanitize_phonenumber(request_body.phone) ? request_body.phone : null,
         email: request_body.email ? request_body.email : null,
         user_name: request_body.user_name ? request_body.user_name : user_name,
         password: request_body.password ? request_body.password : null,
@@ -477,7 +466,6 @@ function get_object_to_send(record, roles = null) {
         phone: record.phone,
         email: record.email,
         user_name: record.user_name,
-        password: record.password,
         profile_picture: record.profile_picture,
         gender: record.gender,
         birth_date: record.birth_date,
@@ -501,7 +489,7 @@ async function check_other_user_with_same_phone(id, request_body) {
             }
         });
         if (exists) {
-            throw new Error("User with this phone already exists!");
+            throw new ApiError("User with this phone already exists!", null, 406);
         };
     }
 }
@@ -539,14 +527,23 @@ async function get_user(user_id, user_name, phone, email) {
         });
     }
     else if (email != null) {
-        user = await User.findOne({ where: { email: email } });
+        user = await User.findOne({ where: { email: email, is_active: true } });
     }
     else if (user_id != null) {
         user = await User.findOne({ where: { id: user_id, is_active: true } });
     }
     else if (user_name != null) {
-        user = await User.findOne({ where: { user_name: user_name, is_active: true } });
+        //user = await User.findOne({ where: { user_name: user_name, is_active: true } });
+        user = await User.findOne({ where: {
+            [Op.and]: {
+                 [Op.or]: [{ user_name: user_name }, { email: user_name }] ,
+                 is_active: true 
+            }
+        } });
     }
+
+    
+
     if (user == null) {
         var err_message = 'User does not exist';
         err_message += phone ? ' with Phone(' + phone.toString() + ')' : '';
@@ -554,7 +551,7 @@ async function get_user(user_id, user_name, phone, email) {
         err_message += user_name ? ' - with username(' + user_name + ')' : '';
         err_message += user_id ? ' - with user id(' + user_id + ')' : '';
 
-        throw new Error(err_message);
+        throw new ApiError(err_message, null, 404);
     }
     return user;
 }

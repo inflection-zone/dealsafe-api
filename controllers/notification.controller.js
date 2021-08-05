@@ -1,53 +1,27 @@
 const notification_service = require('../services/notification.service');
 const helper = require('../common/helper');
 const response_handler = require('../common/response_handler');
-const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
-const activity_handler = require('../common/activity_handler');
+const { ApiError } = require('../common/api_error');
+const _ = require('lodash');
+const { query, body, oneOf, validationResult, param } = require('express-validator');
+////////////////////////////////////////////////////////////////////////
 
-exports.create = async (req, res) => {
+exports.search = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('notification.create', req, res)) {
-            return;
-        }
-        if (!req.body.user_id || !req.body.notification_type || !req.body.text || !req.body.generated_on) {
-            response_handler.set_failure_response(res, 200, 'Missing required parameters.', req);
-            return;
-        }
-        const entity = await notification_service.create(req.body);
-        activity_handler.record_activity(req.user, 'notification.create', req, res, 'Notification');
-        response_handler.set_success_response(res, 201, 'Notification added successfully!', {
-            entity: entity
-        });
-    } catch (error) {
-        activity_handler.record_activity(req.user, 'notification.create', req, res, 'Notification', error);
-        error_handler.handle_controller_error(error, res, req);
-    }
-};
-
-exports.get_all = async (req, res) => {
-    try {
-        if (!await authorization_handler.is_authorized('notification.get_all', req, res)) {
-            return;
-        }
         var filter = get_search_filters(req);
-        const entities = await notification_service.get_all(filter);
-        activity_handler.record_activity(req.user, 'notification.get_all', req, res, 'Notification');
-        response_handler.set_success_response(res, 200, 'Notifications retrieved successfully!', {
+        const entities = await notification_service.search(filter);
+        response_handler.set_success_response(res, req, 200, 'Notifications retrieved successfully!', {
             entities: entities
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'notification.get_all', req, res, 'Notification', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 exports.get_by_id = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('notification.get_by_id', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await notification_service.exists(id);
         if (!exists) {
@@ -55,84 +29,149 @@ exports.get_by_id = async (req, res) => {
             return;
         }
         const entity = await notification_service.get_by_id(id);
-        activity_handler.record_activity(req.user, 'notification.get_by_id', req, res, 'Notification');
-        response_handler.set_success_response(res, 200, 'Notification retrieved successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Notification retrieved successfully!', {
             entity: entity
         });
     } catch (error) {
-        activity_handler.record_activity(req.user, 'notification.get_by_id', req, res, 'Notification', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
-exports.update = async (req, res) => {
+exports.mark_as_read = async (req, res) => {
     try {
-        if (!await authorization_handler.is_authorized('notification.update', req, res)) {
-            return;
-        }
         var id = req.params.id;
         var exists = await notification_service.exists(id);
         if (!exists) {
             response_handler.set_failure_response(res, 404, 'Notification with id ' + id.toString() + ' cannot be found!', req);
             return;
         }
-        var updated = await notification_service.update(id, req.body);
+        var updated = await notification_service.mark_as_read(id);
         if (updated != null) {
-            activity_handler.record_activity(req.user, 'notification.update', req, res, 'Notification');
-            response_handler.set_success_response(res, 200, 'Notification updated successfully!', {
+            response_handler.set_success_response(res, req, 200, 'Notification updated successfully!', {
                 updated: updated
             });
             return;
         }
         throw new Error('Notification cannot be updated!');
     } catch (error) {
-        activity_handler.record_activity(req.user, 'notification.update', req, res, 'Notification', error);
-        error_handler.handle_controller_error(error, res, req);
-    }
-};
-
-exports.delete = async (req, res) => {
-    try {
-        if (!await authorization_handler.is_authorized('notification.delete', req, res)) {
-            return;
-        }
-        var id = req.params.id;
-        var exists = await notification_service.exists(id);
-        if (!exists) {
-            response_handler.set_failure_response(res, 404, 'Notification with id ' + id.toString() + ' cannot be found!', req);
-            return;
-        }
-        var result = await notification_service.delete(id);
-        activity_handler.record_activity(req.user, 'notification.delete', req, res, 'Notification');
-        response_handler.set_success_response(res, 200, 'Notification deleted successfully!', result);
-    } catch (error) {
-        activity_handler.record_activity(req.user, 'notification.delete', req, res, 'Notification', error);
-        error_handler.handle_controller_error(error, res, req);
+        response_handler.handle_error(error, res, req);
     }
 };
 
 
-exports.get_deleted = async (req, res) => {
-    try {
-        if (!await authorization_handler.is_authorized('notification.get_deleted', req, res)) {
-            return;
-        }
-        const deleted_entities = await notification_service.get_deleted(req.user);
-        activity_handler.record_activity(req.user, 'notification.get_deleted', req, res, 'Notification');
-        response_handler.set_success_response(res, 200, 'Deleted instances of Notifications retrieved successfully!', {
-            deleted_entities: deleted_entities
-        });
-    } catch (error) {
-        activity_handler.record_activity(req.user, 'notification.get_deleted', req, res, 'Notification', error);
-        error_handler.handle_controller_error(error, res, req);
+///////////////////////////////////////////////////////////////////////////////////
+//Authorization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.authorize_search = async (req, res, next) => {
+    try{
+        req.context = 'notification.search';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
     }
-};
+}
+
+exports.authorize_get_by_id = async (req, res, next) => {
+    try{
+        req.context = 'notification.get_by_id';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        var is_authorized = await is_user_authorized_to_access_resource(req.user.user_id, req.params.id);
+        if (!is_authorized) {
+            throw new ApiError('Permission denied', 403);
+        }
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.authorize_mark_as_read = async (req, res, next) => {
+    try{
+        req.context = 'notification.mark_as_read';
+        await authorization_handler.check_role_authorization(req.user, req.context);
+        next();
+    } catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+//Sanitization middleware functions
+///////////////////////////////////////////////////////////////////////////////////
+
+exports.sanitize_search = async (req, res, next) => {
+    try{
+        await query('user_id').isUUID().trim().escape().run(req);
+        await query('from').toDate().trim().escape().run(req);
+        await query('to').toDate().trim().escape().run(req);
+        await query('is_read').isBoolean().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            helper.handle_validation_error(result);
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_get_by_id =  async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            helper.handle_validation_error(result);
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+exports.sanitize_mark_as_read =  async (req, res, next) => {
+    try{
+        await param('id').exists().isUUID().run(req);
+        const result = validationResult(req);
+        if(!result.isEmpty()) {
+            helper.handle_validation_error(result);
+        }
+        next();
+    }
+    catch(error){
+        response_handler.handle_error(error, res, req, req.context);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 function get_search_filters(req) {
     var filter = {};
-    //var name = req.query.name ? req.query.name : null;
-    // if (name != null) {
-    //     filter['name'] = name;
-    // }
+    var user_id = req.query.user_id ? req.query.user_id : null;
+    if(user_id == null){
+        throw new ApiError('Notification search needs user id as mandatory query param.');
+    }
+    filter['user_id'] = user_id;
+    var from_date = req.query.from_date ? req.query.from_date : null;
+    var to_date = req.query.to_date ? req.query.to_date : null;
+    if (from_date != null && to_date != null) {
+        filter['from_date'] = from_date;
+        filter['to_date'] = to_date;
+    }
+    var is_read = req.query.is_read ? req.query.is_read : null;
+    if (is_read != null) {
+        filter['is_read'] = is_read;
+    }
     return filter;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+async function is_user_authorized_to_access_resource(user_id, resource_id) {
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////

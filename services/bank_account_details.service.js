@@ -3,21 +3,24 @@
 const db = require('../database/connection');
 const BankAccountDetails = require('../database/models/BankAccountDetails').Model;
 const helper = require('../common/helper');
-const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
+const { ApiError } = require('../common/api_error');
+const Op = require('sequelize').Op;
 
-module.exports.create = async (request_body) => {
+module.exports.create = async (req) => {
     try {
-        var entity = get_entity_to_save(request_body)
+        var request_body = req.body;
+        request_body.company_id = req.company_id;
+        request_body.user_id = req.user.user_id;
+        var entity = await get_entity_to_save(request_body);
         var record = await BankAccountDetails.create(entity);
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while creating bank_account_details instance!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
-module.exports.get_all = async (filter) => {
+module.exports.search = async (filter) => {
     try {
         let objects = [];
         var search = {
@@ -25,17 +28,16 @@ module.exports.get_all = async (filter) => {
                 is_active: true
             }
         };
-        // if (filter.hasOwnProperty('name')) {
-        //     search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
-        // }
+        if (filter.hasOwnProperty('company_id')) {
+            search.where.company_id = filter.company_id;
+        }
         var records = await BankAccountDetails.findAll(search);
         for (var record of records) {
             objects.push(get_object_to_send(record));
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while retrieving bank_account_details instances!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -54,8 +56,7 @@ module.exports.get_by_id = async (id) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while retrieving bank_account_details by id!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -69,7 +70,7 @@ module.exports.update = async (id, request_body) => {
             }
         });
         if (res.length != 1) {
-            throw new Error('Unable to update bank_account_details!');
+            throw new ApiError('Unable to update bank_account_details!');
         }
         var search = {
             where: {
@@ -81,11 +82,9 @@ module.exports.update = async (id, request_body) => {
         if (record == null) {
             return null;
         }
-
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while updating bank_account_details!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -100,8 +99,7 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        var msg = 'Problem encountered while deleting bank_account_details!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 module.exports.get_deleted = async () => {
@@ -116,10 +114,37 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while deleted instances of bank_account_details!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
+
+module.exports.bank_exists_with = async (account_number, bank_ifsc_code, account_type, bank_name = null, bank_branch = null) => {
+    try {
+        var search = {
+            where: {
+                is_active: true,
+            }
+        };
+
+        if (account_number) {
+            search.where.account_number = { [Op.iLike]: '%' + account_number + '%' };
+        }
+
+        if (bank_ifsc_code) {
+            search.where.bank_ifsc_code = { [Op.iLike]: '%' + bank_ifsc_code + '%' };
+        }
+
+        if (account_type) {
+            search.where.account_type = account_type;
+        }
+        var records = await BankAccountDetails.findAll(search);
+        return records.length > 0;
+
+    } catch (error) {
+        throw (error);
+    }
+}
+
 module.exports.exists = async (id) => {
     try {
         var search = {
@@ -132,22 +157,19 @@ module.exports.exists = async (id) => {
         if (record == null) {
             return null;
         }
-
         return record != null;
     } catch (error) {
-        var msg = 'Problem encountered while checking existance of bank_account_details with id ' + id.toString() + '!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
-function get_entity_to_save(request_body) {
+async function get_entity_to_save(request_body) {
     return {
         company_id: request_body.company_id ? request_body.company_id : null,
         user_id: request_body.user_id ? request_body.user_id : null,
-        is_company_account: request_body.is_company_account ? request_body.is_company_account : null,
         account_number: request_body.account_number ? request_body.account_number : null,
         account_name: request_body.account_name ? request_body.account_name : null,
-        account_type: request_body.account_type ? request_body.account_type : null,
+        account_type: request_body.account_type ? request_body.account_type : 1,
         bank_name: request_body.bank_name ? request_body.bank_name : null,
         bank_branch: request_body.bank_branch ? request_body.bank_branch : null,
         bank_ifsc_code: request_body.bank_ifsc_code ? request_body.bank_ifsc_code : null,
@@ -162,9 +184,6 @@ function get_updates(request_body) {
     }
     if (request_body.hasOwnProperty('user_id')) {
         updates.user_id = request_body.user_id;
-    }
-    if (request_body.hasOwnProperty('is_company_account')) {
-        updates.is_company_account = request_body.is_company_account;
     }
     if (request_body.hasOwnProperty('account_number')) {
         updates.account_number = request_body.account_number;
@@ -198,7 +217,6 @@ function get_object_to_send(record) {
         id: record.id,
         company_id: record.company_id,
         user_id: record.user_id,
-        is_company_account: record.is_company_account,
         account_number: record.account_number,
         account_name: record.account_name,
         account_type: record.account_type,

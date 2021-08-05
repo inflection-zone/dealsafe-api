@@ -38,15 +38,15 @@ const schema = {
         allowNull: false
     },
     GSTN: {
-        type: Sequelize.STRING(256),
+        type: Sequelize.STRING(24),
         allowNull: true
     },
     PAN: {
-        type: Sequelize.STRING(256),
+        type: Sequelize.STRING(16),
         allowNull: true
     },
     TAN: {
-        type: Sequelize.STRING(256),
+        type: Sequelize.STRING(16),
         allowNull: false
     },
     contact_person_id: {

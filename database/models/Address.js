@@ -13,7 +13,10 @@ const schema = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true
     },
-
+    company_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+    },
     address: {
         type: Sequelize.STRING(256),
         allowNull: false
@@ -34,9 +37,10 @@ const schema = {
         type: Sequelize.STRING(32),
         allowNull: true
     },
-    address_type: {
-        type: Sequelize.STRING(32),
-        allowNull: true
+    is_company_address: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true
     },
 
 

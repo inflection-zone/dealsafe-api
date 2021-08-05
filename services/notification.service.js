@@ -1,41 +1,48 @@
 'use strict';
 
-const db = require('../database/connection');
 const Notification = require('../database/models/Notification').Model;
 const helper = require('../common/helper');
-const error_handler = require('../common/error_handler');
+const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
+const Op = require('sequelize').Op;
 
-module.exports.create = async (request_body) => {
+///////////////////////////////////////////////////////////////////////////////////////
+
+module.exports.create = async (entity) => {
     try {
-        var entity = get_entity_to_save(request_body)
+        var entity = get_entity_to_save(entity)
         var record = await Notification.create(entity);
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while creating notification instance!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-module.exports.get_all = async (filter) => {
+module.exports.search = async (filter) => {
     try {
         let objects = [];
         var search = {
             where: {
-                is_active: true
+                is_active: true,
+                user_id: filter.user_id
             }
         };
-        // if (filter.hasOwnProperty('name')) {
-        //     search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
-        // }
+        if (filter.hasOwnProperty('is_read')) {
+            search.where.is_read = filter.is_read;
+        }
+        if (filter.hasOwnProperty('from_date') && filter.hasOwnProperty('to_date')) {
+            search.where.created_date = { 
+                [Op.gte]: filter.from_date,
+                [Op.lte]: filter.to_date
+             };
+        }
         var records = await Notification.findAll(search);
         for (var record of records) {
             objects.push(get_object_to_send(record));
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while retrieving notification instances!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -51,75 +58,24 @@ module.exports.get_by_id = async (id) => {
         if (record == null) {
             return null;
         }
-
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while retrieving notification by id!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-module.exports.update = async (id, request_body) => {
-
+module.exports.mark_as_read = async (id) => {
     try {
-        let updates = get_updates(request_body);
-        var res = await Notification.update(updates, {
-            where: {
-                id: id
-            }
-        });
-        if (res.length != 1) {
-            throw new Error('Unable to update notification!');
-        }
-        var search = {
-            where: {
-                id: id,
-                is_active: true
-            }
-        };
-        var record = await Notification.findOne(search);
-        if (record == null) {
-            return null;
-        }
-
+        var notification = await Notification.findByPk(id);
+        notification.is_read = true;
+        notification.read_date = new Date();
+        await notification.save();
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while updating notification!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-module.exports.delete = async (id) => {
-    try {
-        var res = await Notification.update({
-            is_active: false
-        }, {
-            where: {
-                id: id
-            }
-        });
-        return res.length == 1;
-    } catch (error) {
-        var msg = 'Problem encountered while deleting notification!';
-        error_handler.throw_service_error(error, msg);
-    }
-}
-module.exports.get_deleted = async () => {
-    try {
-        var records = await Notification.findAll({
-            where: {
-                is_active: false
-            }
-        });
-        for (var record of records) {
-            objects.push(get_object_to_send(record))
-        }
-        return objects;
-    } catch (error) {
-        var msg = 'Problem encountered while deleted instances of notification!';
-        error_handler.throw_service_error(error, msg);
-    }
-}
 module.exports.exists = async (id) => {
     try {
         var search = {
@@ -135,8 +91,7 @@ module.exports.exists = async (id) => {
 
         return record != null;
     } catch (error) {
-        var msg = 'Problem encountered while checking existance of notification with id ' + id.toString() + '!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -146,32 +101,10 @@ function get_entity_to_save(request_body) {
         notification_type: request_body.notification_type ? request_body.notification_type : null,
         details_json_object: request_body.details_json_object ? request_body.details_json_object : null,
         text: request_body.text ? request_body.text : null,
-        generated_on: request_body.generated_on ? request_body.generated_on : null,
+        generated_on: Date.now(),
+        is_read: request_body.is_read ? request_body.is_read : false,
         read_date: request_body.read_date ? request_body.read_date : null
     };
-}
-
-function get_updates(request_body) {
-    let updates = {};
-    if (request_body.hasOwnProperty('user_id')) {
-        updates.user_id = request_body.user_id;
-    }
-    if (request_body.hasOwnProperty('notification_type')) {
-        updates.notification_type = request_body.notification_type;
-    }
-    if (request_body.hasOwnProperty('details_json_object')) {
-        updates.details_json_object = request_body.details_json_object;
-    }
-    if (request_body.hasOwnProperty('text')) {
-        updates.text = request_body.text;
-    }
-    if (request_body.hasOwnProperty('generated_on')) {
-        updates.generated_on = request_body.generated_on;
-    }
-    if (request_body.hasOwnProperty('read_date')) {
-        updates.read_date = request_body.read_date;
-    }
-    return updates;
 }
 
 function get_object_to_send(record) {
@@ -185,6 +118,7 @@ function get_object_to_send(record) {
         details_json_object: record.details_json_object,
         text: record.text,
         generated_on: record.generated_on,
+        is_read: record.is_read,
         read_date: record.read_date
     };
 }

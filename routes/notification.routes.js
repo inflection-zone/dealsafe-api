@@ -4,15 +4,8 @@ const authenticate = require('../common/authorization_handler').authenticate;
 module.exports = app => {
 
     const router = require('express').Router();
-
-    router.post('', authenticate, controller.create);
-    router.get('/search', authenticate, controller.get_all);
-    router.get('/:id', authenticate, controller.get_by_id);
-    router.put('/:id', authenticate, controller.update);
-    router.delete('/:id', authenticate, controller.delete);
-
-
-    router.get('/deleted', authenticate, controller.get_deleted);
-
+    router.get('/search', authenticate, controller.authorize_search, controller.sanitize_search, controller.search);
+    router.get('/:id', authenticate, controller.authorize_get_by_id, controller.sanitize_get_by_id, controller.get_by_id);
+    router.put('/:id', authenticate, controller.authorize_mark_as_read, controller.sanitize_mark_as_read, controller.mark_as_read);
     app.use('/api/v1/notification', router);
 };

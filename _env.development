@@ -1,6 +1,9 @@
 NODE_ENV=development
 
 ##########################################################
+API_VERSION=v1
+SERVICE_VERSION=0.0.1
+##########################################################
 
 PORT=7373
 THIS_BASE_URL=http://localhost:7373

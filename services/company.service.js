@@ -1,27 +1,40 @@
 'use strict';
-
 const db = require('../database/connection');
 const Company = require('../database/models/Company').Model;
 const Address = require('../database/models/Address').Model;
 const User = require('../database/models/User').Model;
 const helper = require('../common/helper');
-const error_handler = require('../common/error_handler');
+const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
 const _ = require('lodash');
 const Op = require('sequelize').Op;
 
-module.exports.create = async (request_body) => {
+//////////////////////////////////////////////////////////////////////////////////////
+
+module.exports.create = async (req) => {
     try {
+        var contact_person = null;
+        var request_body = req.body;
+        if (req.user.user_id) {
+            contact_person = await User.findByPk(req.user.user_id);
+            if (contact_person == null) {
+                throw new ApiError('Contact person not found!', null, 404);
+            }
+        }
+        request_body.contact_person_id = req.user.user_id;
         var entity = get_entity_to_save(request_body)
         var record = await Company.create(entity);
+        if (contact_person != null) {
+            contact_person.company_id = record.id;
+            await contact_person.save();
+        }
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while creating company instance!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
-module.exports.get_all = async (filter) => {
+module.exports.search = async (filter) => {
     try {
         let objects = [];
         var search = {
@@ -29,17 +42,69 @@ module.exports.get_all = async (filter) => {
                 is_active: true
             }
         };
+
         if (filter.hasOwnProperty('name')) {
             search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
         }
+
+        if (filter.hasOwnProperty('contact_email')) {
+            search.where.name = filter.contact_email;
+        }
+
+        if (filter.hasOwnProperty('contact_number')) {
+            search.where.contact_number = filter.contact_number;
+        }
+
+        if (filter.hasOwnProperty('GSTN')) {
+            search.where.GSTN = filter.GSTN;
+        }
+
+        if (filter.hasOwnProperty('PAN')) {
+            search.where.PAN = filter.PAN;
+        }
+
+        if (filter.hasOwnProperty('TAN')) {
+            search.where.TAN = filter.TAN;
+        }
+
+        if (filter.hasOwnProperty('subscription_type')) {
+            search.where.subscription_type = filter.subscription_type;
+        }
+
+        if (filter.hasOwnProperty('contact_person_id')) {
+            search.where.contact_person_id = filter.contact_person_id;
+        }
+
+
         var records = await Company.findAll(search);
         for (var record of records) {
             objects.push(get_object_to_send(record));
         }
+
+        sort_companies(filter, objects);
+        paginate_companies(filter, objects);
+
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while retrieving company instances!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
+    }
+}
+
+module.exports.get_company_by_contact_person_id = async (contact_id) => {
+    try {
+        var search = {
+            where: {
+                contact_person_id: contact_id,
+                is_active: true
+            }
+        };
+        var record = await Company.findOne(search);
+        if (record == null) {
+            return null;
+        }
+        return get_object_to_send(record);
+    } catch (error) {
+        throw (error);
     }
 }
 
@@ -55,11 +120,9 @@ module.exports.get_by_id = async (id) => {
         if (record == null) {
             return null;
         }
-
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while retrieving company by id!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -73,7 +136,7 @@ module.exports.update = async (id, request_body) => {
             }
         });
         if (res.length != 1) {
-            throw new Error('Unable to update company!');
+            throw new ApiError('Unable to update company!', null, 400);
         }
         var search = {
             where: {
@@ -89,7 +152,7 @@ module.exports.update = async (id, request_body) => {
         return get_object_to_send(record);
     } catch (error) {
         var msg = 'Problem encountered while updating company!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -105,7 +168,7 @@ module.exports.delete = async (id) => {
         return res.length == 1;
     } catch (error) {
         var msg = 'Problem encountered while deleting company!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -122,7 +185,7 @@ module.exports.get_deleted = async () => {
         return objects;
     } catch (error) {
         var msg = 'Problem encountered while deleted instances of company!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -142,37 +205,63 @@ module.exports.exists = async (id) => {
         return record != null;
     } catch (error) {
         var msg = 'Problem encountered while checking existance of company with id ' + id.toString() + '!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
-module.exports.company_exists_with = async (phone, email, gstn, tan, name = null) => {
+module.exports.get_company_id_by_contact_person_id = async (user_id) => {
+    try {
+        var record = await Company.findAll({
+            where: {
+                is_active: true,
+                contact_person_id: user_id
+            },
+            // Add order conditions here....
+            order: [
+                ['created_at', 'DESC'],
+            ],
+            attributes: ['id']
+        });
+        if (record == null) {
+            return null;
+        }
+        return get_object_to_send(record[0]);
+    } catch (error) {
+        var msg = 'Problem encountered while checking existance of company!';
+        console.log(msg);
+        throw (error);
+    }
+}
+
+module.exports.company_exists_with = async (phone, email, gstn = null, pan = null, tan, name = null) => {
     try {
         var search = {
             where: {
                 is_active: true
             }
         };
-        // if(name){
-        //     search.name = {[Op.iLike]: '%' + name + '%' };
-        // }
         if (phone) {
-            search.contact_number = { [Op.iLike]: '%' + phone + '%' };
+            search.where.contact_number = { [Op.iLike]: '%' + phone + '%' };
         }
         if (email) {
-            search.contact_email = { [Op.iLike]: '%' + email + '%' };
+            search.where.contact_email = { [Op.iLike]: '%' + email + '%' };
         }
         if (gstn) {
-            search.GSTN = { [Op.iLike]: '%' + gstn + '%' };
+            search.where.GSTN = { [Op.iLike]: '%' + gstn + '%' };
+        }
+        if (pan) {
+            search.where.PAN = { [Op.iLike]: '%' + pan + '%' };
         }
         if (tan) {
-            search.TAN = { [Op.iLike]: '%' + email + '%' };
+            search.where.TAN = { [Op.iLike]: '%' + tan + '%' };
         }
+        //console.log(search);
         var records = await Company.findAll(search);
+        //console.log(records);
         return records.length > 0;
     } catch (error) {
         var msg = 'Problem encountered while checking existance of company!';
-        error_handler.throw_service_error(error, msg);
+        throw (error);
     }
 }
 
@@ -188,7 +277,7 @@ function get_entity_to_save(request_body) {
         PAN: request_body.PAN ? request_body.PAN : null,
         TAN: request_body.TAN ? request_body.TAN : null,
         contact_person_id: request_body.contact_person_id ? request_body.contact_person_id : null,
-        subscription_type: request_body.subscription_type ? request_body.subscription_type : 'On-premises'
+        subscription_type: request_body.subscription_type ? request_body.subscription_type : 'Regular'
     };
 }
 
@@ -236,9 +325,9 @@ async function get_object_to_send(record) {
     }
     var address = await Address.findByPk(record.default_address_id);
     var contact_person = {};
-    if(record.contact_person_id){
+    if (record.contact_person_id) {
         var user = await User.findByPk(record.contact_person_id);
-        if(user != null){
+        if (user != null) {
             contact_person['display_id'] = user.display_id;
             contact_person['first_name'] = user.first_name;
             contact_person['last_name'] = user.last_name;
@@ -248,6 +337,7 @@ async function get_object_to_send(record) {
             contact_person['last_name'] = user.last_name;
             contact_person['gender'] = user.gender;
             contact_person['profile_picture'] = user.profile_picture;
+            contact_person['birth_date'] = user.birth_date;
         }
     }
     return {
@@ -265,5 +355,146 @@ async function get_object_to_send(record) {
         contact_person_id: record.contact_person_id,
         contact_person: contact_person,
         subscription_type: record.subscription_type
+    };
+}
+
+function sort_companies(filter, array) {
+
+    //default sorting by date - recent first
+    array.sort((a, b) => { return new Date(b.created_at) - new Date(a.created_at) });
+
+    if (!filter.hasOwnProperty('sort_by')) {
+        return array;
+    }
+
+    if (filter.sort_by == "created_at") {
+        if (filter.sort_type == "ascending") {
+            array.sort((a, b) => { return new Date(a.created_at) - new Date(b.created_at) });
+        }
+        else {
+            array.sort((a, b) => { return new Date(b.created_at) - new Date(alert.created_at) });
+        }
+    }
+
+    if (filter.sort_by == "name") {
+        array.sort((a, b) => {
+            if (a.name < b.name) {
+                return -1;
+            }
+            if (a.name > b.name) {
+                return 1;
+            }
+            return 0;
+        });
+        if (filter.sort_type != "ascending") {
+            array.reverse();
+        }
+    }
+
+    if (filter.sort_by == "contact_email") {
+        array.sort((a, b) => {
+            if (a.contact_email < b.contact_email) {
+                return -1;
+            }
+            if (a.contact_email > b.contact_email) {
+                return 1;
+            }
+            return 0;
+        });
+        if (filter.sort_type != "ascending") {
+            array.reverse();
+        }
+    }
+
+    if (filter.sort_by == "contact_number") {
+        array.sort((a, b) => {
+            if (a.contact_number < b.contact_number) {
+                return -1;
+            }
+            if (a.contact_number > b.contact_number) {
+                return 1;
+            }
+            return 0;
+        });
+        if (filter.sort_type != "ascending") {
+            array.reverse();
+        }
+    }
+
+    if (filter.sort_by == "GSTN") {
+        array.sort((a, b) => {
+            if (a.GSTN < b.GSTN) {
+                return -1;
+            }
+            if (a.GSTN > b.GSTN) {
+                return 1;
+            }
+            return 0;
+        });
+        if (filter.sort_type != "ascending") {
+            array.reverse();
+        }
+    }
+
+    if (filter.sort_by == "PAN") {
+        array.sort((a, b) => {
+            if (a.PAN < b.PAN) {
+                return -1;
+            }
+            if (a.PAN > b.PAN) {
+                return 1;
+            }
+            return 0;
+        });
+        if (filter.sort_type != "ascending") {
+            array.reverse();
+        }
+    }
+
+    if (filter.sort_by == "TAN") {
+        array.sort((a, b) => {
+            if (a.TAN < b.TAN) {
+                return -1;
+            }
+            if (a.TAN > b.TAN) {
+                return 1;
+            }
+            return 0;
+        });
+        if (filter.sort_type != "ascending") {
+            array.reverse();
+        }
+    }
+
+    if (filter.sort_by == "subscription_type") {
+        array.sort((a, b) => {
+            if (a.subscription_type < b.subscription_type) {
+                return -1;
+            }
+            if (a.subscription_type > b.subscription_type) {
+                return 1;
+            }
+            return 0;
+        });
+        if (filter.sort_type != "ascending") {
+            array.reverse();
+        }
+    }
+
+}
+
+function paginate_companies(filter, array) {
+    if (filter.hasOwnProperty("page_number") && filter.hasOwnProperty("items_per_page")) {
+        var start_offset = (filter.page_number - 1) * filter.items_per_page;
+        var end_offset = filter.page_number * filter.items_per_page;
+        var current_page = filter.page_number ? +filter.page_number : 1;
+        var total_pages = Math.ceil(array.length / parseInt(filter.items_per_page));
+        array = array.slice(start_offset, end_offset);
+    }
+    return {
+        current_page: current_page,
+        total_pages: total_pages,
+        items_per_page: filter.items_per_page,
+        companies: array
     };
 }

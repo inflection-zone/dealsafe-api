@@ -1,23 +1,38 @@
 'use strict';
 
-const db = require('../database/connection');
 const Address = require('../database/models/Address').Model;
 const helper = require('../common/helper');
-const error_handler = require('../common/error_handler');
 const logger = require('../common/logger');
+const Op = require('sequelize').Op;
+const User = require('../database/models/User').Model;
 
-module.exports.create = async (request_body) => {
+///////////////////////////////////////////////////////////////////////////////////////
+
+module.exports.create = async (req) => {
     try {
-        var entity = get_entity_to_save(request_body)
+        var contact_person = null;
+        var request_body =req.body;
+        if (req.user.user_id) {
+            contact_person = await User.findByPk(req.user.user_id);
+            if (contact_person == null) {
+                throw new ApiError('Contact person not found!', 404);
+            }
+        }
+        
+        request_body.company_id= req.company_id;
+        var entity = await get_entity_to_save(request_body);
         var record = await Address.create(entity);
+        if (contact_person != null) {
+            contact_person.primary_address_id = record.id;
+            await contact_person.save();
+        }
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while creating address instance!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-module.exports.get_all = async (filter) => {
+module.exports.search = async (filter) => {
     try {
         let objects = [];
         var search = {
@@ -25,17 +40,19 @@ module.exports.get_all = async (filter) => {
                 is_active: true
             }
         };
-        // if (filter.hasOwnProperty('name')) {
-        //     search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
-        // }
+        if (filter.hasOwnProperty('company_id')) {
+            search.where.company_id = filter.company_id;
+        }
+        if (filter.hasOwnProperty('city')) {
+            search.where.city = { [Op.iLike]: '%' + filter.city + '%' };
+        }
         var records = await Address.findAll(search);
         for (var record of records) {
             objects.push(get_object_to_send(record));
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while retrieving address instances!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -54,8 +71,7 @@ module.exports.get_by_id = async (id) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while retrieving address by id!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -84,8 +100,7 @@ module.exports.update = async (id, request_body) => {
 
         return get_object_to_send(record);
     } catch (error) {
-        var msg = 'Problem encountered while updating address!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
@@ -100,10 +115,10 @@ module.exports.delete = async (id) => {
         });
         return res.length == 1;
     } catch (error) {
-        var msg = 'Problem encountered while deleting address!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
+
 module.exports.get_deleted = async () => {
     try {
         var records = await Address.findAll({
@@ -116,10 +131,29 @@ module.exports.get_deleted = async () => {
         }
         return objects;
     } catch (error) {
-        var msg = 'Problem encountered while deleted instances of address!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
+
+module.exports.address_exists_with = async (company_id) => {
+    try {
+        var search = {
+            where: {
+                company_id: company_id,
+                is_active: true
+            }
+        };
+        var record = await Address.findOne(search);
+        if (record == null) {
+            return null;
+        }
+
+        return record.length>0;
+    } catch (error) {
+        throw(error);
+    }
+}
+
 module.exports.exists = async (id) => {
     try {
         var search = {
@@ -135,24 +169,29 @@ module.exports.exists = async (id) => {
 
         return record != null;
     } catch (error) {
-        var msg = 'Problem encountered while checking existance of address with id ' + id.toString() + '!';
-        error_handler.throw_service_error(error, msg);
+        throw(error);
     }
 }
 
-function get_entity_to_save(request_body) {
+///////////////////////////////////////////////////////////////////////////////////////
+
+async function get_entity_to_save(request_body) {
     return {
-        address: request_body.address ? request_body.address : null,
+        company_id: request_body.company_id ? request_body.company_id : null,
+        address: request_body.address ? unescape(request_body.address) : null,
         city: request_body.city ? request_body.city : null,
         state: request_body.state ? request_body.state : null,
-        country: request_body.country ? request_body.country : null,
+        country: request_body.country ? unescape(request_body.country) : null,
         pincode: request_body.pincode ? request_body.pincode : null,
-        address_type: request_body.address_type ? request_body.address_type : null
+        is_company_address: request_body.is_company_address ? request_body.is_company_address : true
     };
 }
 
 function get_updates(request_body) {
     let updates = {};
+    if (request_body.hasOwnProperty('company_id')) {
+        updates.company_id = request_body.company_id;
+    }    
     if (request_body.hasOwnProperty('address')) {
         updates.address = request_body.address;
     }
@@ -168,8 +207,8 @@ function get_updates(request_body) {
     if (request_body.hasOwnProperty('pincode')) {
         updates.pincode = request_body.pincode;
     }
-    if (request_body.hasOwnProperty('address_type')) {
-        updates.address_type = request_body.address_type;
+    if (request_body.hasOwnProperty('is_company_address')) {
+        updates.is_company_address = request_body.is_company_address;
     }
     return updates;
 }
@@ -180,11 +219,12 @@ function get_object_to_send(record) {
     }
     return {
         id: record.id,
+        company_id: record.company_id,
         address: record.address,
         city: record.city,
         state: record.state,
         country: record.country,
         pincode: record.pincode,
-        address_type: record.address_type
+        is_company_address: record.is_company_address
     };
 }

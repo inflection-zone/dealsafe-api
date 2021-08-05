@@ -26,7 +26,8 @@
  npm install --save sequelize-cli
  npm install --save pg
  npm install --save pg-hstore
- 
+ npm install --save helmet
+
  npm install jest --save-dev
  npm install supertest --save-dev
  npm install nodemon --save-dev
