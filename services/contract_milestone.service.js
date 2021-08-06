@@ -77,7 +77,7 @@ module.exports.search = async (filter) => {
         };
 
         if (filter.hasOwnProperty('name')) {
-            search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
+            search.where.name = { [Op.like]: '%' + filter.name + '%' };
         }
 
         if (filter.hasOwnProperty('contract_id')) {

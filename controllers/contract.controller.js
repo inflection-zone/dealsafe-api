@@ -129,7 +129,7 @@ exports.buyer_agrees = async (req, res) => {
     try {
         var id = req.params.id;
         const updated_entities = await contract_service.buyer_agrees(id, req.user);
-        response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Buyer agrees - updated successfully!', {
             updated_entities: updated_entities
         });
     } catch (error) {
@@ -141,7 +141,7 @@ exports.seller_agrees = async (req, res) => {
     try {
         var id = req.params.id;
         const updated_entities = await contract_service.seller_agrees(id, req.user);
-        response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Seller agrees - updated successfully!', {
             updated_entities: updated_entities
         });
     } catch (error) {
@@ -153,7 +153,7 @@ exports.buyer_rejects = async (req, res) => {
     try {
         var id = req.params.id;
         const updated_entities = await contract_service.buyer_rejects(id, req.user);
-        response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Buyer rejects - updated successfully!', {
             updated_entities: updated_entities
         });
     } catch (error) {
@@ -165,7 +165,7 @@ exports.seller_rejects = async (req, res) => {
     try {
         var id = req.params.id;
         const updated_entities = await contract_service.seller_rejects(id, req.user);
-        response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Seller rejects - updated successfully!', {
             updated_entities: updated_entities
         });
     } catch (error) {
@@ -177,7 +177,7 @@ exports.freeze_contract_details = async (req, res) => {
     try {
         var id = req.params.id;
         const updated_entities = await contract_service.freeze_contract_details(id, req.user);
-        response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Contract details frozen successfully!', {
             updated_entities: updated_entities
         });
     } catch (error) {
@@ -193,7 +193,7 @@ exports.buyer_deposits_escrow = async (req, res) => {
             amount: req.body.amount
         }
         const updated_entities = await contract_service.buyer_deposits_escrow(entity);
-        response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Buyer escrow deposit transaction recorded successfully!', {
             updated_entities: updated_entities
         });
     } catch (error) {
@@ -205,7 +205,7 @@ exports.start_execution = async (req, res) => {
     try {
         var id = req.params.id;
         const updated_entities = await contract_service.start_execution(id, req.user);
-        response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Contract execution started successfully!', {
             updated_entities: updated_entities
         });
     } catch (error) {
@@ -217,7 +217,7 @@ exports.close_contract = async (req, res) => {
     try {
         var id = req.params.id;
         const closed_entities = await contract_service.close_contract(id, req.user);
-        response_handler.set_success_response(res, req, 200, 'Contract milestone updated successfully!', {
+        response_handler.set_success_response(res, req, 200, 'Contract closed successfully!', {
             closed_entities: closed_entities
         });
     } catch (error) {

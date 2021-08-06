@@ -44,7 +44,7 @@ module.exports.search = async (filter) => {
             search.where.company_id = filter.company_id;
         }
         if (filter.hasOwnProperty('city')) {
-            search.where.city = { [Op.iLike]: '%' + filter.city + '%' };
+            search.where.city = { [Op.like]: '%' + filter.city + '%' };
         }
         var records = await Address.findAll(search);
         for (var record of records) {

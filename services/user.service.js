@@ -42,8 +42,8 @@ module.exports.search = async (filter) => {
                 where: {
                     is_active: true,
                     [Op.or]: [
-                        { first_name: { [Op.iLike]: '%' + filter.name + '%' } },
-                        { last_name: { [Op.iLike]: '%' + filter.name + '%' } }
+                        { first_name: { [Op.like]: '%' + filter.name + '%' } },
+                        { last_name: { [Op.like]: '%' + filter.name + '%' } }
                     ]
                 }
             };
@@ -57,10 +57,10 @@ module.exports.search = async (filter) => {
             search.where['company_id'] = filter.company_id;
         }
         if (filter.hasOwnProperty('phone')) {
-            search.where['phone'] = { [Op.iLike]: '%' + filter.phone + '%' };
+            search.where['phone'] = { [Op.like]: '%' + filter.phone + '%' };
         }
         if (filter.hasOwnProperty('email')) {
-            search.where['email'] = { [Op.iLike]: '%' + filter.email + '%' };
+            search.where['email'] = { [Op.like]: '%' + filter.email + '%' };
         }
         var records = await User.findAll(search);
         if (filter.hasOwnProperty("role")) {

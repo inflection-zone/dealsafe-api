@@ -75,11 +75,15 @@ async function seed_city_state() {
     if (count > 0) {
         return;
     };
-    //await seed_city_pincodes_from_json();
-    await seed_city_pincodes_from_sql();
+    await seed_city_pincodes_from_json();
 }
 
 async function seed_city_pincodes_from_json() {
+
+    var count = await CityPincode.count();
+    if(count > 0) {
+        return;
+    }
 
     return new Promise((resolve, reject) => {
         try {
@@ -87,7 +91,7 @@ async function seed_city_pincodes_from_json() {
             const { Writable: writable } = require('stream');
             const path = require('path');
             const fs = require('fs');
-            var file_path = path.join(process.cwd(), './raw_data/pincodes.json');
+            var file_path = path.join(process.cwd(), './data/pincodes.json');
             const fileStream = fs.createReadStream(file_path);
             const jsonStream = stream_array.withParser();
 
@@ -95,19 +99,12 @@ async function seed_city_pincodes_from_json() {
                 objectMode: true, //Don't skip this, as we need to operate with objects, not buffers
                 write({ key, value }, encoding, callback) {
                     (async () => {
-                        var existing = await CityPincode.findAll({
-                            where: {
-                                pincode: value.Pincode
-                            }
+                        await CityPincode.create({
+                            city: value.City,
+                            pincode: value.Pincode,
+                            district: value.District,
+                            state: value.State
                         });
-                        if (existing.length == 0) {
-                            await CityPincode.create({
-                                city: value.City,
-                                pincode: value.Pincode,
-                                district: value.District,
-                                state: value.State
-                            });
-                        }
                         setTimeout(() => {
                             //console.log(value);
                             //Next record will be read only current one is fully processed
@@ -133,33 +130,5 @@ async function seed_city_pincodes_from_json() {
             reject(error);
         }
     });
-}
-
-async function seed_city_pincodes_from_sql() {
-    try {
-        const { Client } = require('pg');
-        const path = require('path');
-        const fs = require('fs');
-
-        var file_path = path.join(process.cwd(), './data/pincodes.sql');
-        var sql = fs.readFileSync(file_path).toString();
-
-        const client = new Client({
-            user: process.env.DB_USER_NAME,
-            host: process.env.DB_HOST,
-            password: process.env.DB_USER_PASSWORD,
-            database: process.env.DB_NAME,
-            port: 5432,
-        });
-        await client.connect();
-        await client.query(sql);
-        await client.end();
-
-        var message = 'City, pincode and state data has been seeded successfully!';
-        logger.log(message);
-    }
-    catch (error) {
-        logger.log('An error occurred while seeding city pincodes!');
-    }
 }
 

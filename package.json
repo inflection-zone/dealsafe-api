@@ -1,5 +1,5 @@
 {
-    "name": "DealSafe",
+    "name": "deal-safe",
     "version": "0.0.1",
     "description": "A trusted partner for buyers and sellers!",
     "main": "index.js",
@@ -36,6 +36,7 @@
         "lodash": "^4.17.21",
         "luxon": "^1.26.0",
         "moment": "^2.29.1",
+        "mysql2": "^2.2.5",
         "needle": "^2.6.0",
         "node-cron": "^2.0.3",
         "passport": "^0.4.1",
@@ -47,20 +48,13 @@
         "request-ip": "^2.1.3",
         "sequelize": "^6.5.0",
         "sequelize-cli": "^6.2.0",
+        "stream-json": "^1.7.2",
         "twilio": "^3.66.0",
         "uuid": "^8.3.2",
         "zlib": "^1.0.5"
     },
     "devDependencies": {
         "cross-env": "^7.0.3",
-        "jest": "^26.6.3",
-        "nodemon": "^2.0.7",
-        "supertest": "^6.1.3"
-    },
-    "jest": {
-        "verbose": false,
-        "globalSetup": "./tests/global_setup.js",
-        "globalTeardown": "./tests/global_teardown.js",
-        "testTimeout": 120000
+        "nodemon": "^2.0.7"
     }
 }

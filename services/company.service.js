@@ -44,7 +44,7 @@ module.exports.search = async (filter) => {
         };
 
         if (filter.hasOwnProperty('name')) {
-            search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
+            search.where.name = { [Op.like]: '%' + filter.name + '%' };
         }
 
         if (filter.hasOwnProperty('contact_email')) {
@@ -241,19 +241,19 @@ module.exports.company_exists_with = async (phone, email, gstn = null, pan = nul
             }
         };
         if (phone) {
-            search.where.contact_number = { [Op.iLike]: '%' + phone + '%' };
+            search.where.contact_number = { [Op.like]: '%' + phone + '%' };
         }
         if (email) {
-            search.where.contact_email = { [Op.iLike]: '%' + email + '%' };
+            search.where.contact_email = { [Op.like]: '%' + email + '%' };
         }
         if (gstn) {
-            search.where.GSTN = { [Op.iLike]: '%' + gstn + '%' };
+            search.where.GSTN = { [Op.like]: '%' + gstn + '%' };
         }
         if (pan) {
-            search.where.PAN = { [Op.iLike]: '%' + pan + '%' };
+            search.where.PAN = { [Op.like]: '%' + pan + '%' };
         }
         if (tan) {
-            search.where.TAN = { [Op.iLike]: '%' + tan + '%' };
+            search.where.TAN = { [Op.like]: '%' + tan + '%' };
         }
         //console.log(search);
         var records = await Company.findAll(search);

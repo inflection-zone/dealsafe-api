@@ -1,10 +1,9 @@
 const payment_request_service = require('../services/payment_request.service');
 const helper = require('../common/helper');
 const response_handler = require('../common/response_handler');
-const logger = require('../common/logger');
 const authorization_handler = require('../common/authorization_handler');
 const { ApiError } = require('../common/api_error');
-const { query, body, oneOf, validationResult, param } = require('express-validator');
+const { query, body, validationResult, param } = require('express-validator');
 ////////////////////////////////////////////////////////////////////////
 
 exports.create = async (req, res) => {

@@ -1,10 +1,7 @@
 'use strict';
 
-const db = require('../database/connection');
 const PaymentRequest = require('../database/models/PaymentRequest').Model;
-const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
-const logger = require('../common/logger');
 
 module.exports.create = async (request_body) => {
     try {
@@ -25,7 +22,7 @@ module.exports.search = async (filter) => {
             }
         };
         // if (filter.hasOwnProperty('name')) {
-        //     search.where.name = { [Op.iLike]: '%' + filter.name + '%' };
+        //     search.where.name = { [Op.like]: '%' + filter.name + '%' };
         // }
         var records = await PaymentRequest.findAll(search);
         for (var record of records) {

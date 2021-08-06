@@ -77,7 +77,7 @@ module.exports.pending_tasks = async (filter) => {
             condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?)";
         }
 
-        let query = "SELECT id, display_id, name, description, is_full_payment_contract, buyer_company_id, buyer_contact_user_id, seller_company_id, seller_contact_user_id, created_date, creator_role, created_by_user_id, buyer_agreed_date, seller_agreed_date, DATE(execution_planned_start_date) as execution_planned_start_date, DATE(execution_planned_end_date) as execution_planned_end_date, execution_actual_start_date, execution_actual_end_date, base_contract_amount, tax_amount, buyer_brokerage_amount, seller_brokerage_amount, has_buyer_deposited_amount, has_seller_deposited_amount, current_status, is_cancelled, is_closed, arbitrator_user_id, is_active, deleted_at, created_at, updated_at FROM public.contracts " + condition;
+        let query = "SELECT id, display_id, name, description, is_full_payment_contract, buyer_company_id, buyer_contact_user_id, seller_company_id, seller_contact_user_id, created_date, creator_role, created_by_user_id, buyer_agreed_date, seller_agreed_date, DATE(execution_planned_start_date) as execution_planned_start_date, DATE(execution_planned_end_date) as execution_planned_end_date, execution_actual_start_date, execution_actual_end_date, base_contract_amount, tax_amount, buyer_brokerage_amount, seller_brokerage_amount, has_buyer_deposited_amount, has_seller_deposited_amount, current_status, is_cancelled, is_closed, arbitrator_user_id, is_active, deleted_at, created_at, updated_at FROM contracts " + condition;
         // console.log("query", query);
         // console.log("wherearray", whereArray);
         var records = await db.sequelize.query(
@@ -144,7 +144,7 @@ module.exports.pending_tasks = async (filter) => {
             whereArrayMilestone.push(filter.is_closed);
         }
 
-        query = "SELECT id  , display_id  , contract_id  , milestone_index  , name  , description  , created_date  , DATE(execution_planned_start_date) as execution_planned_start_date  , DATE(execution_planned_end_date) as execution_planned_end_date  , execution_actual_start_date  , execution_actual_end_date  , milestone_amount  , current_status  , is_cancelled  , is_closed  , transaction_id  , is_active  , deleted_at  , created_at  , updated_at FROM public.contract_milestones " + condition_milestone;
+        query = "SELECT id  , display_id  , contract_id  , milestone_index  , name  , description  , created_date  , DATE(execution_planned_start_date) as execution_planned_start_date  , DATE(execution_planned_end_date) as execution_planned_end_date  , execution_actual_start_date  , execution_actual_end_date  , milestone_amount  , current_status  , is_cancelled  , is_closed  , transaction_id  , is_active  , deleted_at  , created_at  , updated_at FROM contract_milestones " + condition_milestone;
 
         var milestone_records = await db.sequelize.query(
             query,
@@ -202,7 +202,7 @@ module.exports.pending_tasks_next = async (filter) => {
             condition = condition + " and (seller_contact_user_id = ? or buyer_contact_user_id = ?)";
         }
 
-        let query = "SELECT * FROM public.contracts " + condition;
+        let query = "SELECT * FROM contracts " + condition;
         console.log("query", query);
         console.log("wherearray", whereArray);
         var records = await db.sequelize.query(
@@ -248,7 +248,7 @@ module.exports.pending_tasks_next = async (filter) => {
             whereArrayMilestone.push(filter.is_closed);
         }
 
-        query = "SELECT * FROM public.contract_milestones " + condition_milestone;
+        query = "SELECT * FROM contract_milestones " + condition_milestone;
 
         var milestone_records = await db.sequelize.query(
             query,
@@ -335,7 +335,7 @@ module.exports.summary = async (filter) => {
             }
         }
 
-        let query = "SELECT creator_role, current_status, count(*) FROM public.contracts " + condition + " group by 1, 2";
+        let query = "SELECT creator_role, current_status, count(*) FROM contracts " + condition + " group by 1, 2";
 
         var records = await db.sequelize.query(
             query,
@@ -496,7 +496,7 @@ module.exports.search = async (filter) => {
                 condition = condition + " and current_status= ? ";
             }
         }
-        let query = "SELECT * FROM public.contracts " + condition;
+        let query = "SELECT * FROM contracts " + condition;
         // console.log("getcontractquery",query);
         // console.log("wherearray",whereArray);
         var records = await db.sequelize.query(
@@ -511,7 +511,7 @@ module.exports.search = async (filter) => {
             var companies = await Company.findAll({
                 where: {
                     is_active: true,
-                    name: { [Op.iLike]: "%" + filter.other_company_name + "%" },
+                    name: { [Op.like]: "%" + filter.other_company_name + "%" },
                     id: { [Op.not]: filter.current_user_company_id }
                 }
             });

@@ -107,7 +107,7 @@ module.exports.get_pincode_by_city = async (city_name) => {
         var entities = await CityPincode.findAll({
             where:{
                 city: {
-                    [Op.iLike]:'%' + city_name + '%'
+                    [Op.like]:'%' + city_name + '%'
                 }
             }
         });
@@ -123,7 +123,7 @@ module.exports.get_cities_by_state = async (state) => {
         var entities = await CityPincode.findAll({
             where:{
                 state: {
-                    [Op.iLike]:'%' + state + '%'
+                    [Op.like]:'%' + state + '%'
                 }
             }
         });

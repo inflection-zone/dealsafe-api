@@ -127,11 +127,11 @@ module.exports.bank_exists_with = async (account_number, bank_ifsc_code, account
         };
 
         if (account_number) {
-            search.where.account_number = { [Op.iLike]: '%' + account_number + '%' };
+            search.where.account_number = { [Op.like]: '%' + account_number + '%' };
         }
 
         if (bank_ifsc_code) {
-            search.where.bank_ifsc_code = { [Op.iLike]: '%' + bank_ifsc_code + '%' };
+            search.where.bank_ifsc_code = { [Op.like]: '%' + bank_ifsc_code + '%' };
         }
 
         if (account_type) {
