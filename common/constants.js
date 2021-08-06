@@ -110,3 +110,9 @@ module.exports.TransactionStatusTypes = {
         type_id: 6
     }
 };
+
+module.exports.AmountPercentage={
+    Tax_Percentage: 0.05, //5% percent tax amount
+    Buyer_Brokerage_Percentage: 0.02, //2% percent buyer brokerage
+    Seller_Brokerage_Percentage: 0.02, //2% percent seller brokerage
+}

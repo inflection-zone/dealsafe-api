@@ -6,6 +6,7 @@ const ContractChecklist = require('../database/models/ContractChecklist').Model;
 const User = require('../database/models/User').Model;
 const Company = require('../database/models/Company').Model;
 const ContractStatusTypes = require('../common/constants').ContractStatusTypes;
+const AmountPercentage = require('../common/constants').AmountPercentage;
 const ContractRoles = require('../common/constants').ContractRoles;
 const company_service = require('../services/company.service');
 const contract_milestone_service = require('../services/contract_milestone.service');
@@ -19,7 +20,9 @@ const { QueryTypes, where } = require('sequelize');
 
 module.exports.create = async (request_body) => {
     try {
+        console.log("request_body=", request_body)
         var entity = get_entity_to_save(request_body)
+        console.log("entity=", entity)
         var record = await Contract.create(entity);
         //user this contract id to create checklist
         var contract_checklist = create_contract_checklist(record);
@@ -31,17 +34,17 @@ module.exports.create = async (request_body) => {
 }
 
 module.exports.pending_tasks = async (filter) => {
-    try{
+    try {
         var whereArray = [];
         var whereArrayMilestone = [];
         var condition = 'where is_active=true ';
         var condition_milestone = 'where is_active=true ';
         var result = [];
-        var contract_ids_array=[];
-        var contract_ids="";
-        var contract_details=[];
+        var contract_ids_array = [];
+        var contract_ids = "";
+        var contract_details = [];
         var todays_date = new Date();
-        
+
         const tomorrow = new Date(todays_date)
         tomorrow.setDate(tomorrow.getDate() + 1)
         var dd = String(todays_date.getDate()).padStart(2, "0");
@@ -54,7 +57,7 @@ module.exports.pending_tasks = async (filter) => {
 
         todays_date = yyyy + "-" + mm + "-" + dd;
         //todays_date="2021-07-30"
-        var tomorrow_date = yyyy1 + "-"+ mm1 + "-" + dd1;
+        var tomorrow_date = yyyy1 + "-" + mm1 + "-" + dd1;
         //tomorrow_date="2021-07-31"
 
         if (filter.hasOwnProperty('my_role')) {
@@ -87,17 +90,17 @@ module.exports.pending_tasks = async (filter) => {
                 type: QueryTypes.SELECT
             }
         );
-        
+
         var contracts_with_near_due_date = records.filter(record => (record.execution_planned_end_date >= todays_date && record.execution_planned_end_date <= tomorrow_date));
         console.log("contracts_with_near_due_date=", contracts_with_near_due_date);
         for await (var r of records) {
             contract_ids_array.push(r.id);
-            contract_details[r.id]=r;
+            contract_details[r.id] = r;
         }
 
-        if(contract_ids_array.length>0) {
+        if (contract_ids_array.length > 0) {
             contract_ids = contract_ids_array.join("','");
-            condition_milestone = condition_milestone + "and contract_id in ('"+contract_ids+"')";
+            condition_milestone = condition_milestone + "and contract_id in ('" + contract_ids + "')";
         }
 
         if (filter.hasOwnProperty('execution_planned_start_date')) {
@@ -109,7 +112,7 @@ module.exports.pending_tasks = async (filter) => {
             condition_milestone = condition_milestone + "and execution_planned_end_date >= ? ";
             whereArrayMilestone.push(filter.execution_planned_end_date);
         }
-        
+
         // if (filter.hasOwnProperty('current_status')) {
         //     condition_milestone = condition_milestone + "and current_status = ? ";
         //     whereArrayMilestone.push(Number(filter.current_status));
@@ -156,14 +159,14 @@ module.exports.pending_tasks = async (filter) => {
         // console.log("contract_ids_array :", contract_ids_array);
         // console.log("milestone_records :", milestone_records);
         var milestones_with_near_due_date = milestone_records.filter(record => (record.execution_planned_end_date >= todays_date && record.execution_planned_end_date <= tomorrow_date));
-        var milestone_contract_ids_with_near_due_date = milestones_with_near_due_date.map(record => record.contract_id); 
+        var milestone_contract_ids_with_near_due_date = milestones_with_near_due_date.map(record => record.contract_id);
         // console.log("milestones_with_near_due_date=", milestones_with_near_due_date);
         // console.log("milestone_contract_ids_with_near_due_date=", milestone_contract_ids_with_near_due_date);
         let pending_contract_milestones = {};
         pending_contract_milestones['pending_contracts'] = contracts_with_near_due_date;
         pending_contract_milestones['pending_milestones'] = milestones_with_near_due_date;
-        return pending_contract_milestones;   
-    }    
+        return pending_contract_milestones;
+    }
     catch (error) {
         //logger.log(error.message);
         throw (error);
@@ -179,9 +182,9 @@ module.exports.pending_tasks_next = async (filter) => {
         var condition = 'where is_active=true ';
         var condition_milestone = 'where is_active=true ';
         var result = [];
-        var contract_ids_array=[];
-        var contract_ids="";
-        var contract_details=[];
+        var contract_ids_array = [];
+        var contract_ids = "";
+        var contract_details = [];
         if (filter.hasOwnProperty('my_role')) {
 
             if (filter.my_role === 'buyer') {
@@ -212,15 +215,15 @@ module.exports.pending_tasks_next = async (filter) => {
                 type: QueryTypes.SELECT
             }
         );
-        
+
         for await (var r of records) {
             contract_ids_array.push(r.id);
-            contract_details[r.id]=r;
+            contract_details[r.id] = r;
         }
 
-        if(contract_ids_array.length>0) {
+        if (contract_ids_array.length > 0) {
             contract_ids = contract_ids_array.join("','");
-            condition_milestone = condition_milestone + "and contract_id in ('"+contract_ids+"')";
+            condition_milestone = condition_milestone + "and contract_id in ('" + contract_ids + "')";
         }
 
         if (filter.hasOwnProperty('execution_planned_start_date')) {
@@ -232,7 +235,7 @@ module.exports.pending_tasks_next = async (filter) => {
             condition_milestone = condition_milestone + "and execution_planned_end_date >= ? ";
             whereArrayMilestone.push(filter.execution_planned_end_date);
         }
-        
+
         if (filter.hasOwnProperty('current_status')) {
             condition_milestone = condition_milestone + "and current_status = ? ";
             whereArrayMilestone.push(Number(filter.current_status));
@@ -259,11 +262,11 @@ module.exports.pending_tasks_next = async (filter) => {
         );
         console.log("contract_ids_array :", contract_ids_array);
         console.log("milestone_records :", milestone_records);
-    
-        for(var m=0;m<contract_ids_array.length;m++) {
-            var cmdetails={'contract_id':contract_ids_array[m],'contract_display_id': contract_details[contract_ids_array[m]].display_id,'execution_planned_end_date':contract_details[contract_ids_array[m]].execution_planned_end_date,'milestone_details':[]};
-            for(var row of milestone_records){
-                row.contract_display_id=contract_details[row.contract_id].display_id;
+
+        for (var m = 0; m < contract_ids_array.length; m++) {
+            var cmdetails = { 'contract_id': contract_ids_array[m], 'contract_display_id': contract_details[contract_ids_array[m]].display_id, 'execution_planned_end_date': contract_details[contract_ids_array[m]].execution_planned_end_date, 'milestone_details': [] };
+            for (var row of milestone_records) {
+                row.contract_display_id = contract_details[row.contract_id].display_id;
                 cmdetails.milestone_details.push(row);
             }
             result.push(cmdetails);
@@ -949,15 +952,24 @@ function create_contract_checklist(contract_details) {
     }
 
     check_list.contract_id = contract_details.id ? contract_details.id : null;
-    check_list.buyer_agreed = contract_details.buyer_agreed_date ? true : false;
-    check_list.seller_agreed = contract_details.seller_agreed_date ? true : false;
-    check_list.buyer_paid_escrow_amount = contract_details.base_contract_amount ? true : false;
-    check_list.buyer_paid_brokerage = contract_details.buyer_brokerage_amount ? true : false;
-    check_list.seller_paid_brokerage = contract_details.seller_brokerage_amount ? true : false;
-    check_list.execution_started = contract_details.execution_actual_start_date ? true : false;
-    check_list.execution_ended = contract_details.execution_actual_end_date ? true : false;
-    check_list.full_payment_released = contract_details.is_full_payment_contract ? true : false;
-    check_list.Closed = contract_details.is_closed ? true : false;
+    // check_list.buyer_agreed = contract_details.buyer_agreed_date ? true : false;
+    // check_list.seller_agreed = contract_details.seller_agreed_date ? true : false;
+    // check_list.buyer_paid_escrow_amount = contract_details.base_contract_amount ? true : false;
+    // check_list.buyer_paid_brokerage = contract_details.buyer_brokerage_amount ? true : false;
+    // check_list.seller_paid_brokerage = contract_details.seller_brokerage_amount ? true : false;
+    // check_list.execution_started = contract_details.execution_actual_start_date ? true : false;
+    // check_list.execution_ended = contract_details.execution_actual_end_date ? true : false;
+    // check_list.full_payment_released = contract_details.is_full_payment_contract ? true : false;
+    // check_list.Closed = contract_details.is_closed ? true : false;
+    check_list.buyer_agreed = false;
+    check_list.seller_agreed = false;
+    check_list.buyer_paid_escrow_amount = false;
+    check_list.buyer_paid_brokerage = false;
+    check_list.seller_paid_brokerage = false;
+    check_list.execution_started = false;
+    check_list.execution_ended = false;
+    check_list.full_payment_released = false;
+    check_list.Closed = false;
 
     return check_list;
 }
@@ -990,14 +1002,17 @@ function get_entity_to_save(entity) {
         execution_planned_start_date: entity.execution_planned_start_date ? entity.execution_planned_start_date : null,
         execution_planned_end_date: entity.execution_planned_end_date ? entity.execution_planned_end_date : null,
 
-        base_contract_amount: entity.base_contract_amount ? entity.base_contract_amount : null,
-
+        base_contract_amount: entity.base_contract_amount ? entity.base_contract_amount : 0,
+        tax_amount: entity.base_contract_amount ? entity.base_contract_amount * AmountPercentage.Tax_Percentage : 0,
+        buyer_brokerage_amount: entity.base_contract_amount ? entity.base_contract_amount * AmountPercentage.Buyer_Brokerage_Percentage : 0,
+        seller_brokerage_amount: entity.base_contract_amount ? entity.base_contract_amount * AmountPercentage.Seller_Brokerage_Percentage : 0,
         current_status: ContractStatusTypes.Created.type_id,
     };
 }
 
 function get_updates(request_body) {
     let updates = {};
+    console.log("request_body = ", request_body)
     if (request_body.hasOwnProperty('name')) {
         updates.name = request_body.name;
     }
@@ -1044,16 +1059,19 @@ function get_updates(request_body) {
     }
     if (request_body.hasOwnProperty('base_contract_amount')) {
         updates.base_contract_amount = request_body.base_contract_amount;
+        updates.tax_amount = request_body.base_contract_amount * AmountPercentage.Tax_Percentage;
+        updates.buyer_brokerage_amount = request_body.base_contract_amount * AmountPercentage.Buyer_Brokerage_Percentage;
+        updates.seller_brokerage_amount = request_body.base_contract_amount * AmountPercentage.Seller_Brokerage_Percentage;
     }
-    if (request_body.hasOwnProperty('tax_amount')) {
-        updates.tax_amount = request_body.tax_amount;
-    }
-    if (request_body.hasOwnProperty('buyer_brokerage_amount')) {
-        updates.buyer_brokerage_amount = request_body.buyer_brokerage_amount;
-    }
-    if (request_body.hasOwnProperty('seller_brokerage_amount')) {
-        updates.seller_brokerage_amount = request_body.seller_brokerage_amount;
-    }
+    // if (request_body.hasOwnProperty('tax_amount')) {
+    //     updates.tax_amount = request_body.tax_amount;
+    // }
+    // if (request_body.hasOwnProperty('buyer_brokerage_amount')) {
+    //     updates.buyer_brokerage_amount = request_body.buyer_brokerage_amount;
+    // }
+    // if (request_body.hasOwnProperty('seller_brokerage_amount')) {
+    //     updates.seller_brokerage_amount = request_body.seller_brokerage_amount;
+    // }
     if (request_body.hasOwnProperty('has_buyer_deposited_amount')) {
         updates.has_buyer_deposited_amount = request_body.has_buyer_deposited_amount;
     }
@@ -1093,7 +1111,7 @@ async function get_object_to_send(record) {
         description: record.description ? record.description : null,
         creator_role: record.creator_role ? record.creator_role : null,
 
-        is_full_payment_contract: record.is_full_payment_contract ? record.is_full_payment_contract : null,
+        is_full_payment_contract: record.is_full_payment_contract ? record.is_full_payment_contract : false,
 
         buyer_company_id: record.buyer_company_id ? record.buyer_company_id : null,
         buyer_contact_user_id: record.buyer_contact_user_id ? record.buyer_contact_user_id : null,
@@ -1115,15 +1133,15 @@ async function get_object_to_send(record) {
         tax_amount: record.tax_amount ? record.tax_amount : null,
         buyer_brokerage_amount: record.buyer_brokerage_amount ? record.buyer_brokerage_amount : null,
         seller_brokerage_amount: record.seller_brokerage_amount ? record.seller_brokerage_amount : null,
-        has_buyer_deposited_amount: record.has_buyer_deposited_amount ? record.has_buyer_deposited_amount : null,
-        has_seller_deposited_amount: record.has_seller_deposited_amount ? record.has_seller_deposited_amount : null,
+        has_buyer_deposited_amount: record.has_buyer_deposited_amount ? record.has_buyer_deposited_amount : false,
+        has_seller_deposited_amount: record.has_seller_deposited_amount ? record.has_seller_deposited_amount : false,
 
         current_status: record.current_status ? record.current_status : null,
 
-        is_cancelled: record.is_cancelled ? record.is_cancelled : null,
-        is_closed: record.is_closed ? record.is_closed : null,
+        is_cancelled: record.is_cancelled ? record.is_cancelled : false,
+        is_closed: record.is_closed ? record.is_closed : false,
 
-        created_by: record.created_by ? record.created_by : null,
+        //created_by: record.created_by ? record.created_by : null,
         arbitrator_user_id: record.arbitrator_user_id ? record.arbitrator_user_id : null,
 
         contract_checklist: checklist ? checklist : null
