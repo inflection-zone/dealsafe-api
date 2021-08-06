@@ -6,11 +6,18 @@ const helper = require('../common/helper');
 const { ApiError } = require('../common/api_error');
 const logger = require('../common/logger');
 const Op = require('sequelize').Op;
+const payment_service = require('../thirdparty/payment_service');
+const constants = require('../common/constants');
 
 //////////////////////////////////////////////////////////////////////////////////////
 
 module.exports.create = async (request_body) => {
     try {
+        var transaction = payment_service.queue_transaction(request_body);
+        
+        request_body.transaction_reference_id = transaction.id;
+        request_body.transaction_status = constants.TransactionStatusTypes.Queued.type_id;
+
         var entity = get_entity_to_save(request_body)
         var record = await Transaction.create(entity);
         return get_object_to_send(record);
